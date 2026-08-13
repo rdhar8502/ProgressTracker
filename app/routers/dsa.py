@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -19,7 +19,7 @@ STATUSES = ["Not Started", "In Progress", "Solved", "Needs Review"]
 @router.get("", response_class=HTMLResponse)
 def dsa_page(
     request: Request,
-    topic_id: Optional[int] = None,
+    topic_id: Optional[str] = None,
     difficulty: Optional[str] = None,
     status: Optional[str] = None,
     db: Session = Depends(get_db),
@@ -27,9 +27,21 @@ def dsa_page(
     user = db.query(UserProfile).first()
     topics = db.query(DSATopic).order_by(DSATopic.order_index).all()
 
+    # Safely convert topic_id to int if present and not empty
+    parsed_topic_id = None
+    if topic_id and topic_id.strip():
+        try:
+            parsed_topic_id = int(topic_id)
+        except ValueError:
+            pass
+
+    # Normalize empty strings to None
+    difficulty = difficulty if (difficulty and difficulty.strip()) else None
+    status = status if (status and status.strip()) else None
+
     query = db.query(DSAProblem)
-    if topic_id:
-        query = query.filter(DSAProblem.topic_id == topic_id)
+    if parsed_topic_id:
+        query = query.filter(DSAProblem.topics.any(id=parsed_topic_id))
     if difficulty:
         query = query.filter(DSAProblem.difficulty == difficulty)
     if status:
@@ -64,7 +76,7 @@ def dsa_page(
         "problems": problems,
         "difficulties": DIFFICULTIES,
         "statuses": STATUSES,
-        "selected_topic_id": topic_id,
+        "selected_topic_id": parsed_topic_id,
         "selected_difficulty": difficulty,
         "selected_status": status,
         "total": total,
@@ -78,7 +90,7 @@ def dsa_page(
 
 @router.post("/add")
 def add_problem(
-    topic_id: int = Form(...),
+    topic_ids: List[int] = Form(...),
     title: str = Form(...),
     difficulty: str = Form(...),
     status: str = Form("Not Started"),
@@ -88,11 +100,18 @@ def add_problem(
     space_complexity: str = Form(""),
     solution_snippet: str = Form(""),
     confidence: int = Form(3),
-    leetcode_url: str = Form(""),
+    problem_url: str = Form(""),
     db: Session = Depends(get_db),
 ):
+    if title.startswith("http://") or title.startswith("https://"):
+        if not problem_url:
+            problem_url = title
+        from app.models.dsa import clean_title_from_url
+        title = clean_title_from_url(title)
+
+    topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
+
     p = DSAProblem(
-        topic_id=topic_id,
         title=title,
         difficulty=difficulty,
         status=status,
@@ -102,8 +121,9 @@ def add_problem(
         space_complexity=space_complexity,
         solution_snippet=solution_snippet,
         confidence=confidence,
-        leetcode_url=leetcode_url,
+        problem_url=problem_url,
         solved_date=date.today() if status == "Solved" else None,
+        topics=topics,
     )
     db.add(p)
     db.commit()
@@ -120,11 +140,16 @@ def update_problem(
     space_complexity: str = Form(""),
     solution_snippet: str = Form(""),
     confidence: int = Form(3),
+    topic_ids: List[int] = Form(...),
     db: Session = Depends(get_db),
 ):
     p = db.query(DSAProblem).filter(DSAProblem.id == problem_id).first()
     if not p:
         raise HTTPException(status_code=404)
+    
+    topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
+    p.topics = topics
+
     p.status = status
     p.pattern = pattern
     p.mistake = mistake

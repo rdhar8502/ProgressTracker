@@ -18,13 +18,11 @@ def generate_weeks(start_date: date, end_date: date) -> List[Tuple[int, date, da
     """
     Generate (week_number, week_start_sunday, week_end_saturday) tuples
     from start_date to end_date (inclusive).
-    Week 1 begins on the first Sunday >= start_date.
+    Week 1 begins on the Sunday of the week containing start_date.
     Week starts on Sunday, ends on Saturday.
     """
-    # Find first Sunday >= start_date
+    # Find Sunday of the week containing start_date
     first_sunday = get_week_start(start_date)
-    if first_sunday < start_date:
-        first_sunday += timedelta(days=7)
 
     weeks = []
     week_number = 1

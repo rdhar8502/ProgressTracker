@@ -234,8 +234,14 @@ def seed_database(db: Session):
             ))
 
     # --- Weekly Schedule ---
-    if not db.query(WeeklySchedule).first():
-        weeks = generate_weeks(START_DATE, END_DATE)
+    weeks = generate_weeks(START_DATE, END_DATE)
+    existing_weeks = db.query(WeeklySchedule).order_by(WeeklySchedule.week_number).all()
+
+    if not existing_weeks or len(existing_weeks) != len(weeks) or existing_weeks[0].week_start != weeks[0][1]:
+        # Delete existing weekly schedules and re-create them
+        db.query(WeeklySchedule).delete()
+        db.commit()
+
         user = db.query(UserProfile).first()
         wkday = user.weekday_target_hours if user else 1.5
         sat = user.saturday_target_hours if user else 4.0
