@@ -38,7 +38,8 @@
       {% for t in topic_stats %}
       <div style="margin-bottom: 12px;">
         <div class="flex justify-between items-center" style="margin-bottom: 4px;">
-          <a href="/dsa?topic_id={{ t.id }}" style="font-size: 12px; font-weight: 600; color: var(--text-primary); text-decoration: none;">
+          <a href="/dsa?topic_id={{ t.id }}"
+            style="font-size: 12px; font-weight: 600; color: var(--text-primary); text-decoration: none;">
             {{ loop.index }}. {{ t.name }}
           </a>
           <span style="font-size: 11px; color: var(--text-muted);">{{ t.solved }}/{{ t.total }}</span>
@@ -57,16 +58,19 @@
       <span class="card-title">Add Problem</span>
     </div>
     <div class="card-body no-top">
-      <form method="post" action="/dsa/add">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Topic *</label>
-            <select name="topic_id" class="form-select" required>
-              {% for t in topics %}
-              <option value="{{ t.id }}">{{ t.name }}</option>
-              {% endfor %}
-            </select>
+      <form method="post" action="/dsa/add" id="addProblemForm">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Topics *</label>
+          <div class="topics-chips-container">
+            {% for t in topics %}
+            <label class="topic-chip">
+              <input type="checkbox" name="topic_ids" value="{{ t.id }}">
+              <span>{{ t.name }}</span>
+            </label>
+            {% endfor %}
           </div>
+        </div>
+        <div class="form-row">
           <div class="form-group">
             <label class="form-label">Difficulty *</label>
             <select name="difficulty" class="form-select">
@@ -116,11 +120,13 @@
         </div>
         <div class="form-group">
           <label class="form-label">Mistakes / Notes</label>
-          <textarea name="mistake" class="form-textarea" style="min-height: 60px;" placeholder="What went wrong? What to remember?"></textarea>
+          <textarea name="mistake" class="form-textarea" style="min-height: 60px;"
+            placeholder="What went wrong? What to remember?"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">LeetCode URL</label>
-          <input type="url" name="leetcode_url" class="form-input" placeholder="https://leetcode.com/problems/...">
+          <label class="form-label">Problem URL</label>
+          <input type="url" name="problem_url" class="form-input"
+            placeholder="e.g., https://leetcode.com/problems/... or https://www.geeksforgeeks.org/problems/...">
         </div>
         <button type="submit" class="btn btn-primary w-full">Add Problem</button>
       </form>
@@ -137,19 +143,19 @@
         <select name="topic_id" class="form-select" style="width: 160px;" onchange="this.form.submit()">
           <option value="">All Topics</option>
           {% for t in topics %}
-          <option value="{{ t.id }}" {% if selected_topic_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+          <option value="{{ t.id }}" {% if selected_topic_id==t.id %}selected{% endif %}>{{ t.name }}</option>
           {% endfor %}
         </select>
         <select name="difficulty" class="form-select" style="width: 100px;" onchange="this.form.submit()">
           <option value="">All</option>
           {% for d in difficulties %}
-          <option value="{{ d }}" {% if selected_difficulty == d %}selected{% endif %}>{{ d }}</option>
+          <option value="{{ d }}" {% if selected_difficulty==d %}selected{% endif %}>{{ d }}</option>
           {% endfor %}
         </select>
         <select name="status" class="form-select" style="width: 130px;" onchange="this.form.submit()">
           <option value="">All Status</option>
           {% for s in statuses %}
-          <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+          <option value="{{ s }}" {% if selected_status==s %}selected{% endif %}>{{ s }}</option>
           {% endfor %}
         </select>
         {% if selected_topic_id or selected_difficulty or selected_status %}
@@ -181,20 +187,35 @@
           <tr>
             <td class="text-muted text-sm">{{ loop.index }}</td>
             <td style="font-weight: 600;">
-              {% if p.leetcode_url %}
-              <a href="{{ p.leetcode_url }}" target="_blank" style="color: var(--accent);">{{ p.title }}</a>
+              {% if p.problem_url %}
+              <div style="display: inline-flex; align-items: center; gap: 8px;">
+                <a href="{{ p.problem_url }}" target="_blank" style="color: var(--accent);">{{ p.clean_title }}</a>
+                <span class="badge {{ p.source_site_badge_class }}" style="font-size: 9px; padding: 1px 6px;">{{
+                  p.source_site }}</span>
+              </div>
               {% else %}
-              {{ p.title }}
+              {{ p.clean_title }}
               {% endif %}
             </td>
-            <td class="text-sm text-muted">{{ p.topic_rel.name if p.topic_rel else '—' }}</td>
+            <td class="text-sm">
+              <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                {% for topic in p.topics %}
+                <span class="badge"
+                  style="font-size: 11px; padding: 2px 6px; font-weight: 500; background: var(--border-light); border: 1px solid var(--border); color: var(--text-secondary);">{{
+                  topic.name }}</span>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endfor %}
+              </div>
+            </td>
             <td>
               <span class="badge diff-{{ p.difficulty.lower() }}">{{ p.difficulty }}</span>
             </td>
             <td>
               <span class="badge status-{{ p.status.lower().replace(' ', '-') }}">{{ p.status }}</span>
             </td>
-            <td class="text-sm" style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <td class="text-sm"
+              style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               {{ p.pattern or '—' }}
             </td>
             <td class="text-sm text-muted">{{ p.time_complexity or '—' }}</td>
@@ -208,9 +229,24 @@
             <td class="text-sm text-muted">{{ p.solved_date.strftime('%b %d') if p.solved_date else '—' }}</td>
             <td>
               <div class="flex gap-1">
-                <button class="btn btn-ghost btn-sm btn-icon" onclick="openUpdateModal({{ p.id }}, '{{ p.status }}', `{{ p.pattern | replace('`', '') }}`, `{{ p.mistake | replace('`', '') }}`, '{{ p.time_complexity }}', '{{ p.space_complexity }}', {{ p.confidence }})" title="Edit">✏️</button>
+                <button class="btn btn-ghost btn-sm btn-icon view-code-btn"
+                  data-title="{{ p.clean_title }}"
+                  data-solution="{{ p.solution_snippet }}"
+                  title="View Solution">👁️</button>
+                <button class="btn btn-ghost btn-sm btn-icon edit-problem-btn"
+                  data-id="{{ p.id }}"
+                  data-status="{{ p.status }}"
+                  data-pattern="{{ p.pattern }}"
+                  data-mistake="{{ p.mistake }}"
+                  data-time-complexity="{{ p.time_complexity }}"
+                  data-space-complexity="{{ p.space_complexity }}"
+                  data-confidence="{{ p.confidence }}"
+                  data-solution="{{ p.solution_snippet }}"
+                  data-topic-ids="{{ p.topics | map(attribute='id') | join(',') }}"
+                  title="Edit">✏️</button>
                 <form method="post" action="/dsa/delete/{{ p.id }}" style="display: inline;">
-                  <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete?')" title="Delete">🗑</button>
+                  <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete?')"
+                    title="Delete">🗑</button>
                 </form>
               </div>
             </td>
@@ -238,6 +274,17 @@
     </div>
     <div class="modal-body">
       <form method="post" id="updateForm" action="/dsa/update/0">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Topics *</label>
+          <div class="topics-chips-container">
+            {% for t in topics %}
+            <label class="topic-chip">
+              <input type="checkbox" name="topic_ids" value="{{ t.id }}">
+              <span>{{ t.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Status</label>
@@ -278,7 +325,8 @@
         </div>
         <div class="form-group">
           <label class="form-label">Python Solution Snippet</label>
-          <textarea name="solution_snippet" class="form-textarea" id="uSolution" style="font-family: monospace; font-size: 12px;" placeholder="def solution(...)&#10;    ..."></textarea>
+          <textarea name="solution_snippet" class="form-textarea" id="uSolution"
+            style="font-family: monospace; font-size: 12px;" placeholder="def solution(...)&#10;    ..."></textarea>
         </div>
         <div class="flex gap-3 justify-between">
           <button type="button" class="btn btn-secondary" onclick="closeModal('updateModal')">Cancel</button>
@@ -288,19 +336,106 @@
     </div>
   </div>
 </div>
+
+<!-- Code View Modal -->
+<div class="modal-overlay" id="codeModal">
+  <div class="modal" style="max-width: 700px; width: 90%;">
+    <div class="modal-header">
+      <span class="modal-title" id="codeModalTitle">Solution Snippet</span>
+      <button class="modal-close" onclick="closeModal('codeModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre
+        style="background: var(--bg-secondary); padding: 16px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 13px; color: var(--text-primary); margin-bottom: 20px; border: 1px solid var(--border); text-align: left; white-space: pre-wrap;"
+        id="codeSnippetContent"></pre>
+      <div class="flex justify-end">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('codeModal')">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-function openUpdateModal(id, status, pattern, mistake, timeC, spaceC, confidence) {
-  document.getElementById('updateForm').action = '/dsa/update/' + id;
-  document.getElementById('uStatus').value = status;
-  document.getElementById('uPattern').value = pattern;
-  document.getElementById('uMistake').value = mistake;
-  document.getElementById('uTimeComplexity').value = timeC;
-  document.getElementById('uSpaceComplexity').value = spaceC;
-  document.getElementById('uConfidence').value = confidence;
-  openModal('updateModal');
-}
+  function openUpdateModal(id, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds) {
+    document.getElementById('updateForm').action = '/dsa/update/' + id;
+    document.getElementById('uStatus').value = status;
+    document.getElementById('uPattern').value = pattern;
+    document.getElementById('uMistake').value = mistake;
+    document.getElementById('uTimeComplexity').value = timeC;
+    document.getElementById('uSpaceComplexity').value = spaceC;
+    document.getElementById('uConfidence').value = confidence;
+    document.getElementById('uSolution').value = solution || '';
+
+    const checkboxes = document.querySelectorAll('#updateModal input[name="topic_ids"]');
+    checkboxes.forEach(cb => {
+      cb.checked = topicIds && topicIds.includes(parseInt(cb.value));
+    });
+
+    openModal('updateModal');
+  }
+
+  function openCodeModal(title, snippet) {
+    document.getElementById('codeModalTitle').textContent = 'Solution: ' + title;
+    const contentEl = document.getElementById('codeSnippetContent');
+    if (snippet && snippet.trim() !== '') {
+      contentEl.textContent = snippet;
+    } else {
+      contentEl.textContent = 'No solution snippet provided for this problem yet.';
+    }
+    openModal('codeModal');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Wire up edit buttons using data attributes
+    document.querySelectorAll('.edit-problem-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const id = this.getAttribute('data-id');
+        const status = this.getAttribute('data-status');
+        const pattern = this.getAttribute('data-pattern');
+        const mistake = this.getAttribute('data-mistake');
+        const timeC = this.getAttribute('data-time-complexity');
+        const spaceC = this.getAttribute('data-space-complexity');
+        const confidence = parseInt(this.getAttribute('data-confidence')) || 3;
+        const solution = this.getAttribute('data-solution');
+        const topicIdsStr = this.getAttribute('data-topic-ids');
+        const topicIds = topicIdsStr ? topicIdsStr.split(',').map(x => parseInt(x)) : [];
+
+        openUpdateModal(id, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds);
+      });
+    });
+
+    // Wire up view code buttons using data attributes
+    document.querySelectorAll('.view-code-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const title = this.getAttribute('data-title');
+        const solution = this.getAttribute('data-solution');
+        openCodeModal(title, solution);
+      });
+    });
+
+    const addForm = document.getElementById('addProblemForm');
+    if (addForm) {
+      addForm.addEventListener('submit', function (e) {
+        const checked = addForm.querySelectorAll('input[name="topic_ids"]:checked');
+        if (checked.length === 0) {
+          e.preventDefault();
+          alert('Please select at least one topic.');
+        }
+      });
+    }
+
+    const updateForm = document.getElementById('updateForm');
+    if (updateForm) {
+      updateForm.addEventListener('submit', function (e) {
+        const checked = updateForm.querySelectorAll('input[name="topic_ids"]:checked');
+        if (checked.length === 0) {
+          e.preventDefault();
+          alert('Please select at least one topic.');
+        }
+      });
+    }
+  });
 </script>
 {% endblock %}
