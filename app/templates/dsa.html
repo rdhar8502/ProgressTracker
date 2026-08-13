@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}DSA Tracker{% endblock %}
+{% block page_title %}DSA Tracker{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+  <div class="stat-card purple">
+    <span class="stat-icon">💻</span>
+    <div class="stat-label">Total Solved</div>
+    <div class="stat-value">{{ solved }}</div>
+    <div class="stat-sub">of 250 target ({{ [(solved / 250 * 100), 100] | min | int }}%)</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Easy</div>
+    <div class="stat-value">{{ easy_solved }}</div>
+    <div class="stat-sub">of 60 target</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Medium</div>
+    <div class="stat-value">{{ medium_solved }}</div>
+    <div class="stat-sub">of 150 target</div>
+  </div>
+  <div class="stat-card rose">
+    <div class="stat-label">Hard</div>
+    <div class="stat-value">{{ hard_solved }}</div>
+    <div class="stat-sub">of 40 target</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom: 24px;">
+  <!-- Topic Progress -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Topic Progress</span>
+    </div>
+    <div class="card-body no-top" style="max-height: 600px; overflow-y: auto;">
+      {% for t in topic_stats %}
+      <div style="margin-bottom: 12px;">
+        <div class="flex justify-between items-center" style="margin-bottom: 4px;">
+          <a href="/dsa?topic_id={{ t.id }}" style="font-size: 12px; font-weight: 600; color: var(--text-primary); text-decoration: none;">
+            {{ loop.index }}. {{ t.name }}
+          </a>
+          <span style="font-size: 11px; color: var(--text-muted);">{{ t.solved }}/{{ t.total }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ t.pct }}%;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Add Problem Form -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Add Problem</span>
+    </div>
+    <div class="card-body no-top">
+      <form method="post" action="/dsa/add">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Topic *</label>
+            <select name="topic_id" class="form-select" required>
+              {% for t in topics %}
+              <option value="{{ t.id }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Difficulty *</label>
+            <select name="difficulty" class="form-select">
+              {% for d in difficulties %}
+              <option value="{{ d }}">{{ d }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Problem Title *</label>
+          <input type="text" name="title" class="form-input" placeholder="e.g. Two Sum" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              {% for s in statuses %}
+              <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confidence (1–5)</label>
+            <select name="confidence" class="form-select">
+              <option value="1">1 — Struggled</option>
+              <option value="2">2 — Partial</option>
+              <option value="3" selected>3 — OK</option>
+              <option value="4">4 — Good</option>
+              <option value="5">5 — Nailed it</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Time Complexity</label>
+            <input type="text" name="time_complexity" class="form-input" placeholder="O(n)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Space Complexity</label>
+            <input type="text" name="space_complexity" class="form-input" placeholder="O(1)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pattern Identified</label>
+          <input type="text" name="pattern" class="form-input" placeholder="e.g. Sliding window, HashMap lookup">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mistakes / Notes</label>
+          <textarea name="mistake" class="form-textarea" style="min-height: 60px;" placeholder="What went wrong? What to remember?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">LeetCode URL</label>
+          <input type="url" name="leetcode_url" class="form-input" placeholder="https://leetcode.com/problems/...">
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Add Problem</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Filter + Problems Table -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Problems ({{ problems | length }})</span>
+    <div class="flex gap-2">
+      <form method="get" action="/dsa" class="flex gap-2 items-center">
+        <select name="topic_id" class="form-select" style="width: 160px;" onchange="this.form.submit()">
+          <option value="">All Topics</option>
+          {% for t in topics %}
+          <option value="{{ t.id }}" {% if selected_topic_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="difficulty" class="form-select" style="width: 100px;" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for d in difficulties %}
+          <option value="{{ d }}" {% if selected_difficulty == d %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+        <select name="status" class="form-select" style="width: 130px;" onchange="this.form.submit()">
+          <option value="">All Status</option>
+          {% for s in statuses %}
+          <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        {% if selected_topic_id or selected_difficulty or selected_status %}
+        <a href="/dsa" class="btn btn-ghost btn-sm">Clear</a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+  <div class="card-body no-top">
+    {% if problems %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Topic</th>
+            <th>Difficulty</th>
+            <th>Status</th>
+            <th>Pattern</th>
+            <th>Time</th>
+            <th>Confidence</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in problems %}
+          <tr>
+            <td class="text-muted text-sm">{{ loop.index }}</td>
+            <td style="font-weight: 600;">
+              {% if p.leetcode_url %}
+              <a href="{{ p.leetcode_url }}" target="_blank" style="color: var(--accent);">{{ p.title }}</a>
+              {% else %}
+              {{ p.title }}
+              {% endif %}
+            </td>
+            <td class="text-sm text-muted">{{ p.topic_rel.name if p.topic_rel else '—' }}</td>
+            <td>
+              <span class="badge diff-{{ p.difficulty.lower() }}">{{ p.difficulty }}</span>
+            </td>
+            <td>
+              <span class="badge status-{{ p.status.lower().replace(' ', '-') }}">{{ p.status }}</span>
+            </td>
+            <td class="text-sm" style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              {{ p.pattern or '—' }}
+            </td>
+            <td class="text-sm text-muted">{{ p.time_complexity or '—' }}</td>
+            <td>
+              <div class="stars">
+                {% for i in range(1, 6) %}
+                <span class="star {% if i <= p.confidence %}filled{% endif %}">★</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td class="text-sm text-muted">{{ p.solved_date.strftime('%b %d') if p.solved_date else '—' }}</td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-ghost btn-sm btn-icon" onclick="openUpdateModal({{ p.id }}, '{{ p.status }}', `{{ p.pattern | replace('`', '') }}`, `{{ p.mistake | replace('`', '') }}`, '{{ p.time_complexity }}', '{{ p.space_complexity }}', {{ p.confidence }})" title="Edit">✏️</button>
+                <form method="post" action="/dsa/delete/{{ p.id }}" style="display: inline;">
+                  <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete?')" title="Delete">🗑</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">💻</div>
+      <div class="empty-title">No problems yet</div>
+      <div class="empty-desc">Add your first problem using the form above.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Update Modal -->
+<div class="modal-overlay" id="updateModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Update Problem</span>
+      <button class="modal-close" onclick="closeModal('updateModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="updateForm" action="/dsa/update/0">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" id="uStatus">
+              {% for s in statuses %}
+              <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confidence</label>
+            <select name="confidence" class="form-select" id="uConfidence">
+              <option value="1">1 — Struggled</option>
+              <option value="2">2 — Partial</option>
+              <option value="3">3 — OK</option>
+              <option value="4">4 — Good</option>
+              <option value="5">5 — Nailed it</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Time Complexity</label>
+            <input type="text" name="time_complexity" class="form-input" id="uTimeComplexity">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Space Complexity</label>
+            <input type="text" name="space_complexity" class="form-input" id="uSpaceComplexity">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pattern</label>
+          <input type="text" name="pattern" class="form-input" id="uPattern">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mistakes / Notes</label>
+          <textarea name="mistake" class="form-textarea" id="uMistake"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Python Solution Snippet</label>
+          <textarea name="solution_snippet" class="form-textarea" id="uSolution" style="font-family: monospace; font-size: 12px;" placeholder="def solution(...)&#10;    ..."></textarea>
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('updateModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openUpdateModal(id, status, pattern, mistake, timeC, spaceC, confidence) {
+  document.getElementById('updateForm').action = '/dsa/update/' + id;
+  document.getElementById('uStatus').value = status;
+  document.getElementById('uPattern').value = pattern;
+  document.getElementById('uMistake').value = mistake;
+  document.getElementById('uTimeComplexity').value = timeC;
+  document.getElementById('uSpaceComplexity').value = spaceC;
+  document.getElementById('uConfidence').value = confidence;
+  openModal('updateModal');
+}
+</script>
+{% endblock %}

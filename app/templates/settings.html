@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+{% if request.query_params.get('saved') %}
+<div class="alert alert-success mb-4">✅ Settings saved successfully!</div>
+{% endif %}
+
+{% if user %}
+<div class="grid-2">
+  <!-- Profile Settings -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">👤 Profile</span>
+    </div>
+    <div class="card-body no-top">
+      <form method="post" action="/settings/profile">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-input" value="{{ user.name }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Role</label>
+          <input type="text" name="target_role" class="form-input" value="{{ user.target_role }}">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Current Company</label>
+            <input type="text" name="current_company" class="form-input" value="{{ user.current_company or '' }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Years of Experience</label>
+            <input type="number" name="years_experience" class="form-input" value="{{ user.years_experience }}" min="0" max="40">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prep Start Date</label>
+            <input type="date" name="start_date" class="form-input" value="{{ user.start_date }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target End Date</label>
+            <input type="date" name="end_date" class="form-input" value="{{ user.end_date }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">LinkedIn URL</label>
+          <input type="url" name="linkedin_url" class="form-input" value="{{ user.linkedin_url or '' }}" placeholder="https://linkedin.com/in/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GitHub URL</label>
+          <input type="url" name="github_url" class="form-input" value="{{ user.github_url or '' }}" placeholder="https://github.com/...">
+        </div>
+        <hr class="divider">
+        <div class="section-title" style="font-size: 13px;">⏱️ Daily Study Targets</div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Weekday (hrs/day)</label>
+            <input type="number" name="weekday_target_hours" class="form-input" value="{{ user.weekday_target_hours }}" step="0.25" min="0.5" max="8">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Saturday (hrs)</label>
+            <input type="number" name="saturday_target_hours" class="form-input" value="{{ user.saturday_target_hours }}" step="0.5" min="0" max="12">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sunday (hrs)</label>
+            <input type="number" name="sunday_target_hours" class="form-input" value="{{ user.sunday_target_hours }}" step="0.5" min="0" max="12">
+          </div>
+        </div>
+        <div class="alert alert-info" style="font-size: 12px;">
+          📊 Weekly target: <strong>{{ (user.weekday_target_hours * 5 + user.saturday_target_hours + user.sunday_target_hours) | round(1) }}h</strong>
+          ({{ user.weekday_target_hours }}h × 5 weekdays + {{ user.saturday_target_hours }}h Sat + {{ user.sunday_target_hours }}h Sun)
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Save Profile</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Salary Targets + Info -->
+  <div>
+    <div class="card mb-4">
+      <div class="card-header">
+        <span class="card-title">💰 Salary Targets by Region</span>
+      </div>
+      <div class="card-body no-top">
+        {% for st in salary_targets %}
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-light);">
+          <div class="flex justify-between items-center">
+            <div>
+              <div style="font-size: 13px; font-weight: 600;">{{ st.region }}</div>
+              <div class="text-sm text-muted">{{ st.currency }}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 14px; font-weight: 700; color: var(--accent);">
+                {{ st.currency }} {{ (st.salary_min / 1000) | int }}k — {{ (st.salary_max / 1000) | int }}k
+              </div>
+              <div class="text-sm text-muted">per {{ st.salary_unit }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        <div class="alert alert-warning mt-3" style="font-size: 12px;">
+          ⚠️ Below these ranges, you are likely being under-sold. Target the higher end as Senior / Lead AI Engineer.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Prep Plan Timeline</span>
+      </div>
+      <div class="card-body no-top">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          {% set timeline = [
+            ("Aug–Nov 2026", "Preparation only", "DSA, System Design, AI/LLM, GitHub", "blue"),
+            ("Nov–Dec 2026", "Start applying slowly", "10–15 high-fit roles/week", "purple"),
+            ("Jan 2027", "Serious applications", "Mock interviews ramp up", "amber"),
+            ("Mar 2027", "Target date", "AllianceTek H-1B + external backup", "green"),
+          ] %}
+          {% for period, phase, desc, color in timeline %}
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 3px; background: var(--{% if color == 'blue' %}accent-2{% elif color == 'purple' %}accent{% elif color == 'amber' %}warning{% else %}success{% endif %}); border-radius: 99px; margin-top: 4px; align-self: stretch; min-height: 40px; flex-shrink: 0;"></div>
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ period }}</div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">{{ phase }}</div>
+              <div class="text-sm text-muted">{{ desc }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

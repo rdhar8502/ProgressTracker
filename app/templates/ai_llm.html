@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}AI / LLM Prep{% endblock %}
+{% block page_title %}AI / LLM Preparation{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+  <div class="stat-card amber">
+    <span class="stat-icon">🤖</span>
+    <div class="stat-label">Total Topics</div>
+    <div class="stat-value">{{ total }}</div>
+    <div class="stat-sub">AI/LLM concepts</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Done</div>
+    <div class="stat-value">{{ done }}</div>
+    <div class="stat-sub">concepts mastered</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-label">In Progress</div>
+    <div class="stat-value">{{ in_progress }}</div>
+    <div class="stat-sub">currently learning</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">Overall Progress</div>
+    <div class="stat-value">{{ pct }}%</div>
+    <div class="stat-sub">{{ done }}/{{ total }} completed</div>
+  </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="card mb-6">
+  <div class="card-body" style="padding: 16px 20px;">
+    <div class="flex justify-between items-center mb-2">
+      <span style="font-size: 13px; font-weight: 600;">Overall AI/LLM Mastery</span>
+      <span style="font-size: 13px; font-weight: 700; color: var(--accent);">{{ pct }}%</span>
+    </div>
+    <div class="progress-bar" style="height: 10px;">
+      <div class="progress-fill amber" style="width: {{ pct }}%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Topics by Category -->
+{% for cat, cat_topics in by_category.items() %}
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="flex items-center gap-3">
+      <span class="card-title">{{ cat }}</span>
+      <span class="badge badge-amber">{{ cat_topics | selectattr('status', 'eq', 'Done') | list | length }}/{{ cat_topics | length }}</span>
+    </div>
+    <div class="progress-bar" style="width: 100px;">
+      {% set cat_done = cat_topics | selectattr('status', 'eq', 'Done') | list | length %}
+      <div class="progress-fill amber" style="width: {{ (cat_done / cat_topics | length * 100) | int }}%;"></div>
+    </div>
+  </div>
+  <div class="card-body no-top">
+    {% for topic in cat_topics %}
+    <div class="topic-item">
+      <div class="topic-check {% if topic.status == 'Done' %}done{% elif topic.status == 'In Progress' %}in-progress{% endif %}">
+        {% if topic.status == 'Done' %}✓{% elif topic.status == 'In Progress' %}~{% endif %}
+      </div>
+      <div style="flex: 1;">
+        <div class="topic-name" style="text-decoration: {% if topic.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %};">
+          {{ topic.topic_name }}
+        </div>
+        {% if topic.interview_talking_point %}
+        <div class="text-sm text-muted mt-1" style="font-style: italic;">
+          "{{ topic.interview_talking_point[:100] }}{% if topic.interview_talking_point | length > 100 %}…{% endif %}"
+        </div>
+        {% endif %}
+      </div>
+      <div class="topic-actions" style="align-items: center;">
+        <!-- Depth indicator -->
+        <div style="display: flex; gap: 2px;">
+          {% for i in range(1, 4) %}
+          <div style="width: 8px; height: 8px; border-radius: 50%; background: {% if i <= topic.depth %}#F59E0B{% else %}var(--border){% endif %};"></div>
+          {% endfor %}
+        </div>
+        <span class="badge {% if topic.status == 'Done' %}status-done{% elif topic.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">
+          {{ topic.status }}
+        </span>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="openAIModal({{ topic.id }}, '{{ topic.topic_name }}', '{{ topic.status }}', {{ topic.depth }}, `{{ topic.notes | replace('`','') }}`, `{{ topic.resources | replace('`','') }}`, `{{ topic.interview_talking_point | replace('`','') }}`)" title="Edit">✏️</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+
+<!-- AI Topic Modal -->
+<div class="modal-overlay" id="aiModal">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <span class="modal-title" id="aiModalTitle">Update AI/LLM Topic</span>
+      <button class="modal-close" onclick="closeModal('aiModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="aiForm" action="/ai-llm/update/0">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" id="aiStatus">
+              {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Depth of Understanding</label>
+            <select name="depth" class="form-select" id="aiDepth">
+              <option value="1">1 — Surface level</option>
+              <option value="2">2 — Comfortable</option>
+              <option value="3">3 — Deep / Can teach</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes / Understanding</label>
+          <textarea name="notes" class="form-textarea" id="aiNotes" placeholder="Key concepts, how it works..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Resources</label>
+          <textarea name="resources" class="form-textarea" id="aiResources" placeholder="Links, papers, docs..." style="min-height: 60px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Interview Talking Point</label>
+          <textarea name="interview_talking_point" class="form-textarea" id="aiTalking" placeholder="How would you explain this in an interview?" style="min-height: 60px;"></textarea>
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('aiModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openAIModal(id, name, status, depth, notes, resources, talking) {
+  document.getElementById('aiForm').action = '/ai-llm/update/' + id;
+  document.getElementById('aiModalTitle').textContent = 'Update: ' + name;
+  document.getElementById('aiStatus').value = status;
+  document.getElementById('aiDepth').value = depth;
+  document.getElementById('aiNotes').value = notes;
+  document.getElementById('aiResources').value = resources;
+  document.getElementById('aiTalking').value = talking;
+  openModal('aiModal');
+}
+</script>
+{% endblock %}

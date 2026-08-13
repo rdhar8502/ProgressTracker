@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Daily Log{% endblock %}
+{% block page_title %}Daily Log{% endblock %}
+
+{% block content %}
+<!-- ── Date Nav ── -->
+<div class="flex items-center gap-3 mb-6">
+  <button class="btn btn-secondary btn-sm" onclick="navDate(-1)">← Prev</button>
+  <form method="get" action="/daily" style="display: flex; gap: 8px; align-items: center;">
+    <input type="date" name="log_date" value="{{ selected_date }}" class="form-input" style="width: 160px;"
+           onchange="this.form.submit()">
+  </form>
+  <button class="btn btn-secondary btn-sm" onclick="navDate(1)">Next →</button>
+  {% if selected_date != today %}
+  <a href="/daily" class="btn btn-ghost btn-sm">Today</a>
+  {% endif %}
+  <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+    <span style="font-size: 13px; color: var(--text-muted);">{{ selected_date.strftime('%A, %B %d, %Y') }}</span>
+    <button class="btn btn-primary btn-sm" onclick="openModal('addLogModal')">+ Add Session</button>
+  </div>
+</div>
+
+<!-- ── Day Summary ── -->
+{% if logs %}
+<div class="stats-grid" style="margin-bottom: 20px;">
+  <div class="stat-card purple">
+    <div class="stat-label">Total Hours</div>
+    <div class="stat-value">{{ total_hours }}h</div>
+    <div class="stat-sub">{{ logs | length }} session{{ 's' if logs | length != 1 }}</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Problems Solved</div>
+    <div class="stat-value">{{ problems_solved }}</div>
+    <div class="stat-sub">DSA problems today</div>
+  </div>
+  {% for cat, hrs in by_category.items() %}
+  {% if loop.index <= 2 %}
+  <div class="stat-card blue">
+    <div class="stat-label">{{ cat }}</div>
+    <div class="stat-value">{{ hrs }}h</div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── Sessions List ── -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Study Sessions — {{ selected_date.strftime('%b %d, %Y') }}</span>
+    <button class="btn btn-primary btn-sm" onclick="openModal('addLogModal')">+ Add Session</button>
+  </div>
+  <div class="card-body no-top">
+    {% if logs %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Category</th>
+            <th>Sub-Topic</th>
+            <th>Hours</th>
+            <th>Problems</th>
+            <th>Confidence</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td class="text-muted text-sm">{{ log.created_at.strftime('%H:%M') if log.created_at else '—' }}</td>
+            <td>
+              <span class="badge {% if log.category == 'DSA' %}badge-purple{% elif log.category == 'System Design' %}badge-blue{% elif log.category == 'AI/LLM' %}badge-amber{% elif log.category == 'GitHub' %}badge-green{% else %}badge-gray{% endif %}">
+                {{ log.category }}
+              </span>
+            </td>
+            <td style="font-weight: 500; max-width: 200px;">{{ log.sub_topic }}</td>
+            <td><strong>{{ log.hours_spent }}h</strong></td>
+            <td>{{ log.problems_solved if log.problems_solved else '—' }}</td>
+            <td>
+              <div class="stars">
+                {% for i in range(1, 6) %}
+                <span class="star {% if i <= log.confidence %}filled{% endif %}">★</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td class="text-muted text-sm" style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              {{ log.notes[:60] + '…' if log.notes and log.notes | length > 60 else log.notes }}
+            </td>
+            <td>
+              <form method="post" action="/daily/delete/{{ log.id }}" style="display: inline;">
+                <button type="submit" class="btn btn-danger btn-sm btn-icon" 
+                        onclick="return confirm('Delete this session?')" title="Delete">🗑</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr style="background: var(--surface-alt);">
+            <td colspan="3" style="font-weight: 700; font-size: 13px; padding: 12px 14px;">Total</td>
+            <td style="font-weight: 800; font-size: 14px; color: var(--accent);">{{ total_hours }}h</td>
+            <td style="font-weight: 700;">{{ problems_solved }}</td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <div class="empty-title">No sessions logged yet</div>
+      <div class="empty-desc">Click "Add Session" to log your study time for {{ selected_date.strftime('%B %d') }}.</div>
+      <button class="btn btn-primary mt-4" onclick="openModal('addLogModal')">+ Add First Session</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ── Add Log Modal ── -->
+<div class="modal-overlay" id="addLogModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Log Study Session</span>
+      <button class="modal-close" onclick="closeModal('addLogModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" action="/daily/add">
+        <input type="hidden" name="log_date" value="{{ selected_date }}">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select name="category" class="form-select" required id="logCategory" onchange="toggleProblems(this.value)">
+              {% for cat in categories %}
+              <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hours Spent *</label>
+            <input type="number" name="hours_spent" class="form-input" step="0.25" min="0.25" max="12" value="1.5" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sub-Topic / What I studied *</label>
+          <input type="text" name="sub_topic" class="form-input" placeholder="e.g. Two Sum, Sliding Window, RAG pipeline..." required>
+        </div>
+
+        <div class="form-row" id="problemsRow">
+          <div class="form-group">
+            <label class="form-label">Problems Solved (DSA)</label>
+            <input type="number" name="problems_solved" class="form-input" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confidence (1–5)</label>
+            <select name="confidence" class="form-select">
+              <option value="1">1 — Struggled</option>
+              <option value="2">2 — Partial</option>
+              <option value="3" selected>3 — OK</option>
+              <option value="4">4 — Good</option>
+              <option value="5">5 — Nailed it</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes / Key learnings</label>
+          <textarea name="notes" class="form-textarea" placeholder="What did I learn? Any key patterns or mistakes?"></textarea>
+        </div>
+
+        <div class="flex gap-3 justify-between mt-4">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addLogModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Session</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const selectedDate = '{{ selected_date }}';
+
+function navDate(delta) {
+  const d = new Date(selectedDate + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  const iso = d.toISOString().split('T')[0];
+  window.location.href = '/daily?log_date=' + iso;
+}
+
+function toggleProblems(cat) {
+  const row = document.getElementById('problemsRow');
+  row.style.display = (cat === 'DSA') ? 'grid' : 'none';
+}
+
+// Auto-open modal if no logs
+{% if not logs %}
+// openModal('addLogModal');
+{% endif %}
+</script>
+{% endblock %}

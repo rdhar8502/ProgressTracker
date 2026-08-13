@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block title %}Applications{% endblock %}
+{% block page_title %}Job Applications{% endblock %}
+
+{% block content %}
+<!-- Pipeline Overview -->
+<div class="pipeline-stages mb-6">
+  <a href="/applications" class="pipeline-stage {% if not selected_stage %}selected{% endif %}">
+    <div class="stage-count">{{ total }}</div>
+    <div class="stage-name">All</div>
+  </a>
+  {% for stage in stages %}
+  <a href="/applications?stage={{ stage }}" class="pipeline-stage {% if selected_stage == stage %}selected{% endif %}">
+    <div class="stage-count">{{ stage_counts.get(stage, 0) }}</div>
+    <div class="stage-name">{{ stage }}</div>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Summary stats -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+  <div class="stat-card purple">
+    <div class="stat-label">Total Applied</div>
+    <div class="stat-value">{{ total }}</div>
+    <div class="stat-sub">all applications</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">Active Pipeline</div>
+    <div class="stat-value">{{ active }}</div>
+    <div class="stat-sub">in progress</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Offers</div>
+    <div class="stat-value">{{ offers }}</div>
+    <div class="stat-sub">offer{{ 's' if offers != 1 }} received</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Applied This Week</div>
+    <div class="stat-value">
+      {% set this_week_apps = apps | selectattr('applied_date') | selectattr('applied_date', 'ge', today) | list | length %}
+      {{ this_week_apps }}
+    </div>
+    <div class="stat-sub">recent applications</div>
+  </div>
+</div>
+
+<!-- Applications Table + Add Form -->
+<div class="grid-2">
+  <!-- Table -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <div class="card-header">
+      <span class="card-title">
+        {% if selected_stage %}{{ selected_stage }} Applications{% else %}All Applications{% endif %}
+        ({{ apps | length }})
+      </span>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addAppModal')">+ Add Application</button>
+    </div>
+    <div class="card-body no-top">
+      {% if apps %}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Role</th>
+              <th>Location</th>
+              <th>Visa</th>
+              <th>Salary</th>
+              <th>Stage</th>
+              <th>Applied</th>
+              <th>Follow-up</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in apps %}
+            <tr>
+              <td style="font-weight: 700;">{{ app.company }}</td>
+              <td style="font-weight: 500;">{{ app.role }}</td>
+              <td class="text-sm text-muted">
+                {{ app.location }}<br>
+                <span style="font-size: 10px; background: var(--bg); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border);">{{ app.country }}</span>
+              </td>
+              <td>
+                {% if app.visa_sponsor %}
+                <span class="badge badge-green">✓ Sponsor</span>
+                {% else %}
+                <span class="badge badge-gray">No</span>
+                {% endif %}
+              </td>
+              <td class="text-sm">
+                {% if app.salary_min %}
+                {{ app.currency }} {{ (app.salary_min / 1000) | int }}k–{{ (app.salary_max / 1000) | int }}k
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                <span class="badge {% if app.stage == 'Offer' %}badge-green{% elif app.stage == 'Rejected' or app.stage == 'Withdrawn' %}badge-red{% elif app.stage in ['Technical', 'Final Round'] %}badge-purple{% elif app.stage in ['Phone Screen', 'OA'] %}badge-blue{% else %}badge-gray{% endif %}">
+                  {{ app.stage }}
+                </span>
+              </td>
+              <td class="text-sm text-muted">{{ app.applied_date.strftime('%b %d') if app.applied_date else '—' }}</td>
+              <td class="text-sm text-muted">{{ app.follow_up_date.strftime('%b %d') if app.follow_up_date else '—' }}</td>
+              <td class="text-sm text-muted" style="max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ app.notes[:50] if app.notes else '—' }}</td>
+              <td>
+                <div class="flex gap-1">
+                  <button class="btn btn-ghost btn-sm btn-icon" onclick="openUpdateApp({{ app.id }}, '{{ app.stage }}', `{{ app.notes | replace('`','') }}`)" title="Edit">✏️</button>
+                  <form method="post" action="/applications/delete/{{ app.id }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete?')" title="Delete">🗑</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📤</div>
+        <div class="empty-title">No applications yet</div>
+        <div class="empty-desc">Start tracking your job applications. Add your first one!</div>
+        <button class="btn btn-primary mt-4" onclick="openModal('addAppModal')">+ Add Application</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Add Application Modal -->
+<div class="modal-overlay" id="addAppModal">
+  <div class="modal" style="max-width: 640px;">
+    <div class="modal-header">
+      <span class="modal-title">Add Job Application</span>
+      <button class="modal-close" onclick="closeModal('addAppModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" action="/applications/add">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Company *</label>
+            <input type="text" name="company" class="form-input" placeholder="Google, OpenAI..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role *</label>
+            <input type="text" name="role" class="form-input" placeholder="Senior AI Engineer..." required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" name="location" class="form-input" placeholder="San Francisco, CA">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <select name="country" class="form-select">
+              {% for c in countries %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select name="currency" class="form-select">
+              {% for c in currencies %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stage</label>
+            <select name="stage" class="form-select">
+              {% for s in stages %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Salary Min</label>
+            <input type="number" name="salary_min" class="form-input" placeholder="120000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Salary Max</label>
+            <input type="number" name="salary_max" class="form-input" placeholder="160000">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Applied Date</label>
+            <input type="date" name="applied_date" class="form-input" value="{{ today }}">
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 22px;">
+            <input type="checkbox" name="visa_sponsor" id="visaSponsor" value="true">
+            <label for="visaSponsor" class="form-label" style="margin: 0;">Visa Sponsor</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Job URL</label>
+          <input type="url" name="job_url" class="form-input" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-textarea" placeholder="Referral, recruiter name, key requirements..."></textarea>
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addAppModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Update Application Modal -->
+<div class="modal-overlay" id="updateAppModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Update Application</span>
+      <button class="modal-close" onclick="closeModal('updateAppModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="updateAppForm" action="/applications/update/0">
+        <div class="form-group">
+          <label class="form-label">Stage</label>
+          <select name="stage" class="form-select" id="uAppStage">
+            {% for s in stages %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Response Date</label>
+            <input type="date" name="response_date" class="form-input" id="uResponseDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Follow-up Date</label>
+            <input type="date" name="follow_up_date" class="form-input" id="uFollowUpDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-textarea" id="uAppNotes"></textarea>
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('updateAppModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openUpdateApp(id, stage, notes) {
+  document.getElementById('updateAppForm').action = '/applications/update/' + id;
+  document.getElementById('uAppStage').value = stage;
+  document.getElementById('uAppNotes').value = notes;
+  openModal('updateAppModal');
+}
+</script>
+{% endblock %}
