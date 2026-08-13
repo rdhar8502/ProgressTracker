@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}System Design{% endblock %}
+{% block page_title %}System Design{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+  <div class="stat-card blue">
+    <div class="stat-label">Topics Done</div>
+    <div class="stat-value">{{ topics_done }}</div>
+    <div class="stat-sub">of {{ topics_total }} topics</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-label">In Progress</div>
+    <div class="stat-value">{{ topics_in_progress }}</div>
+    <div class="stat-sub">topics in progress</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Case Studies Done</div>
+    <div class="stat-value">{{ cases_done }}</div>
+    <div class="stat-sub">of {{ cases_total }} systems</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Overall Progress</div>
+    <div class="stat-value">{{ (((topics_done + cases_done) / (topics_total + cases_total)) * 100) | int }}%</div>
+    <div class="stat-sub">{{ topics_done + cases_done }} / {{ topics_total + cases_total }}</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Topics by Category -->
+  <div>
+    {% for cat, cat_topics in by_category.items() %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <span class="card-title">{{ cat }} Concepts</span>
+        <span class="badge badge-blue">{{ cat_topics | selectattr('status', 'eq', 'Done') | list | length }}/{{ cat_topics | length }}</span>
+      </div>
+      <div class="card-body no-top">
+        {% for topic in cat_topics %}
+        <div class="topic-item">
+          <div class="topic-check {% if topic.status == 'Done' %}done{% elif topic.status == 'In Progress' %}in-progress{% endif %}"
+               onclick="quickUpdateTopic({{ topic.id }}, '{{ topic.status }}')">
+            {% if topic.status == 'Done' %}✓{% elif topic.status == 'In Progress' %}~{% endif %}
+          </div>
+          <span class="topic-name" style="text-decoration: {% if topic.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %};">
+            {{ topic.topic_name }}
+          </span>
+          <div class="topic-actions">
+            {% if topic.reading_done %}<span title="Reading done">📖</span>{% endif %}
+            {% if topic.practical_done %}<span title="Practical done">⚙️</span>{% endif %}
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="openTopicModal({{ topic.id }}, '{{ topic.topic_name }}', '{{ topic.status }}', {{ topic.reading_done | lower }}, {{ topic.practical_done | lower }}, `{{ topic.notes | replace('`','') }}`)" title="Edit">✏️</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Case Studies -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">System Design Case Studies</span>
+        <span class="badge badge-green">{{ cases_done }}/{{ cases_total }}</span>
+      </div>
+      <div class="card-body no-top">
+        {% for case in cases %}
+        <div class="topic-item">
+          <div class="topic-check {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}">
+            {% if case.status == 'Done' %}✓{% elif case.status == 'In Progress' %}~{% endif %}
+          </div>
+          <div style="flex: 1;">
+            <div class="topic-name" style="text-decoration: {% if case.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %};">
+              {{ case.system_name }}
+            </div>
+            {% if case.key_components %}
+            <div class="text-sm text-muted mt-1" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;">{{ case.key_components[:80] }}</div>
+            {% endif %}
+          </div>
+          <div class="topic-actions">
+            <span class="badge {% if case.status == 'Done' %}status-done{% elif case.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">
+              {{ case.status }}
+            </span>
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="openCaseModal({{ case.id }}, '{{ case.system_name }}', '{{ case.status }}', `{{ case.key_components | replace('`','') }}`, '{{ case.diagram_url }}', `{{ case.notes | replace('`','') }}`)" title="Edit">✏️</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Topic Update Modal -->
+<div class="modal-overlay" id="topicModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="topicModalTitle">Update Topic</span>
+      <button class="modal-close" onclick="closeModal('topicModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="topicForm" action="/system-design/topic/update/0">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select" id="tStatus">
+            {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+            <input type="checkbox" name="reading_done" id="tReading" value="true">
+            <label for="tReading" class="form-label" style="margin: 0;">Reading Done</label>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+            <input type="checkbox" name="practical_done" id="tPractical" value="true">
+            <label for="tPractical" class="form-label" style="margin: 0;">Practical Done</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-textarea" id="tNotes"></textarea>
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('topicModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Case Update Modal -->
+<div class="modal-overlay" id="caseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="caseModalTitle">Update Case Study</span>
+      <button class="modal-close" onclick="closeModal('caseModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="caseForm" action="/system-design/case/update/0">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select" id="cStatus">
+            {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Key Components</label>
+          <textarea name="key_components" class="form-textarea" id="cKeyComponents" placeholder="API Gateway, Load Balancer, Redis cache, Kafka..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Diagram URL</label>
+          <input type="url" name="diagram_url" class="form-input" id="cDiagramUrl" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-textarea" id="cNotes"></textarea>
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('caseModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openTopicModal(id, name, status, reading, practical, notes) {
+  document.getElementById('topicForm').action = '/system-design/topic/update/' + id;
+  document.getElementById('topicModalTitle').textContent = 'Update: ' + name;
+  document.getElementById('tStatus').value = status;
+  document.getElementById('tReading').checked = reading;
+  document.getElementById('tPractical').checked = practical;
+  document.getElementById('tNotes').value = notes;
+  openModal('topicModal');
+}
+function openCaseModal(id, name, status, components, diagram, notes) {
+  document.getElementById('caseForm').action = '/system-design/case/update/' + id;
+  document.getElementById('caseModalTitle').textContent = 'Update: ' + name;
+  document.getElementById('cStatus').value = status;
+  document.getElementById('cKeyComponents').value = components;
+  document.getElementById('cDiagramUrl').value = diagram;
+  document.getElementById('cNotes').value = notes;
+  openModal('caseModal');
+}
+
+function quickUpdateTopic(id, currentStatus) {
+  const next = currentStatus === 'Not Started' ? 'In Progress' : (currentStatus === 'In Progress' ? 'Done' : 'Not Started');
+  const form = document.createElement('form');
+  form.method = 'post';
+  form.action = '/system-design/topic/update/' + id;
+  form.innerHTML = `<input name="status" value="${next}"><input name="reading_done" value="false"><input name="practical_done" value="false"><input name="notes" value="">`;
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
+{% endblock %}

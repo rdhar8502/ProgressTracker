@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Weekly View{% endblock %}
+{% block page_title %}Weekly View{% endblock %}
+
+{% block content %}
+
+<!-- ── Info Banner ── -->
+<div class="alert alert-info mb-6" style="font-size: 13px;">
+  💡 <strong>You're free to study anything, any week.</strong>
+  The weekly view just shows what you <em>actually logged</em> from your daily sessions — DSA, System Design, AI/LLM, whatever you worked on.
+  The "focus" labels are suggestions only, not restrictions.
+</div>
+
+<!-- Summary Row -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+  <div class="stat-card purple">
+    <div class="stat-label">Total Weeks</div>
+    <div class="stat-value">{{ total_weeks }}</div>
+    <div class="stat-sub">Aug 2026 → Mar 2027</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Current Week</div>
+    <div class="stat-value">W{{ current_week_num }}</div>
+    <div class="stat-sub">of {{ total_weeks }}</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">Active Weeks</div>
+    <div class="stat-value">{{ weeks | selectattr('actual_hours', 'gt', 0) | list | length }}</div>
+    <div class="stat-sub">weeks with logged hours</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Total Hours Logged</div>
+    <div class="stat-value">{{ weeks | sum(attribute='actual_hours') | round(1) }}</div>
+    <div class="stat-sub">across all weeks</div>
+  </div>
+</div>
+
+<!-- Weeks List -->
+<div id="weeksList">
+  {% for w in weeks %}
+  <div class="week-card {% if w.is_current %}current{% elif w.is_past %}past{% endif %}" id="week-{{ w.week_number }}">
+
+    <!-- ── Week Card Header ── -->
+    <div class="week-card-header" onclick="toggleWeek({{ w.week_number }})">
+      <div class="week-num">W{{ w.week_number }}</div>
+
+      <div class="week-meta" style="flex: 1;">
+        <div class="week-title" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          {{ w.week_start.strftime('%a, %b %d') }} — {{ w.week_end.strftime('%a, %b %d, %Y') }}
+          {% if w.is_current %}
+          <span class="badge badge-purple">Current</span>
+          {% endif %}
+          {% if w.actual_hours == 0 and w.is_past %}
+          <span class="badge badge-red" style="background: #FEF2F2; color: #DC2626;">No Activity</span>
+          {% elif w.actual_hours > 0 %}
+          <!-- Show categories studied as colored chips -->
+          {% for cat in w.cat_breakdown[:3] %}
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: {{ cat.color }}18; color: {{ cat.color }}; border: 1px solid {{ cat.color }}30;">
+            {{ cat.category }} {{ cat.hours }}h
+          </span>
+          {% endfor %}
+          {% if w.cat_breakdown | length > 3 %}
+          <span class="badge badge-gray">+{{ w.cat_breakdown | length - 3 }} more</span>
+          {% endif %}
+          {% endif %}
+        </div>
+        {% if w.theme %}
+        <div class="week-dates" style="margin-top: 3px; font-size: 10px; color: var(--text-muted);">
+          💡 Suggested focus: {{ w.theme }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Hours progress -->
+      <div style="text-align: right; min-width: 130px;">
+        <div style="font-size: 15px; font-weight: 700; color: {% if w.actual_hours >= w.target_hours %}var(--success){% elif w.actual_hours > 0 %}var(--text-primary){% else %}var(--text-muted){% endif %};">
+          {{ w.actual_hours }}h
+          <span style="font-size: 11px; font-weight: 400; color: var(--text-muted);">/ {{ w.target_hours }}h</span>
+        </div>
+        <div class="progress-bar" style="width: 120px; margin-left: auto; margin-top: 5px;">
+          <div class="progress-fill {% if w.pct >= 100 %}green{% elif w.pct >= 60 %}{% else %}amber{% endif %}"
+               style="width: {{ w.pct }}%;"></div>
+        </div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">{{ w.pct }}%</div>
+      </div>
+
+      <div style="color: var(--text-muted); margin-left: 8px; font-size: 12px; transition: transform 0.2s;" class="toggle-icon-{{ w.week_number }}">▼</div>
+    </div>
+
+    <!-- ── Week Body (expanded) ── -->
+    <div class="week-body" id="week-body-{{ w.week_number }}">
+
+      {% if w.daily_logs %}
+
+      <!-- Category breakdown bar -->
+      {% if w.cat_breakdown %}
+      <div style="margin: 14px 0 10px;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">
+          What you studied this week
+        </div>
+        <!-- Stacked progress bar -->
+        <div style="height: 10px; border-radius: 99px; overflow: hidden; display: flex; gap: 2px; margin-bottom: 10px;">
+          {% for cat in w.cat_breakdown %}
+          <div title="{{ cat.category }}: {{ cat.hours }}h ({{ cat.pct }}%)"
+               style="flex: {{ cat.pct }}; background: {{ cat.color }}; min-width: 4px; border-radius: 0; transition: flex 0.5s;"></div>
+          {% endfor %}
+        </div>
+        <!-- Legend -->
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+          {% for cat in w.cat_breakdown %}
+          <div style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: {{ cat.color }};"></div>
+            <span style="font-weight: 600; color: var(--text-primary);">{{ cat.category }}</span>
+            <span style="color: var(--text-muted);">{{ cat.hours }}h ({{ cat.pct }}%)</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <hr class="divider">
+      {% endif %}
+
+      <!-- Day-by-day cards -->
+      <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; margin-top: 10px;">
+        Day-by-Day
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        {% for day in w.daily_logs %}
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; min-width: 120px; flex: 1; max-width: 200px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase;">{{ day.date.strftime('%a') }}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">{{ day.date.strftime('%b %d') }}</div>
+            </div>
+            <a href="/daily?log_date={{ day.date }}" style="font-size: 18px; font-weight: 800; color: var(--text-primary); text-decoration: none;">
+              {{ day.hours }}h
+            </a>
+          </div>
+          <!-- Sessions logged this day -->
+          {% for log in day.cats %}
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 3px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: {{ category_colors.get(log.category, '#9CA3AF') }}; flex-shrink: 0;"></div>
+            <span style="font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
+              {{ log.sub_topic or log.category }} ({{ log.hours }}h)
+            </span>
+          </div>
+          {% endfor %}
+          <a href="/daily?log_date={{ day.date }}" class="btn btn-ghost btn-sm" style="margin-top: 6px; padding: 3px 8px; font-size: 10px; width: 100%; justify-content: center;">
+            + Add more
+          </a>
+        </div>
+        {% endfor %}
+
+        <!-- Add a day placeholder if current week and today not logged -->
+        {% if w.is_current %}
+        <div style="background: var(--accent-light); border: 1px dashed var(--accent); border-radius: var(--radius); padding: 10px 14px; min-width: 120px; flex: 1; max-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;">
+          <span style="font-size: 20px;">📝</span>
+          <a href="/daily" class="btn btn-primary btn-sm" style="font-size: 11px;">Log Today</a>
+        </div>
+        {% endif %}
+      </div>
+
+      {% else %}
+      <!-- No activity -->
+      <div style="padding: 16px 0; color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 12px;">
+        {% if w.is_past %}
+        <span style="font-size: 20px;">😔</span>
+        <span>No hours logged this week. Don't worry — keep going!</span>
+        {% elif w.is_current %}
+        <span style="font-size: 20px;">🚀</span>
+        <div>
+          <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">This is your current week — go log something!</div>
+          <div style="font-size: 12px;">Study DSA, System Design, AI/LLM — whatever feels right today.</div>
+          <a href="/daily" class="btn btn-primary btn-sm mt-2">📝 Log Today's Sessions →</a>
+        </div>
+        {% else %}
+        <span style="font-size: 20px;">📅</span>
+        <span>Future week — starts {{ w.week_start.strftime('%B %d, %Y') }}. Study anything you want!</span>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleWeek(num) {
+  const body = document.getElementById('week-body-' + num);
+  const icon = document.querySelector('.toggle-icon-' + num);
+  body.classList.toggle('open');
+  if (icon) icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+// Auto-open current week and scroll to it
+document.addEventListener('DOMContentLoaded', () => {
+  const current = {{ current_week_num }};
+  toggleWeek(current);
+  setTimeout(() => {
+    const el = document.getElementById('week-' + current);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 200);
+});
+</script>
+{% endblock %}

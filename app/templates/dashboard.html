@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+{% if not user %}
+<div class="empty-state">
+  <div class="empty-icon">🚀</div>
+  <div class="empty-title">Getting ready...</div>
+  <div class="empty-desc">Database is being set up. Refresh in a moment.</div>
+</div>
+{% else %}
+
+<!-- ── Week Banner ── -->
+<div class="card mb-6" style="background: linear-gradient(135deg, #18181B 0%, #27272A 100%); border: none; color: white;">
+  <div class="card-body" style="padding: 20px 24px;">
+    <div class="flex items-center justify-between">
+      <div>
+        <div style="font-size: 12px; color: #A1A1AA; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+          📅 Week {{ current_week_num }} of {{ total_weeks }} &nbsp;·&nbsp; {{ week_start.strftime('%b %d') }} – {{ week_end.strftime('%b %d, %Y') }}
+        </div>
+        <div style="font-size: 18px; font-weight: 700; color: white; margin-bottom: 4px;">{{ week_theme }}</div>
+        <div style="font-size: 12px; color: #A1A1AA;">{{ days_remaining }} days remaining to target</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 28px; font-weight: 800; color: white; letter-spacing: -1px;">{{ week_hours }}h</div>
+        <div style="font-size: 11px; color: #A1A1AA;">of {{ week_target }}h target this week</div>
+        <div style="margin-top: 8px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 99px; width: 120px; margin-left: auto;">
+          <div style="height: 100%; background: linear-gradient(90deg, #7C3AED, #A78BFA); border-radius: 99px; width: {{ [((week_hours / week_target) * 100), 100] | min | int }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Stat Cards ── -->
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <span class="stat-icon">⏱️</span>
+    <div class="stat-label">Total Prep Hours</div>
+    <div class="stat-value">{{ total_hours }}</div>
+    <div class="stat-sub">{{ week_hours }}h this week</div>
+  </div>
+  <div class="stat-card blue">
+    <span class="stat-icon">🔥</span>
+    <div class="stat-label">Current Streak</div>
+    <div class="stat-value">{{ streak }}</div>
+    <div class="stat-sub">consecutive days</div>
+  </div>
+  <div class="stat-card green">
+    <span class="stat-icon">💻</span>
+    <div class="stat-label">DSA Problems</div>
+    <div class="stat-value">{{ dsa_stats.solved }}</div>
+    <div class="stat-sub">of 250 target ({{ dsa_stats.pct }}%)</div>
+  </div>
+  <div class="stat-card amber">
+    <span class="stat-icon">📅</span>
+    <div class="stat-label">Days Remaining</div>
+    <div class="stat-value">{{ days_remaining }}</div>
+    <div class="stat-sub">until {{ user.end_date.strftime('%b %Y') }}</div>
+  </div>
+</div>
+
+<!-- ── Progress Rings ── -->
+<div class="rings-grid">
+  {% for cat in category_progress %}
+  <div class="ring-card">
+    <div class="ring-wrapper">
+      <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-track" cx="40" cy="40" r="34"/>
+        <circle class="ring-fill" cx="40" cy="40" r="34"
+          stroke="{{ cat.color }}"
+          stroke-dasharray="{{ (3.14159 * 2 * 34) | round(1) }}"
+          stroke-dashoffset="{{ ((3.14159 * 2 * 34) * (1 - cat.pct / 100)) | round(1) }}"
+          data-pct="{{ cat.pct }}"/>
+      </svg>
+      <div class="ring-center">{{ cat.pct }}%</div>
+    </div>
+    <div class="ring-name">{{ cat.name }}</div>
+    <div class="ring-detail">
+      {% if cat.solved is defined %}
+        {{ cat.solved }} / {{ cat.target }} solved
+      {% elif cat.done is defined %}
+        {{ cat.done }} / {{ cat.target }} done
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Charts ── -->
+<div class="charts-grid">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Daily Study Hours — Last 14 Days</span>
+    </div>
+    <div class="card-body">
+      <canvas id="dailyChart" height="90"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Hours by Category</span>
+    </div>
+    <div class="card-body" style="display: flex; align-items: center; justify-content: center; min-height: 180px;">
+      <canvas id="catChart" height="180" width="220"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── Weekly Trend + DSA ── -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Weekly Hours Trend</span>
+    </div>
+    <div class="card-body">
+      <canvas id="weeklyChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">DSA Target Progress</span>
+      <a href="/dsa" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <div class="card-body no-top">
+      <div class="flex justify-between" style="margin-bottom: 14px;">
+        <div style="text-align: center; flex: 1;">
+          <div style="font-size: 22px; font-weight: 800; color: #059669;">{{ dsa_stats.easy }}</div>
+          <div class="text-sm text-muted">Easy / 60</div>
+          <div class="progress-bar mt-1"><div class="progress-fill green" style="width: {{ [(dsa_stats.easy / 60 * 100), 100] | min | int }}%;"></div></div>
+        </div>
+        <div style="width: 1px; background: var(--border); margin: 0 16px;"></div>
+        <div style="text-align: center; flex: 1;">
+          <div style="font-size: 22px; font-weight: 800; color: var(--warning);">{{ dsa_stats.medium }}</div>
+          <div class="text-sm text-muted">Medium / 150</div>
+          <div class="progress-bar mt-1"><div class="progress-fill amber" style="width: {{ [(dsa_stats.medium / 150 * 100), 100] | min | int }}%;"></div></div>
+        </div>
+        <div style="width: 1px; background: var(--border); margin: 0 16px;"></div>
+        <div style="text-align: center; flex: 1;">
+          <div style="font-size: 22px; font-weight: 800; color: var(--danger);">{{ dsa_stats.hard }}</div>
+          <div class="text-sm text-muted">Hard / 40</div>
+          <div class="progress-bar mt-1"><div class="progress-fill rose" style="width: {{ [(dsa_stats.hard / 40 * 100), 100] | min | int }}%;"></div></div>
+        </div>
+      </div>
+      <div class="progress-bar" style="height: 8px;">
+        <div class="progress-fill" style="width: {{ dsa_stats.pct }}%;"></div>
+      </div>
+      <div class="flex justify-between mt-1">
+        <span class="text-sm text-muted">{{ dsa_stats.solved }} solved</span>
+        <span class="text-sm text-muted">250 target</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dailyData  = {{ daily_chart_json | safe }};
+const weeklyData = {{ weekly_chart_json | safe }};
+const catData    = {{ cat_chart_json | safe }};
+
+// Daily chart
+new Chart(document.getElementById('dailyChart'), {
+  type: 'bar',
+  data: {
+    labels: dailyData.map(d => d.date),
+    datasets: [{
+      label: 'Hours',
+      data: dailyData.map(d => d.hours),
+      backgroundColor: 'rgba(124, 58, 237, 0.12)',
+      borderColor: '#7C3AED',
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 30 } }
+    }
+  }
+});
+
+// Category doughnut
+if (catData.labels.length) {
+  new Chart(document.getElementById('catChart'), {
+    type: 'doughnut',
+    data: {
+      labels: catData.labels,
+      datasets: [{
+        data: catData.data,
+        backgroundColor: catData.colors,
+        borderWidth: 0,
+        hoverOffset: 4,
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: '68%',
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } }
+      }
+    }
+  });
+}
+
+// Weekly trend chart
+new Chart(document.getElementById('weeklyChart'), {
+  type: 'line',
+  data: {
+    labels: weeklyData.map(d => d.week),
+    datasets: [{
+      label: 'Hours',
+      data: weeklyData.map(d => d.hours),
+      borderColor: '#0EA5E9',
+      backgroundColor: 'rgba(14, 165, 233, 0.06)',
+      borderWidth: 2,
+      pointBackgroundColor: '#0EA5E9',
+      pointRadius: 4,
+      fill: true,
+      tension: 0.4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Progress Tracker{% endblock %} — {% if user %}{{ user.name }}{% else %}Progress Tracker{% endif %}</title>
+  <meta name="description" content="Interview preparation progress tracker for Senior AI / Python Backend Engineer roles">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ══ Sidebar ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🎯</div>
+        <div>
+          <div class="logo-text">PrepTracker</div>
+          <div class="logo-sub">Interview Prep 2026→27</div>
+        </div>
+      </div>
+    </div>
+
+    {% if user %}
+    <div class="sidebar-user">
+      <div class="user-name">{{ user.name }}</div>
+      <div class="user-role">{{ user.target_role | truncate(60) }}</div>
+    </div>
+    {% endif %}
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+
+      <a href="/" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+
+      <a href="/daily" class="nav-item {% if active_page == 'daily' %}active{% endif %}">
+        <span class="nav-icon">📝</span>
+        <span>Daily Log</span>
+      </a>
+
+      <a href="/weekly" class="nav-item {% if active_page == 'weekly' %}active{% endif %}">
+        <span class="nav-icon">📅</span>
+        <span>Weekly View</span>
+      </a>
+
+      <div class="nav-section-label">Preparation</div>
+
+      <a href="/dsa" class="nav-item {% if active_page == 'dsa' %}active{% endif %}">
+        <span class="nav-icon">💻</span>
+        <span>DSA</span>
+      </a>
+
+      <a href="/system-design" class="nav-item {% if active_page == 'system_design' %}active{% endif %}">
+        <span class="nav-icon">🏗️</span>
+        <span>System Design</span>
+      </a>
+
+      <a href="/ai-llm" class="nav-item {% if active_page == 'ai_llm' %}active{% endif %}">
+        <span class="nav-icon">🤖</span>
+        <span>AI / LLM</span>
+      </a>
+
+      <div class="nav-section-label">Portfolio & Jobs</div>
+
+      <a href="/github" class="nav-item {% if active_page == 'github' %}active{% endif %}">
+        <span class="nav-icon">🐙</span>
+        <span>GitHub Projects</span>
+      </a>
+
+      <a href="/applications" class="nav-item {% if active_page == 'applications' %}active{% endif %}">
+        <span class="nav-icon">📤</span>
+        <span>Applications</span>
+      </a>
+
+      <div class="nav-section-label">Account</div>
+
+      <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    {% if user %}
+    <div class="sidebar-footer">
+      <div class="days-remaining">Days to target</div>
+      <div class="days-count" id="sidebar-days">{{ ((user.end_date - today).days) }}</div>
+      <div class="days-label">until {{ user.end_date.strftime('%b %Y') }}</div>
+    </div>
+    {% endif %}
+  </aside>
+
+  <!-- ══ Main ══ -->
+  <div class="main-content">
+    <header class="top-header">
+      <h1 class="header-title">{% block page_title %}Dashboard{% endblock %}</h1>
+      <div class="header-right">
+        <span class="header-date" id="current-date"></span>
+        {% if user %}
+        <a href="/daily" class="btn btn-primary btn-sm">+ Log Today</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}GitHub Projects{% endblock %}
+{% block page_title %}GitHub Portfolio{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+  {% for pd in projects_data %}
+  {% set p = pd.project %}
+  <div class="project-card">
+    <div class="project-header">
+      <div class="flex justify-between items-center mb-2">
+        <span class="badge {% if p.status == 'Done' %}status-done{% elif p.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">{{ p.status }}</span>
+        <div class="flex gap-2">
+          {% if p.github_url %}
+          <a href="{{ p.github_url }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" title="GitHub">🔗</a>
+          {% endif %}
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="openProjectModal({{ p.id }}, '{{ p.status }}', '{{ p.github_url }}', '{{ p.demo_url }}')" title="Edit">✏️</button>
+        </div>
+      </div>
+      <div class="project-name">{{ p.name }}</div>
+      <div class="project-desc" style="margin-top: 4px;">{{ p.description }}</div>
+      <div class="text-sm text-muted mt-2">
+        <strong>Stack:</strong> {{ p.tech_stack }}
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="padding: 14px 20px; border-bottom: 1px solid var(--border-light);">
+      <div class="flex justify-between items-center mb-2">
+        <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Completion</span>
+        <span style="font-size: 13px; font-weight: 700; color: var(--accent);">{{ pd.pct }}%</span>
+      </div>
+      <div class="progress-bar" style="height: 8px;">
+        <div class="progress-fill green" style="width: {{ pd.pct }}%;"></div>
+      </div>
+      <div class="text-sm text-muted mt-1">{{ pd.done }}/{{ pd.total }} tasks completed</div>
+    </div>
+
+    <!-- Tasks by Category -->
+    <div class="project-body">
+      {% for cat, tasks in pd.by_cat.items() %}
+      <div class="task-category-label">{{ cat }}</div>
+      {% for task in tasks %}
+      <div class="task-item">
+        <form method="post" action="/github/task/toggle/{{ task.id }}" style="display: contents;">
+          <button type="submit" class="task-checkbox {% if task.done %}done{% endif %}" title="Toggle">
+            {% if task.done %}✓{% endif %}
+          </button>
+        </form>
+        <span class="task-name {% if task.done %}done{% endif %}">{{ task.task_name }}</span>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Project Update Modal -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Update Project</span>
+      <button class="modal-close" onclick="closeModal('projectModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="projectForm" action="/github/project/update/0">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select" id="pStatus">
+            {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">GitHub URL</label>
+          <input type="url" name="github_url" class="form-input" id="pGithubUrl" placeholder="https://github.com/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Demo URL</label>
+          <input type="url" name="demo_url" class="form-input" id="pDemoUrl" placeholder="https://...">
+        </div>
+        <div class="flex gap-3 justify-between">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openProjectModal(id, status, githubUrl, demoUrl) {
+  document.getElementById('projectForm').action = '/github/project/update/' + id;
+  document.getElementById('pStatus').value = status;
+  document.getElementById('pGithubUrl').value = githubUrl || '';
+  document.getElementById('pDemoUrl').value = demoUrl || '';
+  openModal('projectModal');
+}
+</script>
+{% endblock %}
