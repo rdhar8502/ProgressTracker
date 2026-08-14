@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import UserProfile, SalaryTarget, WeeklySchedule
 from app.models.dsa import DSATopic
-from app.models.system_design import SystemDesignTopic, SystemDesignCase
+from app.models.system_design import SystemDesignConcept, SystemDesignSubConcept, SystemDesignCase
 from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubProject, GithubTask
 from app.services.week_utils import generate_weeks, week_target_hours
@@ -76,24 +76,24 @@ WEEK_THEMES = [
 ]
 
 SYSTEM_DESIGN_TOPICS = [
-    ("Core", "HTTP, REST, WebSockets"),
-    ("Core", "Load Balancers"),
-    ("Core", "API Gateway"),
-    ("Core", "Rate Limiting"),
-    ("Core", "Caching: Redis, CDN, Browser Cache"),
-    ("Core", "SQL vs NoSQL"),
-    ("Core", "PostgreSQL Indexing, Transactions, Isolation"),
-    ("Core", "Message Queues: Kafka, RabbitMQ, SQS"),
-    ("Core", "Background Jobs: Celery, Workers"),
-    ("Core", "Object Storage: S3-Style Systems"),
-    ("Advanced", "Search: Elasticsearch / Vector Search"),
-    ("Advanced", "Authentication: JWT, OAuth, Sessions"),
-    ("Advanced", "Observability: Logs, Metrics, Tracing"),
-    ("Advanced", "Deployment: Docker, CI/CD, Kubernetes Basics"),
-    ("Advanced", "Scalability, Sharding, Replication"),
-    ("Advanced", "Reliability, Retries, Circuit Breakers"),
-    ("Advanced", "Security Basics"),
-    ("Advanced", "Cost-Aware Design"),
+    ("Core", "HTTP, REST, WebSockets", ["HTTP", "REST", "WebSockets"]),
+    ("Core", "Load Balancers", ["Load Balancers"]),
+    ("Core", "API Gateway", ["API Gateway"]),
+    ("Core", "Rate Limiting", ["Rate Limiting"]),
+    ("Core", "Caching", ["Redis", "CDN", "Browser Cache"]),
+    ("Core", "SQL vs NoSQL", ["SQL", "NoSQL"]),
+    ("Core", "PostgreSQL", ["Indexing", "Transactions", "Isolation"]),
+    ("Core", "Message Queues", ["Kafka", "RabbitMQ", "SQS"]),
+    ("Core", "Background Jobs", ["Celery", "Workers"]),
+    ("Core", "Object Storage", ["S3-Style Systems"]),
+    ("Advanced", "Search", ["Elasticsearch", "Vector Search"]),
+    ("Advanced", "Authentication", ["JWT", "OAuth", "Sessions"]),
+    ("Advanced", "Observability", ["Logs", "Metrics", "Tracing"]),
+    ("Advanced", "Deployment", ["Docker", "CI/CD", "Kubernetes Basics"]),
+    ("Advanced", "Scalability", ["Sharding", "Replication"]),
+    ("Advanced", "Reliability", ["Retries", "Circuit Breakers"]),
+    ("Advanced", "Security Basics", ["Security Basics"]),
+    ("Advanced", "Cost-Aware Design", ["Cost-Aware Design"]),
 ]
 
 SYSTEM_DESIGN_CASES = [
@@ -263,10 +263,19 @@ def seed_database(db: Session):
         for i, name in enumerate(DSA_TOPICS):
             db.add(DSATopic(name=name, order_index=i + 1))
 
-    # --- System Design Topics ---
-    if not db.query(SystemDesignTopic).first():
-        for i, (cat, name) in enumerate(SYSTEM_DESIGN_TOPICS):
-            db.add(SystemDesignTopic(category=cat, topic_name=name, order_index=i + 1))
+    # --- System Design Concepts & Sub-concepts ---
+    if not db.query(SystemDesignConcept).first():
+        for i, (cat, concept_name, sub_list) in enumerate(SYSTEM_DESIGN_TOPICS):
+            concept = SystemDesignConcept(category=cat, concept_name=concept_name, order_index=i + 1)
+            db.add(concept)
+            db.flush()
+            for j, sub_name in enumerate(sub_list):
+                db.add(SystemDesignSubConcept(
+                    concept_id=concept.id,
+                    subconcept_name=sub_name,
+                    order_index=j + 1,
+                    status="Not Started"
+                ))
 
     # --- System Design Cases ---
     if not db.query(SystemDesignCase).first():

@@ -26,6 +26,7 @@ def applications_page(
     request: Request,
     stage: Optional[str] = None,
     country: Optional[str] = None,
+    search: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     user = db.query(UserProfile).first()
@@ -34,6 +35,13 @@ def applications_page(
         query = query.filter(Application.stage == stage)
     if country:
         query = query.filter(Application.country == country)
+    if search and search.strip():
+        search_clean = search.strip()
+        query = query.filter(
+            Application.company.ilike(f"%{search_clean}%") |
+            Application.role.ilike(f"%{search_clean}%") |
+            Application.notes.ilike(f"%{search_clean}%")
+        )
     apps = query.order_by(Application.applied_date.desc().nullslast(), Application.created_at.desc()).all()
 
     # Stage counts
@@ -59,6 +67,7 @@ def applications_page(
         "countries": COUNTRIES,
         "selected_stage": stage,
         "selected_country": country,
+        "selected_search": search or "",
         "today": date.today(),
         "active_page": "applications",
     })

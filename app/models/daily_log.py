@@ -25,6 +25,7 @@ class DailyLog(Base):
     sub_topic = Column(String(200), nullable=False, default="")
     hours_spent = Column(Float, nullable=False, default=0.0)
     notes = Column(Text, default="")
+    sources = Column(Text, default="")
     problems_solved = Column(Integer, default=0)   # For DSA
     confidence = Column(Integer, default=3)        # 1-5 scale
     created_at = Column(DateTime(timezone=True), server_default=func.now())

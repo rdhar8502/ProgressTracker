@@ -63,6 +63,7 @@
             <th>Problems</th>
             <th>Confidence</th>
             <th>Notes</th>
+            <th>Sources</th>
             <th></th>
           </tr>
         </thead>
@@ -88,8 +89,30 @@
             <td class="text-muted text-sm" style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               {{ log.notes[:60] + '…' if log.notes and log.notes | length > 60 else log.notes }}
             </td>
+            <td style="max-width: 150px;">
+              {% if log.sources %}
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  {% for src in log.sources.split('\n') %}
+                    {% set src = src.strip() %}
+                    {% if src %}
+                      {% if src.startswith('http://') or src.startswith('https://') %}
+                        <a href="{{ src }}" target="_blank" class="badge" style="font-size: 10px; text-decoration: none; background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.15); color: #C084FC; padding: 1px 6px; border-radius: 4px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">
+                          🔗 {{ src[:20] }}{% if src | length > 20 %}...{% endif %}
+                        </a>
+                      {% else %}
+                        <span class="badge badge-gray" style="font-size: 10px; padding: 1px 6px; border-radius: 4px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; background: rgba(255,255,255,0.05);">
+                          📄 {{ src }}
+                        </span>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
             <td>
-              <form method="post" action="/daily/delete/{{ log.id }}" style="display: inline;">
+              <form method="post" action="/daily/delete/{{ log.id }}" style="display: inline; margin: 0;">
                 <button type="submit" class="btn btn-danger btn-sm btn-icon" 
                         onclick="return confirm('Delete this session?')" title="Delete">🗑</button>
               </form>
@@ -102,7 +125,7 @@
             <td colspan="3" style="font-weight: 700; font-size: 13px; padding: 12px 14px;">Total</td>
             <td style="font-weight: 800; font-size: 14px; color: var(--accent);">{{ total_hours }}h</td>
             <td style="font-weight: 700;">{{ problems_solved }}</td>
-            <td colspan="3"></td>
+            <td colspan="4"></td>
           </tr>
         </tfoot>
       </table>
@@ -171,6 +194,11 @@
           <textarea name="notes" class="form-textarea" placeholder="What did I learn? Any key patterns or mistakes?"></textarea>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Learning Sources (one URL/text per line)</label>
+          <textarea name="sources" class="form-textarea" placeholder="e.g. https://leetcode.com/problems/two-sum/&#10;YouTube: Two Sum Pattern explained" rows="3"></textarea>
+        </div>
+
         <div class="flex gap-3 justify-between mt-4">
           <button type="button" class="btn btn-secondary" onclick="closeModal('addLogModal')">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Session</button>
@@ -188,8 +216,10 @@ const selectedDate = '{{ selected_date }}';
 function navDate(delta) {
   const d = new Date(selectedDate + 'T00:00:00');
   d.setDate(d.getDate() + delta);
-  const iso = d.toISOString().split('T')[0];
-  window.location.href = '/daily?log_date=' + iso;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  window.location.href = '/daily?log_date=' + `${year}-${month}-${day}`;
 }
 
 function toggleProblems(cat) {
@@ -197,9 +227,16 @@ function toggleProblems(cat) {
   row.style.display = (cat === 'DSA') ? 'grid' : 'none';
 }
 
-// Auto-open modal if no logs
-{% if not logs %}
-// openModal('addLogModal');
-{% endif %}
+// Support keyboard arrow keys navigation (ArrowLeft for previous, ArrowRight for next)
+document.addEventListener('keydown', function(e) {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+    return;
+  }
+  if (e.key === 'ArrowLeft') {
+    navDate(-1);
+  } else if (e.key === 'ArrowRight') {
+    navDate(1);
+  }
+});
 </script>
 {% endblock %}

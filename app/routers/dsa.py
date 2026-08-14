@@ -22,6 +22,7 @@ def dsa_page(
     topic_id: Optional[str] = None,
     difficulty: Optional[str] = None,
     status: Optional[str] = None,
+    search: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     user = db.query(UserProfile).first()
@@ -46,6 +47,12 @@ def dsa_page(
         query = query.filter(DSAProblem.difficulty == difficulty)
     if status:
         query = query.filter(DSAProblem.status == status)
+    if search and search.strip():
+        query = query.filter(
+            DSAProblem.title.ilike(f"%{search.strip()}%") |
+            DSAProblem.pattern.ilike(f"%{search.strip()}%") |
+            DSAProblem.mistake.ilike(f"%{search.strip()}%")
+        )
     problems = query.order_by(DSAProblem.id.desc()).all()
 
     # Stats
@@ -79,6 +86,7 @@ def dsa_page(
         "selected_topic_id": parsed_topic_id,
         "selected_difficulty": difficulty,
         "selected_status": status,
+        "selected_search": search or "",
         "total": total,
         "solved": solved,
         "easy_solved": easy_solved,

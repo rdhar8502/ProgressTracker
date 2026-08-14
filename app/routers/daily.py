@@ -56,6 +56,7 @@ def add_log(
     sub_topic: str = Form(...),
     hours_spent: float = Form(...),
     notes: str = Form(""),
+    sources: str = Form(""),
     problems_solved: int = Form(0),
     confidence: int = Form(3),
     db: Session = Depends(get_db),
@@ -66,6 +67,7 @@ def add_log(
         sub_topic=sub_topic,
         hours_spent=hours_spent,
         notes=notes,
+        sources=sources,
         problems_solved=problems_solved,
         confidence=confidence,
     )
@@ -90,5 +92,5 @@ def api_logs(log_date: str, db: Session = Depends(get_db)):
     d = date.fromisoformat(log_date)
     logs = db.query(DailyLog).filter(DailyLog.date == d).all()
     return [{"id": l.id, "category": l.category, "sub_topic": l.sub_topic,
-             "hours_spent": l.hours_spent, "notes": l.notes,
+             "hours_spent": l.hours_spent, "notes": l.notes, "sources": l.sources,
              "problems_solved": l.problems_solved, "confidence": l.confidence} for l in logs]

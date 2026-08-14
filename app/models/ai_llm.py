@@ -14,6 +14,7 @@ class AILLMTopic(Base):
     depth = Column(Integer, default=1)    # 1=Surface, 2=Comfortable, 3=Deep
     notes = Column(Text, default="")
     resources = Column(Text, default="")
+    sources = Column(Text, default="")
     interview_talking_point = Column(Text, default="")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

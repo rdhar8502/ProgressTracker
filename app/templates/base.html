@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Progress Tracker{% endblock %} — {% if user %}{{ user.name }}{% else %}Progress Tracker{% endif %}</title>
   <meta name="description" content="Interview preparation progress tracker for Senior AI / Python Backend Engineer roles">
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/static/css/style.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   {% block head %}{% endblock %}
 </head>
@@ -27,7 +29,22 @@
     {% if user %}
     <div class="sidebar-user">
       <div class="user-name">{{ user.name }}</div>
-      <div class="user-role">{{ user.target_role | truncate(60) }}</div>
+      <div class="user-role" style="margin-bottom: 8px;">{{ user.target_role | truncate(60) }}</div>
+      
+      <!-- Mini XP Bar -->
+      {% set g = user_gamification() %}
+      {% if g %}
+      <div class="sidebar-xp-panel" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 6px 8px; margin-top: 4px;">
+        <div style="display: flex; align-items: center; font-size: 11px; margin-bottom: 2px;">
+          <span style="color: #A5B4FC; font-weight: 700;">Lvl {{ g.level_details.level }}</span>
+          <span style="color: #9CA3AF; text-align: right; margin-left: auto;">{{ g.level_details.total_xp }} XP</span>
+        </div>
+        <div style="font-size: 10px; color: #6B7280; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.level_details.title }}</div>
+        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden;">
+          <div style="height: 100%; background: linear-gradient(90deg, #6366F1, #A5B4FC); width: {{ g.level_details.pct_progress }}%; border-radius: 99px;"></div>
+        </div>
+      </div>
+      {% endif %}
     </div>
     {% endif %}
 
@@ -39,6 +56,11 @@
         <span>Dashboard</span>
       </a>
 
+      <a href="/achievements" class="nav-item {% if active_page == 'achievements' %}active{% endif %}">
+        <span class="nav-icon">🏆</span>
+        <span>Achievements</span>
+      </a>
+
       <a href="/daily" class="nav-item {% if active_page == 'daily' %}active{% endif %}">
         <span class="nav-icon">📝</span>
         <span>Daily Log</span>
@@ -48,6 +70,7 @@
         <span class="nav-icon">📅</span>
         <span>Weekly View</span>
       </a>
+
 
       <div class="nav-section-label">Preparation</div>
 
@@ -78,6 +101,13 @@
         <span>Applications</span>
       </a>
 
+      <div class="nav-section-label">Personal</div>
+
+      <a href="/personal-hub" class="nav-item {% if active_page == 'personal_hub' %}active{% endif %}">
+        <span class="nav-icon">💡</span>
+        <span>Notes & Reminders</span>
+      </a>
+
       <div class="nav-section-label">Account</div>
 
       <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
@@ -98,7 +128,15 @@
   <!-- ══ Main ══ -->
   <div class="main-content">
     <header class="top-header">
-      <h1 class="header-title">{% block page_title %}Dashboard{% endblock %}</h1>
+      <h1 class="header-title" style="flex-shrink: 0; min-width: 150px;">{% block page_title %}Dashboard{% endblock %}</h1>
+      
+      <!-- Universal Search Bar -->
+      <div class="header-search" id="headerSearch">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="universalSearchInput" placeholder="Search everything (press '/' to focus)..." autocomplete="off">
+        <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+      </div>
+
       <div class="header-right">
         <span class="header-date" id="current-date"></span>
         {% if user %}

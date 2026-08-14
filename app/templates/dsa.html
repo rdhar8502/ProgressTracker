@@ -34,7 +34,7 @@
     <div class="card-header">
       <span class="card-title">Topic Progress</span>
     </div>
-    <div class="card-body no-top" style="max-height: 600px; overflow-y: auto;">
+    <div class="card-body no-top" style="max-height: 800px; overflow-y: auto;">
       {% for t in topic_stats %}
       <div style="margin-bottom: 12px;">
         <div class="flex justify-between items-center" style="margin-bottom: 4px;">
@@ -190,8 +190,14 @@
               {% if p.problem_url %}
               <div style="display: inline-flex; align-items: center; gap: 8px;">
                 <a href="{{ p.problem_url }}" target="_blank" style="color: var(--accent);">{{ p.clean_title }}</a>
-                <span class="badge {{ p.source_site_badge_class }}" style="font-size: 9px; padding: 1px 6px;">{{
-                  p.source_site }}</span>
+                <span class="badge {{ p.source_site_badge_class }}" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;">
+                  <img src="https://www.google.com/s2/favicons?sz=32&domain={{ p.problem_url }}"
+                       width="12" height="12"
+                       style="flex-shrink: 0; object-fit: contain; vertical-align: middle;"
+                       onerror="this.style.display='none'"
+                       alt="">
+                  {{ p.source_site }}
+                </span>
               </div>
               {% else %}
               {{ p.clean_title }}

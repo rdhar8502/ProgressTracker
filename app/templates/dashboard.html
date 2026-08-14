@@ -11,8 +11,52 @@
 </div>
 {% else %}
 
+<!-- ── Daily Spark & Level Header ── -->
+<div class="grid-2 mb-6" style="gap: 16px;">
+  <!-- Daily Spark -->
+  <div class="card" style="background: linear-gradient(135deg, #1E1B4B 0%, #111827 100%); border: 1px solid rgba(99, 102, 241, 0.2); color: white; min-height: 140px;">
+    <div class="card-body" style="padding: 16px 20px;">
+      <div style="font-size: 11px; color: #818CF8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">💡 Daily Spark & Focus</div>
+      <div style="font-size: 13px; font-style: italic; color: #E4E4E7; margin-bottom: 8px;">"{{ spark.motivation }}"</div>
+      <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0;"></div>
+      <div style="font-size: 12px; color: #9CA3AF; line-height: 1.4;">
+        <strong style="color: #A5B4FC;">Senior Focus:</strong> {{ spark.tech_tip }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Progress Card -->
+  <div class="card" style="background: linear-gradient(135deg, #064E3B 0%, #111827 100%); border: 1px solid rgba(16, 185, 129, 0.2); color: white; min-height: 140px;">
+    <div class="card-body" style="padding: 16px 20px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div class="flex items-center justify-between" style="margin-bottom: 6px;">
+        <div style="font-size: 11px; color: #34D399; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">🏆 Level & XP Status</div>
+        <a href="/achievements" style="font-size: 11px; color: #34D399; text-decoration: none; font-weight: 600;">Quest Board →</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: #10B981; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); flex-shrink: 0;">
+          {{ gamification.level_details.level }}
+        </div>
+        <div style="flex-grow: 1;">
+          <div style="font-size: 15px; font-weight: 700; color: white;">{{ gamification.level_details.title }}</div>
+          <div style="font-size: 11px; color: #9CA3AF;">{{ gamification.level_details.total_xp }} Total XP · {{ gamification.total_badges_unlocked }} milestones met</div>
+        </div>
+      </div>
+      <div style="margin-top: 10px;">
+        <div style="height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;">
+          <div style="height: 100%; background: linear-gradient(90deg, #10B981, #34D399); width: {{ gamification.level_details.pct_progress }}%;"></div>
+        </div>
+        <div class="flex justify-between" style="font-size: 9px; color: #9CA3AF; margin-top: 4px;">
+          <span>{{ gamification.level_details.xp_in_level }} XP</span>
+          <span>Next level in {{ gamification.level_details.xp_needed_for_next }} XP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Week Banner ── -->
 <div class="card mb-6" style="background: linear-gradient(135deg, #18181B 0%, #27272A 100%); border: none; color: white;">
+
   <div class="card-body" style="padding: 20px 24px;">
     <div class="flex items-center justify-between">
       <div>

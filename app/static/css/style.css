@@ -467,6 +467,53 @@ img { max-width: 100%; }
 .badge-red    { background: var(--danger-bg); color: var(--danger); }
 .badge-gray   { background: #F4F4F5; color: #71717A; }
 
+/* Platform-specific Badges */
+.badge-leetcode {
+  background: #FFF7ED; /* Tailwind orange-50 */
+  color: #C2410C;      /* Tailwind orange-700 */
+  border: 1px solid #FED7AA; /* Tailwind orange-200 */
+}
+.badge-leetcode svg {
+  fill: #F97316;       /* Official LeetCode Orange */
+}
+
+.badge-gfg {
+  background: #F0FDF4; /* Tailwind green-50 */
+  color: #15803D;      /* Tailwind green-700 */
+  border: 1px solid #BBF7D0; /* Tailwind green-200 */
+}
+.badge-gfg svg {
+  fill: #2F8D46;       /* Official GFG Green */
+}
+
+.badge-hackerrank {
+  background: #F0FDF4;
+  color: #166534;
+  border: 1px solid #BBF7D0;
+}
+.badge-hackerrank svg {
+  fill: #1BA94C;
+}
+
+.badge-codeforces {
+  background: #EFF6FF; /* Tailwind blue-50 */
+  color: #1D4ED8;      /* Tailwind blue-700 */
+  border: 1px solid #BFDBFE; /* Tailwind blue-200 */
+}
+
+.badge-codechef {
+  background: #FAF7F6;
+  color: #78350F;
+  border: 1px solid #E6D5CC;
+}
+
+.badge-other-site {
+  background: #F4F4F5;
+  color: #71717A;
+  border: 1px solid #E4E4E7;
+}
+
+
 /* Difficulty badges */
 .diff-easy   { background: #ECFDF5; color: #059669; }
 .diff-medium { background: #FFFBEB; color: #D97706; }
@@ -985,6 +1032,162 @@ tbody tr:hover { background: var(--surface-alt); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #D4D4D8; }
 
+/* ─── Universal Search Bar ───────────────────────────────── */
+.header-search {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+  margin: 0 24px;
+}
+
+.header-search .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.header-search input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+}
+
+.header-search input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  max-height: 420px;
+  overflow-y: auto;
+  z-index: 999;
+  display: none;
+  padding: 8px 0;
+}
+
+.search-results-dropdown.open {
+  display: block;
+}
+
+.search-group-header {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  padding: 6px 14px 2px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface-alt);
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  transition: var(--transition);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item:hover,
+.search-result-item.selected {
+  background: var(--surface-alt);
+  border-left-color: var(--accent);
+}
+
+.search-result-item .item-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-result-item .item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-result-item .item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.search-result-item .item-snippet {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-item .item-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.search-no-results {
+  padding: 20px 14px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ─── Personal Hub Cards ─────────────────────────────────── */
+.hub-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hub-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.completed-item-card {
+  background-color: var(--surface-alt) !important;
+  border-color: var(--border-light) !important;
+  border-top-color: var(--text-muted) !important;
+}
+
+.completed-item-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: none;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
   :root { --sidebar-w: 0px; }
@@ -993,4 +1196,5 @@ tbody tr:hover { background: var(--surface-alt); }
   .page-content { padding: 16px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .rings-grid { grid-template-columns: 1fr 1fr; }
+  .header-search { display: none; } /* Hide search on narrow mobile for layout */
 }

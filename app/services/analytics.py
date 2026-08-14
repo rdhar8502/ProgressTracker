@@ -4,7 +4,7 @@ from sqlalchemy import func
 from typing import Dict, List
 from app.models.daily_log import DailyLog
 from app.models.dsa import DSAProblem, DSATopic
-from app.models.system_design import SystemDesignTopic, SystemDesignCase
+from app.models.system_design import SystemDesignConcept, SystemDesignSubConcept, SystemDesignCase
 from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubProject
 from app.models.user import UserProfile, WeeklySchedule
@@ -121,8 +121,8 @@ def get_dsa_stats(db: Session) -> Dict:
 
 
 def get_system_design_stats(db: Session) -> Dict:
-    topics_total = db.query(SystemDesignTopic).count()
-    topics_done = db.query(SystemDesignTopic).filter(SystemDesignTopic.status == "Done").count()
+    topics_total = db.query(SystemDesignSubConcept).count()
+    topics_done = db.query(SystemDesignSubConcept).filter(SystemDesignSubConcept.status == "Done").count()
     cases_total = db.query(SystemDesignCase).count()
     cases_done = db.query(SystemDesignCase).filter(SystemDesignCase.status == "Done").count()
     total = topics_total + cases_total
@@ -161,11 +161,19 @@ def get_github_stats(db: Session) -> Dict:
     }
 
 
-def get_weekly_hours_chart(db: Session, weeks: List) -> List[Dict]:
-    """Return hours per week for chart display (last 10 weeks max)."""
+def get_weekly_hours_chart(db: Session, weeks: List, current_week_num: int = None) -> List[Dict]:
+    """Return hours per week for chart display (last 10 weeks max, aligned to current week)."""
+    if current_week_num is None:
+        current_week_num = len(weeks)
+
+    if current_week_num <= 10:
+        display_weeks = weeks[:10]
+    else:
+        start_idx = max(0, current_week_num - 10)
+        display_weeks = weeks[start_idx:current_week_num]
+
     result = []
-    last_weeks = weeks[-10:] if len(weeks) > 10 else weeks
-    for wn, ws, we in last_weeks:
+    for wn, ws, we in display_weeks:
         hours = get_week_hours(db, ws, we)
         result.append({"week": f"W{wn}", "hours": hours})
     return result

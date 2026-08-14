@@ -3,8 +3,33 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse
+import fastapi.templating
 
-from app.routers import dashboard, daily, weekly, dsa, system_design, ai_llm, github, applications, settings
+# Monkeypatch Jinja2Templates to inject global helper functions for all routers
+_original_init = fastapi.templating.Jinja2Templates.__init__
+
+def _patched_init(self, *args, **kwargs):
+    _original_init(self, *args, **kwargs)
+    self.env.globals["today"] = date.today()
+    
+    def get_user_gamification():
+        from app.database import SessionLocal
+        from app.services.gamification import get_gamification_state
+        db = SessionLocal()
+        try:
+            return get_gamification_state(db)
+        except Exception:
+            return None
+        finally:
+            db.close()
+            
+    self.env.globals["user_gamification"] = get_user_gamification
+
+fastapi.templating.Jinja2Templates.__init__ = _patched_init
+
+
+from app.routers import dashboard, daily, weekly, dsa, system_design, ai_llm, github, applications, settings, personal_hub, search, achievements
 
 app = FastAPI(
     title="Progress Tracker",
@@ -17,9 +42,14 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Set up Jinja2 global — inject today() as a callable into every template
+# Set up Jinja2 templates
 templates = Jinja2Templates(directory="app/templates")
-templates.env.globals["today"] = date.today()   # static for this session; resets on container restart
+
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("app/static/favicon.svg", media_type="image/svg+xml")
 
 # Include all routers
 app.include_router(dashboard.router)
@@ -31,3 +61,7 @@ app.include_router(ai_llm.router)
 app.include_router(github.router)
 app.include_router(applications.router)
 app.include_router(settings.router)
+app.include_router(personal_hub.router)
+app.include_router(search.router)
+app.include_router(achievements.router)
+

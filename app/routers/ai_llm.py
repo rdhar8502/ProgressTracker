@@ -1,8 +1,10 @@
 from datetime import date
+from typing import Optional
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.database import get_db
 from app.models.ai_llm import AILLMTopic
@@ -16,9 +18,23 @@ DEPTH_LABELS = {1: "Surface", 2: "Comfortable", 3: "Deep"}
 
 
 @router.get("", response_class=HTMLResponse)
-def ai_page(request: Request, db: Session = Depends(get_db)):
+def ai_page(
+    request: Request,
+    search: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
     user = db.query(UserProfile).first()
-    topics = db.query(AILLMTopic).order_by(AILLMTopic.order_index).all()
+    query = db.query(AILLMTopic)
+
+    if search and search.strip():
+        query = query.filter(
+            or_(
+                AILLMTopic.topic_name.ilike(f"%{search.strip()}%"),
+                AILLMTopic.notes.ilike(f"%{search.strip()}%")
+            )
+        )
+
+    topics = query.order_by(AILLMTopic.order_index).all()
 
     done = sum(1 for t in topics if t.status == "Done")
     in_progress = sum(1 for t in topics if t.status == "In Progress")
@@ -40,6 +56,7 @@ def ai_page(request: Request, db: Session = Depends(get_db)):
         "pct": pct,
         "statuses": STATUSES,
         "depth_labels": DEPTH_LABELS,
+        "selected_search": search or "",
         "active_page": "ai_llm",
     })
 
@@ -51,6 +68,7 @@ def update_topic(
     depth: int = Form(1),
     notes: str = Form(""),
     resources: str = Form(""),
+    sources: str = Form(""),
     interview_talking_point: str = Form(""),
     db: Session = Depends(get_db),
 ):
@@ -61,6 +79,7 @@ def update_topic(
     t.depth = depth
     t.notes = notes
     t.resources = resources
+    t.sources = sources
     t.interview_talking_point = interview_talking_point
     db.commit()
     return RedirectResponse(url="/ai-llm", status_code=303)

@@ -9,6 +9,8 @@ from app.database import get_db
 from app.models.user import UserProfile, WeeklySchedule
 from app.services import analytics
 from app.services.week_utils import generate_weeks, get_current_week_number, days_remaining
+from app.services.gamification import get_gamification_state
+from app.services.motivation import get_daily_spark
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -48,8 +50,11 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     gh_stats = analytics.get_github_stats(db)
     hours_by_cat = analytics.get_hours_by_category(db)
     daily_chart = analytics.get_daily_hours_last_n_days(db, 14)
-    weekly_chart = analytics.get_weekly_hours_chart(db, weeks_raw)
+    weekly_chart = analytics.get_weekly_hours_chart(db, weeks_raw, current_week_num)
     cat_chart = analytics.get_category_hours_for_chart(db)
+
+    gamification = get_gamification_state(db)
+    spark = get_daily_spark()
 
     # Progress for category rings
     category_progress = [
@@ -83,5 +88,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         "daily_chart_json": json.dumps(daily_chart),
         "weekly_chart_json": json.dumps(weekly_chart),
         "cat_chart_json": json.dumps(cat_chart),
+        "gamification": gamification,
+        "spark": spark,
         "active_page": "dashboard",
     })
+

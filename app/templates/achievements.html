@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% block title %}Achievements & Quests{% endblock %}
+{% block page_title %}Achievements & Quests{% endblock %}
+
+{% block content %}
+<div class="gamification-container">
+
+  <!-- ══ XP Level & Profile Card ══ -->
+  <div class="card mb-6 level-profile-card">
+    <div class="card-body">
+      <div class="level-flex">
+        <!-- Level Emblem -->
+        <div class="level-emblem-wrapper">
+          <div class="level-emblem-circle">
+            <span class="level-number">{{ gamification.level_details.level }}</span>
+            <span class="level-label">Level</span>
+          </div>
+        </div>
+        
+        <!-- Progress Details -->
+        <div class="level-progress-details">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h2 class="level-title-text">{{ gamification.level_details.title }}</h2>
+              <p class="user-sub-text">Prep journey of {{ user.name }} · {{ user.target_role }}</p>
+            </div>
+            <div style="text-align: right;">
+              <span class="total-xp-badge">{{ gamification.level_details.total_xp }} Total XP</span>
+            </div>
+          </div>
+          
+          <!-- XP Bar -->
+          <div class="xp-bar-container">
+            <div class="xp-bar-fill" style="width: {{ gamification.level_details.pct_progress }}%;"></div>
+          </div>
+          
+          <div class="flex justify-between mt-2 text-xs text-muted">
+            <span>{{ gamification.level_details.current_boundary }} XP</span>
+            <span><strong>{{ gamification.level_details.xp_in_level }} / {{ gamification.level_details.next_boundary - gamification.level_details.current_boundary }} XP</strong> ({{ gamification.level_details.pct_progress }}%)</span>
+            <span>{{ gamification.level_details.next_boundary }} XP</span>
+          </div>
+          
+          <div class="level-up-tip mt-3">
+            🎯 Gain <strong>{{ gamification.level_details.xp_needed_for_next }} XP</strong> to reach Level {{ gamification.level_details.level + 1 }}!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ XP Guidelines & Stats Grid ══ -->
+  <div class="grid-3 mb-6">
+    <div class="card stat-summary-card purple">
+      <div class="card-body text-center">
+        <span class="summary-icon">🏆</span>
+        <div class="summary-value">{{ gamification.total_badges_unlocked }} / {{ gamification.total_badges_possible }}</div>
+        <div class="summary-label">Quest Categories Active</div>
+        <p class="summary-desc">Active milestones reached across all learning vectors.</p>
+      </div>
+    </div>
+    <div class="card stat-summary-card blue">
+      <div class="card-body text-center">
+        <span class="summary-icon">🔥</span>
+        <div class="summary-value">{{ gamification.metrics.streak }} days</div>
+        <div class="summary-label">Current Streak</div>
+        <p class="summary-desc">Keep logging daily sessions to multiply your XP gains.</p>
+      </div>
+    </div>
+    <div class="card stat-summary-card green">
+      <div class="card-body text-center">
+        <span class="summary-icon">⚡</span>
+        <div class="summary-value">+{{ gamification.bonus_xp }} XP</div>
+        <div class="summary-label">Achievement Bonuses</div>
+        <p class="summary-desc">Additional XP awarded for unlocking milestone tiers.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Quest Board Header ══ -->
+  <h2 class="section-heading mb-4">🛡️ Active Milestones & Quest Tiers</h2>
+
+  <!-- ══ Achievements Grid ══ -->
+  <div class="quests-grid">
+    {% for ach in gamification.achievements %}
+    <div class="card quest-card {% if ach.active_tier != 'None' %}unlocked-card{% endif %}">
+      <div class="card-body">
+        
+        <!-- Card Header -->
+        <div class="quest-card-header">
+          <div class="quest-icon-wrapper">{{ ach.icon }}</div>
+          <div class="quest-title-section">
+            <h3 class="quest-title">{{ ach.title }}</h3>
+            <p class="quest-desc">{{ ach.description }}</p>
+          </div>
+          <div class="quest-badge-display">
+            <span class="quest-badge-emblem" title="Current Tier: {{ ach.active_tier }}">{{ ach.active_badge }}</span>
+          </div>
+        </div>
+
+        <!-- Progress Metrics -->
+        <div class="quest-progress-section mt-4">
+          <div class="flex justify-between items-center text-sm mb-1">
+            <span class="current-metric-text">
+              Current: <strong>{{ ach.current_value }}</strong> {{ ach.unit }}
+            </span>
+            {% if ach.next_tier_name != 'Maxed' %}
+            <span class="next-milestone-text text-muted">
+              Next Tier: <strong>{{ ach.next_tier_threshold }}</strong> ({{ ach.next_tier_badge }} {{ ach.next_tier_name }})
+            </span>
+            {% else %}
+            <span class="next-milestone-text text-green" style="color: #10B981; font-weight: bold;">
+              🎉 MAX LEVEL REACHED!
+            </span>
+            {% endif %}
+          </div>
+          
+          <div class="quest-progress-bar">
+            <div class="quest-progress-fill" style="width: {{ ach.progress_pct }}%;"></div>
+          </div>
+        </div>
+
+        <!-- Tiers Checkpoint List -->
+        <div class="quest-tiers-checkpoints mt-4">
+          <div class="flex items-center justify-between text-xs text-muted mb-2">
+            <span>Milestone Tiers:</span>
+          </div>
+          <div class="tiers-list">
+            {% for tier in ach.tiers %}
+            <div class="tier-item {% if tier.unlocked %}unlocked-tier{% endif %}" title="{{ tier.tier }} milestone: {{ tier.threshold }} ({{ tier.bonus }} XP)">
+              <span class="tier-badge">{{ tier.badge }}</span>
+              <span class="tier-threshold">{{ tier.threshold }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ══ How to Earn XP Card ══ -->
+  <div class="card mt-6">
+    <div class="card-header">
+      <span class="card-title">📖 XP Codex — How to Level Up</span>
+    </div>
+    <div class="card-body">
+      <div class="grid-2 text-sm">
+        <div>
+          <h4 style="color: white; font-weight: 600; margin-bottom: 8px;">Standard Action Gains</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+            <li>📝 <strong>10 XP</strong> per study hour logged</li>
+            <li>🟢 <strong>10 XP</strong> per Easy DSA problem solved</li>
+            <li>🟡 <strong>25 XP</strong> per Medium DSA problem solved</li>
+            <li>🔴 <strong>50 XP</strong> per Hard DSA problem solved</li>
+            <li>📅 <strong>5 XP</strong> per consecutive day logged (streak multiplier)</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color: white; font-weight: 600; margin-bottom: 8px;">Advanced Milestone Gains</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+            <li>🏗️ <strong>20 XP</strong> per System Design concept completed</li>
+            <li>🏗️ <strong>40 XP</strong> per System Design case study completed</li>
+            <li>🤖 <strong>20 XP</strong> per AI/LLM topic completed</li>
+            <li>🐙 <strong>15 XP</strong> per GitHub project task completed</li>
+            <li>📤 <strong>10 XP</strong> per job application logged</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Custom Page Styling -->
+<style>
+.gamification-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Level Profile Card */
+.level-profile-card {
+  background: linear-gradient(135deg, #1E1B4B 0%, #111827 100%);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+.level-flex {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .level-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+.level-emblem-wrapper {
+  flex-shrink: 0;
+}
+.level-emblem-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+.level-number {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+}
+.level-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.level-progress-details {
+  flex-grow: 1;
+  width: 100%;
+}
+.level-title-text {
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+.user-sub-text {
+  font-size: 13px;
+  color: #9CA3AF;
+  margin: 2px 0 0 0;
+}
+.total-xp-badge {
+  background: rgba(99, 102, 241, 0.2);
+  color: #A5B4FC;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* XP Bar */
+.xp-bar-container {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366F1 0%, #818CF8 50%, #A5B4FC 100%);
+  border-radius: 99px;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.level-up-tip {
+  font-size: 12px;
+  color: #C7D2FE;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Stat Summaries */
+.stat-summary-card {
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.summary-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: block;
+}
+.summary-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+}
+.summary-label {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.summary-desc {
+  font-size: 11px;
+  color: #6B7280;
+  margin: 6px 0 0 0;
+}
+
+/* Quests Grid & Card */
+.quests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.quest-card {
+  background: #18181B;
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.quest-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+.unlocked-card {
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+.quest-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.quest-icon-wrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.quest-title-section {
+  flex-grow: 1;
+}
+.quest-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 2px 0;
+}
+.quest-desc {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin: 0;
+  line-height: 1.3;
+}
+.quest-badge-display {
+  flex-shrink: 0;
+}
+.quest-badge-emblem {
+  font-size: 24px;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.2));
+}
+
+/* Quest Progress */
+.current-metric-text {
+  color: #E4E4E7;
+}
+.quest-progress-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.quest-progress-fill {
+  height: 100%;
+  background: #6366F1;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+/* Quest Tiers List */
+.tiers-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tier-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #4B5563; /* locked */
+  filter: grayscale(1);
+  transition: all 0.2s;
+}
+.unlocked-tier {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: #C7D2FE;
+  filter: none;
+}
+.tier-badge {
+  font-size: 12px;
+}
+.tier-threshold {
+  font-weight: 600;
+}
+
+.section-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+</style>
+{% endblock %}
