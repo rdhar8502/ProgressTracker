@@ -2,6 +2,18 @@
 {% block title %}DSA Tracker{% endblock %}
 {% block page_title %}DSA Tracker{% endblock %}
 
+{% block head %}
+<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<!-- Highlight.js Syntax Highlighting (BSD-3 License - Open Source) -->
+<!-- Using VS Code Dark (vs2015) theme -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/python.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <!-- Stats -->
 <div class="stats-grid" style="margin-bottom: 24px;">
@@ -80,9 +92,27 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Problem Title *</label>
-          <input type="text" name="title" class="form-input" placeholder="e.g. Two Sum" required>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Problem Title *</label>
+            <input type="text" name="title" class="form-input" placeholder="e.g. Two Sum" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Problem URL</label>
+            <input type="url" name="problem_url" class="form-input"
+              placeholder="e.g. https://leetcode.com/problems/...">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Alternate Title (Optional)</label>
+            <input type="text" name="alternate_title" class="form-input" placeholder="e.g. Smallest Positive Missing Number">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alternate URL (Optional)</label>
+            <input type="url" name="alternate_url" class="form-input"
+              placeholder="e.g. https://www.geeksforgeeks.org/problems/...">
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -120,13 +150,11 @@
         </div>
         <div class="form-group">
           <label class="form-label">Mistakes / Notes</label>
-          <textarea name="mistake" class="form-textarea" style="min-height: 60px;"
+          <textarea name="mistake" id="addMistakeTextarea" class="form-textarea" style="min-height: 80px;"
             placeholder="What went wrong? What to remember?"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Problem URL</label>
-          <input type="url" name="problem_url" class="form-input"
-            placeholder="e.g., https://leetcode.com/problems/... or https://www.geeksforgeeks.org/problems/...">
+          <div class="quill-editor-wrapper" id="addMistakeQuillWrapper" style="display: none;">
+            <div id="addMistakeQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary w-full">Add Problem</button>
       </form>
@@ -187,21 +215,37 @@
           <tr>
             <td class="text-muted text-sm">{{ loop.index }}</td>
             <td style="font-weight: 600;">
-              {% if p.problem_url %}
-              <div style="display: inline-flex; align-items: center; gap: 8px;">
-                <a href="{{ p.problem_url }}" target="_blank" style="color: var(--accent);">{{ p.clean_title }}</a>
-                <span class="badge {{ p.source_site_badge_class }}" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;">
-                  <img src="https://www.google.com/s2/favicons?sz=32&domain={{ p.problem_url }}"
-                       width="12" height="12"
-                       style="flex-shrink: 0; object-fit: contain; vertical-align: middle;"
-                       onerror="this.style.display='none'"
-                       alt="">
-                  {{ p.source_site }}
-                </span>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                {% if p.problem_url %}
+                <div style="display: inline-flex; align-items: center; gap: 8px;">
+                  <a href="{{ p.problem_url }}" target="_blank" style="color: var(--accent);">{{ p.clean_title }}</a>
+                  <span class="badge {{ p.source_site_badge_class }}" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;">
+                    <img src="https://www.google.com/s2/favicons?sz=32&domain={{ p.problem_url }}"
+                         width="12" height="12"
+                         style="flex-shrink: 0; object-fit: contain; vertical-align: middle;"
+                         onerror="this.style.display='none'"
+                         alt="">
+                    {{ p.source_site }}
+                  </span>
+                </div>
+                {% else %}
+                <div>{{ p.clean_title }}</div>
+                {% endif %}
+
+                {% if p.alternate_url %}
+                <div style="display: inline-flex; align-items: center; gap: 8px;">
+                  <a href="{{ p.alternate_url }}" target="_blank" style="color: var(--accent);">{{ p.clean_alternate_title }}</a>
+                  <span class="badge {{ p.alternate_source_site_badge_class }}" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;">
+                    <img src="https://www.google.com/s2/favicons?sz=32&domain={{ p.alternate_url }}"
+                         width="12" height="12"
+                         style="flex-shrink: 0; object-fit: contain; vertical-align: middle;"
+                         onerror="this.style.display='none'"
+                         alt="">
+                    {{ p.alternate_source_site }}
+                  </span>
+                </div>
+                {% endif %}
               </div>
-              {% else %}
-              {{ p.clean_title }}
-              {% endif %}
             </td>
             <td class="text-sm">
               <div style="display: flex; flex-wrap: wrap; gap: 4px;">
@@ -238,12 +282,17 @@
                 <button class="btn btn-ghost btn-sm btn-icon view-code-btn"
                   data-title="{{ p.clean_title }}"
                   data-solution="{{ p.solution_snippet }}"
-                  title="View Solution">👁️</button>
+                  data-notes="{{ p.mistake | escape }}"
+                  title="View Details">👁️</button>
                 <button class="btn btn-ghost btn-sm btn-icon edit-problem-btn"
                   data-id="{{ p.id }}"
+                  data-title="{{ p.title }}"
+                  data-url="{{ p.problem_url }}"
+                  data-alt-title="{{ p.alternate_title }}"
+                  data-alt-url="{{ p.alternate_url }}"
                   data-status="{{ p.status }}"
                   data-pattern="{{ p.pattern }}"
-                  data-mistake="{{ p.mistake }}"
+                  data-mistake="{{ p.mistake | escape }}"
                   data-time-complexity="{{ p.time_complexity }}"
                   data-space-complexity="{{ p.space_complexity }}"
                   data-confidence="{{ p.confidence }}"
@@ -273,7 +322,7 @@
 
 <!-- Update Modal -->
 <div class="modal-overlay" id="updateModal">
-  <div class="modal">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Update Problem</span>
       <button class="modal-close" onclick="closeModal('updateModal')">✕</button>
@@ -289,6 +338,26 @@
               <span>{{ t.name }}</span>
             </label>
             {% endfor %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Problem Title *</label>
+            <input type="text" name="title" class="form-input" id="uTitle" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Problem URL</label>
+            <input type="url" name="problem_url" class="form-input" id="uUrl">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Alternate Title (Optional)</label>
+            <input type="text" name="alternate_title" class="form-input" id="uAltTitle">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alternate URL (Optional)</label>
+            <input type="url" name="alternate_url" class="form-input" id="uAltUrl">
           </div>
         </div>
         <div class="form-row">
@@ -327,12 +396,15 @@
         </div>
         <div class="form-group">
           <label class="form-label">Mistakes / Notes</label>
-          <textarea name="mistake" class="form-textarea" id="uMistake"></textarea>
+          <textarea name="mistake" id="uMistake" class="form-textarea" placeholder="What went wrong? What to remember?"></textarea>
+          <div class="quill-editor-wrapper" id="uMistakeQuillWrapper" style="display: none;">
+            <div id="uMistakeQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Python Solution Snippet</label>
-          <textarea name="solution_snippet" class="form-textarea" id="uSolution"
-            style="font-family: monospace; font-size: 12px;" placeholder="def solution(...)&#10;    ..."></textarea>
+          <textarea name="solution_snippet" class="form-textarea auto-resize-code" id="uSolution"
+            style="font-family: monospace; font-size: 13px; min-height: 250px;" placeholder="def solution(...)&#10;    ..."></textarea>
         </div>
         <div class="flex gap-3 justify-between">
           <button type="button" class="btn btn-secondary" onclick="closeModal('updateModal')">Cancel</button>
@@ -343,18 +415,35 @@
   </div>
 </div>
 
-<!-- Code View Modal -->
+<!-- Code & Notes View Modal -->
 <div class="modal-overlay" id="codeModal">
-  <div class="modal" style="max-width: 700px; width: 90%;">
+  <div class="modal" style="max-width: 750px; width: 95%;">
     <div class="modal-header">
-      <span class="modal-title" id="codeModalTitle">Solution Snippet</span>
+      <span class="modal-title" id="codeModalTitle">Problem Details</span>
       <button class="modal-close" onclick="closeModal('codeModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <pre
-        style="background: var(--bg-secondary); padding: 16px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 13px; color: var(--text-primary); margin-bottom: 20px; border: 1px solid var(--border); text-align: left; white-space: pre-wrap;"
-        id="codeSnippetContent"></pre>
-      <div class="flex justify-end">
+    <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- Top Section: Code -->
+      <div>
+        <div class="modal-section-title">
+          <span>🐍 Python 3 Solution</span>
+          <span class="badge badge-purple" style="font-size: 10px;">Syntax Highlighted</span>
+        </div>
+        <pre style="margin: 0;"><code class="language-python" id="codeSnippetContent"></code></pre>
+      </div>
+
+      <!-- Bottom Section: Notes -->
+      <div>
+        <div class="modal-section-title">
+          <span>📝 Mistakes / Notes</span>
+        </div>
+        <div class="modal-section-content" id="problemNotesContent" style="white-space: pre-wrap;">
+          <!-- Notes rendered as rich HTML -->
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-2">
         <button type="button" class="btn btn-secondary" onclick="closeModal('codeModal')">Close</button>
       </div>
     </div>
@@ -364,15 +453,35 @@
 
 {% block scripts %}
 <script>
-  function openUpdateModal(id, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds) {
+  let addMistakeQuill, uMistakeQuill;
+
+  function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+  }
+
+  function openUpdateModal(id, title, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds) {
     document.getElementById('updateForm').action = '/dsa/update/' + id;
+    document.getElementById('uTitle').value = title;
+    document.getElementById('uUrl').value = url || '';
+    document.getElementById('uAltTitle').value = altTitle || '';
+    document.getElementById('uAltUrl').value = altUrl || '';
     document.getElementById('uStatus').value = status;
     document.getElementById('uPattern').value = pattern;
-    document.getElementById('uMistake').value = mistake;
+    document.getElementById('uMistake').value = mistake || '';
+    
+    // Populate Quill editor if active
+    if (window.Quill && uMistakeQuill) {
+      uMistakeQuill.root.innerHTML = mistake || '';
+    }
+
     document.getElementById('uTimeComplexity').value = timeC;
     document.getElementById('uSpaceComplexity').value = spaceC;
     document.getElementById('uConfidence').value = confidence;
-    document.getElementById('uSolution').value = solution || '';
+    
+    const uSolution = document.getElementById('uSolution');
+    uSolution.value = solution || '';
 
     const checkboxes = document.querySelectorAll('#updateModal input[name="topic_ids"]');
     checkboxes.forEach(cb => {
@@ -380,24 +489,84 @@
     });
 
     openModal('updateModal');
+
+    // Trigger auto-resize after modal is rendered in DOM
+    setTimeout(() => {
+      autoResizeTextarea(uSolution);
+    }, 80);
   }
 
-  function openCodeModal(title, snippet) {
-    document.getElementById('codeModalTitle').textContent = 'Solution: ' + title;
+  function openCodeModal(title, snippet, notes) {
+    document.getElementById('codeModalTitle').textContent = 'Problem Details: ' + title;
+    
     const contentEl = document.getElementById('codeSnippetContent');
     if (snippet && snippet.trim() !== '') {
       contentEl.textContent = snippet;
     } else {
-      contentEl.textContent = 'No solution snippet provided for this problem yet.';
+      contentEl.textContent = '# No solution snippet provided for this problem yet.';
     }
+    
+    // Clear and trigger Highlight.js highlighting if loaded
+    if (window.hljs) {
+      contentEl.removeAttribute('data-highlighted');
+      hljs.highlightElement(contentEl);
+    }
+
+    // Set notes
+    const notesEl = document.getElementById('problemNotesContent');
+    notesEl.innerHTML = notes || '<p class="text-muted">No notes recorded for this problem.</p>';
+
     openModal('codeModal');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Quill editors if loaded
+    if (window.Quill) {
+      // Add form setup
+      document.getElementById('addMistakeTextarea').style.display = 'none';
+      document.getElementById('addMistakeQuillWrapper').style.display = 'block';
+
+      const richToolbar = [
+        [{ 'header': [1, 2, 3, 4, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'align': [] }],
+        ['link', 'blockquote', 'code-block'],
+        ['clean']
+      ];
+
+      addMistakeQuill = new Quill('#addMistakeQuillEditor', {
+        theme: 'snow',
+        modules: {
+          toolbar: richToolbar
+        },
+        placeholder: 'What went wrong? What to remember?'
+      });
+
+      // Update form setup
+      document.getElementById('uMistake').style.display = 'none';
+      document.getElementById('uMistakeQuillWrapper').style.display = 'block';
+
+      uMistakeQuill = new Quill('#uMistakeQuillEditor', {
+        theme: 'snow',
+        modules: {
+          toolbar: richToolbar
+        },
+        placeholder: 'What went wrong? What to remember?'
+      });
+    }
+
     // Wire up edit buttons using data attributes
     document.querySelectorAll('.edit-problem-btn').forEach(btn => {
       btn.addEventListener('click', function () {
         const id = this.getAttribute('data-id');
+        const title = this.getAttribute('data-title');
+        const url = this.getAttribute('data-url');
+        const altTitle = this.getAttribute('data-alt-title');
+        const altUrl = this.getAttribute('data-alt-url');
         const status = this.getAttribute('data-status');
         const pattern = this.getAttribute('data-pattern');
         const mistake = this.getAttribute('data-mistake');
@@ -408,22 +577,41 @@
         const topicIdsStr = this.getAttribute('data-topic-ids');
         const topicIds = topicIdsStr ? topicIdsStr.split(',').map(x => parseInt(x)) : [];
 
-        openUpdateModal(id, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds);
+        openUpdateModal(id, title, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds);
       });
     });
+
+    // Auto-resize solution textarea as user types
+    const uSolutionEl = document.getElementById('uSolution');
+    if (uSolutionEl) {
+      uSolutionEl.addEventListener('input', function() {
+        autoResizeTextarea(this);
+      });
+    }
 
     // Wire up view code buttons using data attributes
     document.querySelectorAll('.view-code-btn').forEach(btn => {
       btn.addEventListener('click', function () {
         const title = this.getAttribute('data-title');
         const solution = this.getAttribute('data-solution');
-        openCodeModal(title, solution);
+        const notes = this.getAttribute('data-notes');
+        openCodeModal(title, solution, notes);
       });
     });
 
     const addForm = document.getElementById('addProblemForm');
     if (addForm) {
       addForm.addEventListener('submit', function (e) {
+        // Sync add form Quill content if Quill is active
+        if (window.Quill && addMistakeQuill) {
+          const textarea = document.getElementById('addMistakeTextarea');
+          if (addMistakeQuill.getText().trim().length === 0) {
+            textarea.value = '';
+          } else {
+            textarea.value = addMistakeQuill.root.innerHTML;
+          }
+        }
+
         const checked = addForm.querySelectorAll('input[name="topic_ids"]:checked');
         if (checked.length === 0) {
           e.preventDefault();
@@ -435,6 +623,16 @@
     const updateForm = document.getElementById('updateForm');
     if (updateForm) {
       updateForm.addEventListener('submit', function (e) {
+        // Sync update form Quill content if Quill is active
+        if (window.Quill && uMistakeQuill) {
+          const textarea = document.getElementById('uMistake');
+          if (uMistakeQuill.getText().trim().length === 0) {
+            textarea.value = '';
+          } else {
+            textarea.value = uMistakeQuill.root.innerHTML;
+          }
+        }
+
         const checked = updateForm.querySelectorAll('input[name="topic_ids"]:checked');
         if (checked.length === 0) {
           e.preventDefault();

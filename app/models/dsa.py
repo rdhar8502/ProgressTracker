@@ -78,6 +78,8 @@ class DSAProblem(Base):
     solution_snippet = Column(Text, default="")
     confidence = Column(Integer, default=3)  # 1-5
     problem_url = Column(String(300), default="")
+    alternate_title = Column(String(300), default="")
+    alternate_url = Column(String(300), default="")
     solved_date = Column(Date, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -89,8 +91,21 @@ class DSAProblem(Base):
         return self.title
 
     @property
+    def clean_alternate_title(self) -> str:
+        if not self.alternate_title:
+            return ""
+        if self.alternate_title.startswith("http://") or self.alternate_title.startswith("https://"):
+            return clean_title_from_url(self.alternate_title)
+        return self.alternate_title
+
+    @property
     def clean_title_js_escaped(self) -> str:
         title = self.clean_title
+        return title.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+
+    @property
+    def clean_alternate_title_js_escaped(self) -> str:
+        title = self.clean_alternate_title
         return title.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
 
     @property
@@ -133,6 +148,53 @@ class DSAProblem(Base):
     @property
     def source_site_badge_class(self) -> str:
         site = self.source_site.lower()
+        if site == "leetcode":
+            return "badge-leetcode"
+        elif site == "geeksforgeeks":
+            return "badge-gfg"
+        elif site == "hackerrank":
+            return "badge-hackerrank"
+        elif site == "codeforces":
+            return "badge-codeforces"
+        elif site == "codechef":
+            return "badge-codechef"
+        else:
+            return "badge-other-site"
+
+    @property
+    def alternate_source_site(self) -> str:
+        if not self.alternate_url:
+            return "Other"
+        
+        url_lower = self.alternate_url.lower()
+        if "leetcode.com" in url_lower:
+            return "LeetCode"
+        elif "geeksforgeeks.org" in url_lower:
+            return "GeeksforGeeks"
+        elif "hackerrank.com" in url_lower:
+            return "HackerRank"
+        elif "codeforces.com" in url_lower:
+            return "Codeforces"
+        elif "codechef.com" in url_lower:
+            return "CodeChef"
+        elif "lintcode.com" in url_lower:
+            return "LintCode"
+        elif "interviewbit.com" in url_lower:
+            return "InterviewBit"
+        else:
+            try:
+                parsed = urlparse(self.alternate_url)
+                netloc = parsed.netloc.lower()
+                if netloc.startswith("www."):
+                    netloc = netloc[4:]
+                domain = netloc.split(".")[0]
+                return domain.capitalize() if domain else "Other"
+            except Exception:
+                return "Other"
+
+    @property
+    def alternate_source_site_badge_class(self) -> str:
+        site = self.alternate_source_site.lower()
         if site == "leetcode":
             return "badge-leetcode"
         elif site == "geeksforgeeks":

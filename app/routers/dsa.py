@@ -50,6 +50,7 @@ def dsa_page(
     if search and search.strip():
         query = query.filter(
             DSAProblem.title.ilike(f"%{search.strip()}%") |
+            DSAProblem.alternate_title.ilike(f"%{search.strip()}%") |
             DSAProblem.pattern.ilike(f"%{search.strip()}%") |
             DSAProblem.mistake.ilike(f"%{search.strip()}%")
         )
@@ -109,6 +110,8 @@ def add_problem(
     solution_snippet: str = Form(""),
     confidence: int = Form(3),
     problem_url: str = Form(""),
+    alternate_title: str = Form(""),
+    alternate_url: str = Form(""),
     db: Session = Depends(get_db),
 ):
     if title.startswith("http://") or title.startswith("https://"):
@@ -116,6 +119,15 @@ def add_problem(
             problem_url = title
         from app.models.dsa import clean_title_from_url
         title = clean_title_from_url(title)
+
+    if alternate_title.startswith("http://") or alternate_title.startswith("https://"):
+        if not alternate_url:
+            alternate_url = alternate_title
+        from app.models.dsa import clean_title_from_url
+        alternate_title = clean_title_from_url(alternate_title)
+    elif alternate_url and not alternate_title:
+        from app.models.dsa import clean_title_from_url
+        alternate_title = clean_title_from_url(alternate_url)
 
     topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
 
@@ -130,6 +142,8 @@ def add_problem(
         solution_snippet=solution_snippet,
         confidence=confidence,
         problem_url=problem_url,
+        alternate_title=alternate_title,
+        alternate_url=alternate_url,
         solved_date=date.today() if status == "Solved" else None,
         topics=topics,
     )
@@ -141,6 +155,10 @@ def add_problem(
 @router.post("/update/{problem_id}")
 def update_problem(
     problem_id: int,
+    title: str = Form(...),
+    problem_url: str = Form(""),
+    alternate_title: str = Form(""),
+    alternate_url: str = Form(""),
     status: str = Form(...),
     pattern: str = Form(""),
     mistake: str = Form(""),
@@ -154,10 +172,29 @@ def update_problem(
     p = db.query(DSAProblem).filter(DSAProblem.id == problem_id).first()
     if not p:
         raise HTTPException(status_code=404)
+
+    if title.startswith("http://") or title.startswith("https://"):
+        if not problem_url:
+            problem_url = title
+        from app.models.dsa import clean_title_from_url
+        title = clean_title_from_url(title)
+
+    if alternate_title.startswith("http://") or alternate_title.startswith("https://"):
+        if not alternate_url:
+            alternate_url = alternate_title
+        from app.models.dsa import clean_title_from_url
+        alternate_title = clean_title_from_url(alternate_title)
+    elif alternate_url and not alternate_title:
+        from app.models.dsa import clean_title_from_url
+        alternate_title = clean_title_from_url(alternate_url)
     
     topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
     p.topics = topics
 
+    p.title = title
+    p.problem_url = problem_url
+    p.alternate_title = alternate_title
+    p.alternate_url = alternate_url
     p.status = status
     p.pattern = pattern
     p.mistake = mistake

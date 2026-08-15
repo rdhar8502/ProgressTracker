@@ -2,6 +2,12 @@
 {% block title %}AI / LLM Prep{% endblock %}
 {% block page_title %}AI / LLM Preparation{% endblock %}
 
+{% block head %}
+<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+{% endblock %}
+
 {% block content %}
 <!-- Stats -->
 <div class="stats-grid" style="margin-bottom: 24px;">
@@ -81,7 +87,16 @@
           <span class="badge {% if topic.status == 'Done' %}status-done{% elif topic.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">
             {{ topic.status }}
           </span>
-          <button class="btn btn-ghost btn-sm btn-icon" onclick="openAIModal({{ topic.id }}, '{{ topic.topic_name | replace("'", "\\'") }}', '{{ topic.status }}', {{ topic.depth }}, `{{ topic.notes | replace('`','') }}`, `{{ topic.resources | replace('`','') }}`, `{{ topic.sources | replace('`','') }}`, `{{ topic.interview_talking_point | replace('`','') }}`)" title="Edit">✏️</button>
+          <button class="btn btn-ghost btn-sm btn-icon edit-ai-btn" 
+                  data-id="{{ topic.id }}"
+                  data-name="{{ topic.topic_name | escape }}"
+                  data-status="{{ topic.status }}"
+                  data-depth="{{ topic.depth }}"
+                  data-notes="{{ topic.notes | escape }}"
+                  data-resources="{{ topic.resources | escape }}"
+                  data-sources="{{ topic.sources | escape }}"
+                  data-talking="{{ topic.interview_talking_point | escape }}"
+                  title="Edit">✏️</button>
         </div>
       </div>
 
@@ -112,7 +127,7 @@
 
 <!-- AI Topic Modal -->
 <div class="modal-overlay" id="aiModal">
-  <div class="modal" style="max-width: 600px;">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title" id="aiModalTitle">Update AI/LLM Topic</span>
       <button class="modal-close" onclick="closeModal('aiModal')">✕</button>
@@ -137,7 +152,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Notes / Understanding</label>
-          <textarea name="notes" class="form-textarea" id="aiNotes" placeholder="Key concepts, how it works..."></textarea>
+          <textarea name="notes" id="aiNotes" class="form-textarea auto-resize-code" placeholder="Key concepts, how it works..."></textarea>
+          <div class="quill-editor-wrapper" id="aiNotesQuillWrapper" style="display: none;">
+            <div id="aiNotesQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Primary URL Resource</label>
@@ -149,7 +167,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Interview Talking Point</label>
-          <textarea name="interview_talking_point" class="form-textarea" id="aiTalking" placeholder="How would you explain this in an interview?" style="min-height: 60px;"></textarea>
+          <textarea name="interview_talking_point" id="aiTalking" class="form-textarea auto-resize-code" placeholder="How would you explain this in an interview?"></textarea>
+          <div class="quill-editor-wrapper" id="aiTalkingQuillWrapper" style="display: none;">
+            <div id="aiTalkingQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('aiModal')">Cancel</button>
@@ -163,16 +184,127 @@
 
 {% block scripts %}
 <script>
+let aiNotesQuill, aiTalkingQuill;
+
+function autoResizeTextarea(textarea) {
+  if (!textarea) return;
+  textarea.style.height = 'auto';
+  textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+}
+
 function openAIModal(id, name, status, depth, notes, resources, sources, talking) {
   document.getElementById('aiForm').action = '/ai-llm/update/' + id;
   document.getElementById('aiModalTitle').textContent = 'Update: ' + name;
   document.getElementById('aiStatus').value = status;
   document.getElementById('aiDepth').value = depth;
-  document.getElementById('aiNotes').value = notes;
+  
+  const notesTextarea = document.getElementById('aiNotes');
+  notesTextarea.value = notes || '';
+  if (window.Quill && aiNotesQuill) {
+    aiNotesQuill.root.innerHTML = notes || '';
+  }
+
   document.getElementById('aiResources').value = resources;
   document.getElementById('aiSources').value = sources || '';
-  document.getElementById('aiTalking').value = talking;
+  
+  const talkingTextarea = document.getElementById('aiTalking');
+  talkingTextarea.value = talking || '';
+  if (window.Quill && aiTalkingQuill) {
+    aiTalkingQuill.root.innerHTML = talking || '';
+  }
+
   openModal('aiModal');
+
+  // Trigger resize in case Quill is not loaded
+  setTimeout(() => {
+    autoResizeTextarea(notesTextarea);
+    autoResizeTextarea(talkingTextarea);
+  }, 80);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Wire up edit buttons using data attributes
+  document.querySelectorAll('.edit-ai-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      const status = this.getAttribute('data-status');
+      const depth = this.getAttribute('data-depth');
+      const notes = this.getAttribute('data-notes');
+      const resources = this.getAttribute('data-resources');
+      const sources = this.getAttribute('data-sources');
+      const talking = this.getAttribute('data-talking');
+      openAIModal(id, name, status, depth, notes, resources, sources, talking);
+    });
+  });
+
+  // Rich toolbar config
+  const richToolbar = [
+    [{ 'header': [1, 2, 3, 4, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'indent': '-1'}, { 'indent': '+1' }],
+    [{ 'align': [] }],
+    ['link', 'blockquote', 'code-block'],
+    ['clean']
+  ];
+
+  // Initialize Quill if loaded
+  if (window.Quill) {
+    // Notes Editor
+    document.getElementById('aiNotes').style.display = 'none';
+    document.getElementById('aiNotesQuillWrapper').style.display = 'block';
+    
+    aiNotesQuill = new Quill('#aiNotesQuillEditor', {
+      theme: 'snow',
+      modules: { toolbar: richToolbar },
+      placeholder: 'Key concepts, how it works...'
+    });
+
+    // Talking Point Editor
+    document.getElementById('aiTalking').style.display = 'none';
+    document.getElementById('aiTalkingQuillWrapper').style.display = 'block';
+
+    aiTalkingQuill = new Quill('#aiTalkingQuillEditor', {
+      theme: 'snow',
+      modules: { toolbar: richToolbar },
+      placeholder: 'How would you explain this in an interview?'
+    });
+  }
+
+  // Auto-resize standard textareas
+  document.querySelectorAll('textarea.auto-resize-code').forEach(ta => {
+    ta.addEventListener('input', function() {
+      autoResizeTextarea(this);
+    });
+  });
+
+  // Sync Quill content before form submit
+  const aiForm = document.getElementById('aiForm');
+  if (aiForm) {
+    aiForm.addEventListener('submit', function() {
+      if (window.Quill) {
+        if (aiNotesQuill) {
+          const textarea = document.getElementById('aiNotes');
+          if (aiNotesQuill.getText().trim().length === 0) {
+            textarea.value = '';
+          } else {
+            textarea.value = aiNotesQuill.root.innerHTML;
+          }
+        }
+        if (aiTalkingQuill) {
+          const textarea = document.getElementById('aiTalking');
+          if (aiTalkingQuill.getText().trim().length === 0) {
+            textarea.value = '';
+          } else {
+            textarea.value = aiTalkingQuill.root.innerHTML;
+          }
+        }
+      }
+    });
+  }
+});
 </script>
 {% endblock %}

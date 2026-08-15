@@ -147,7 +147,7 @@
     <div class="card-body">
       <div class="grid-2 text-sm">
         <div>
-          <h4 style="color: white; font-weight: 600; margin-bottom: 8px;">Standard Action Gains</h4>
+          <h4 style="color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">Standard Action Gains</h4>
           <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
             <li>📝 <strong>10 XP</strong> per study hour logged</li>
             <li>🟢 <strong>10 XP</strong> per Easy DSA problem solved</li>
@@ -157,7 +157,7 @@
           </ul>
         </div>
         <div>
-          <h4 style="color: white; font-weight: 600; margin-bottom: 8px;">Advanced Milestone Gains</h4>
+          <h4 style="color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">Advanced Milestone Gains</h4>
           <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
             <li>🏗️ <strong>20 XP</strong> per System Design concept completed</li>
             <li>🏗️ <strong>40 XP</strong> per System Design case study completed</li>
@@ -279,7 +279,20 @@
 .stat-summary-card {
   border: 1px solid var(--border);
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
+.stat-summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.stat-summary-card.purple::before { background: linear-gradient(90deg, #7C3AED, #A78BFA); }
+.stat-summary-card.blue::before   { background: linear-gradient(90deg, #0EA5E9, #38BDF8); }
+.stat-summary-card.green::before  { background: linear-gradient(90deg, #059669, #34D399); }
+
 .stat-summary-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -292,18 +305,18 @@
 .summary-value {
   font-size: 24px;
   font-weight: 800;
-  color: white;
+  color: var(--text-primary);
 }
 .summary-label {
   font-size: 12px;
-  color: #9CA3AF;
+  color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
   margin-top: 2px;
 }
 .summary-desc {
   font-size: 11px;
-  color: #6B7280;
+  color: var(--text-muted);
   margin: 6px 0 0 0;
 }
 
@@ -418,9 +431,12 @@
 
 .section-heading {
   font-size: 18px;
-  font-weight: 700;
-  color: white;
+  font-weight: 800;
+  color: var(--text-primary);
+  border-left: 4px solid var(--accent);
+  padding-left: 10px;
   margin: 0;
+  letter-spacing: -0.5px;
 }
 </style>
 {% endblock %}

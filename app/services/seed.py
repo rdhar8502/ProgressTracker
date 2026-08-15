@@ -134,65 +134,107 @@ AI_LLM_TOPICS = [
 
 GITHUB_PROJECTS = [
     {
-        "name": "Production RAG System",
-        "description": "FastAPI + PostgreSQL + vector DB + background ingestion + auth + Docker + tests",
-        "tech_stack": "FastAPI, PostgreSQL, pgvector, Celery, Redis, Docker, pytest",
+        "name": "Production-Grade RAG with RBAC",
+        "description": "Enterprise-grade RAG system with Role-Based Access Control (RBAC), hybrid search, re-ranking, and citation enforcement.",
+        "tech_stack": "FastAPI, PostgreSQL, pgvector, Redis, Celery, Cohere (Rerank), Docker, pytest, LangChain",
         "tasks": [
-            ("Architecture", "Design architecture diagram"),
-            ("Core", "FastAPI app skeleton with auth"),
-            ("Core", "PostgreSQL + pgvector integration"),
-            ("Core", "Document ingestion pipeline"),
-            ("Core", "Chunking and embedding service"),
-            ("Core", "Vector retrieval + reranking"),
-            ("Core", "Answer generation with LLM"),
-            ("Core", "Background processing with Celery"),
-            ("DevOps", "Docker + docker-compose setup"),
-            ("Testing", "Unit + integration tests"),
-            ("Docs", "Clean README with setup guide"),
-            ("Docs", "API documentation"),
-            ("Docs", "Architecture diagram in README"),
-            ("Docs", "Trade-offs section"),
-            ("Docs", "Deployment notes"),
+            ("Architecture", "Design architecture & security model diagram"),
+            ("Core", "FastAPI app skeleton with OAuth2 + RBAC authorization"),
+            ("Core", "PostgreSQL + pgvector setup for document storage"),
+            ("Core", "Document ingestion pipeline with semantic chunking"),
+            ("Core", "Implement Role-Based Access Control (RBAC) metadata filtering in pgvector queries"),
+            ("Core", "Hybrid Search integration (vector semantic search + BM25 keyword search)"),
+            ("Core", "Re-ranking service integration using Cohere/Cross-Encoder"),
+            ("Core", "Answer generation engine with verifiable citations & hallucination check"),
+            ("Core", "Background asynchronous document parsing via Celery & Redis"),
+            ("DevOps", "Docker & docker-compose configuration for all services"),
+            ("Testing", "Unit & integration testing with pytest"),
+            ("Testing", "RAG evaluation pipeline measuring faithfulness & answer relevance"),
+            ("Docs", "Clean README with architecture trade-offs, security, and setup guide"),
         ],
     },
     {
-        "name": "AI Agent Workflow Platform",
-        "description": "LangGraph agent with tools, memory, human approval step, logging, retry handling",
-        "tech_stack": "LangGraph, FastAPI, PostgreSQL, Redis, Docker",
+        "name": "Local Agentic Workflow Platform (Ollama + MCP)",
+        "description": "Local-first AI agent using LangGraph, Ollama, and Model Context Protocol (MCP) to interact with local tools securely.",
+        "tech_stack": "LangGraph, Ollama, MCP SDK, FastAPI, SQLite, Docker",
         "tasks": [
-            ("Architecture", "Design agent workflow diagram"),
-            ("Core", "LangGraph graph definition"),
-            ("Core", "Tool implementations"),
-            ("Core", "Agent memory with persistence"),
-            ("Core", "Human-in-the-loop approval step"),
-            ("Core", "Retry handling and error recovery"),
-            ("Core", "Logging and observability"),
-            ("Core", "FastAPI serving layer"),
-            ("DevOps", "Docker + docker-compose setup"),
-            ("Testing", "Unit + integration tests"),
-            ("Docs", "Clean README with setup guide"),
-            ("Docs", "Architecture diagram in README"),
-            ("Docs", "Trade-offs section"),
+            ("Architecture", "Design agent workflow state machine & MCP tool mappings"),
+            ("Core", "LangGraph workflow state machine using local LLMs (e.g., Llama 3)"),
+            ("Core", "Custom MCP Server development to interact with local directories and database"),
+            ("Core", "Persistent agent state and conversational memory using SQLite checkpointer"),
+            ("Core", "Interactive human-in-the-loop approval step for destructive actions"),
+            ("Core", "Resilience layer with self-correction and LLM tool-calling error recovery"),
+            ("Core", "Local model performance benchmarking (latency vs accuracy)"),
+            ("Core", "FastAPI wrapper for agent orchestration APIs"),
+            ("DevOps", "Docker compose setup with Ollama GPU acceleration configuration"),
+            ("Testing", "Agent trajectory testing and mock MCP tool integration tests"),
+            ("Docs", "Detailed README with MCP installation, Ollama configuration, and system trade-offs"),
         ],
     },
     {
-        "name": "Scalable Backend API",
-        "description": "Multi-tenant FastAPI/Django app with RBAC, Celery, Redis, PostgreSQL, Docker, CI",
-        "tech_stack": "FastAPI, PostgreSQL, Redis, Celery, Docker, GitHub Actions",
+        "name": "Text-to-SQL Clarification Agent",
+        "description": "Robust Text-to-SQL converter that prompts users for clarification on ambiguous intents and runs in a sandbox.",
+        "tech_stack": "FastAPI, PostgreSQL, SQL Alchemy, Pydantic, Gemini/OpenAI, Docker",
         "tasks": [
-            ("Architecture", "Design multi-tenant architecture"),
-            ("Core", "Multi-tenant data isolation"),
-            ("Core", "RBAC implementation"),
-            ("Core", "REST API with FastAPI"),
-            ("Core", "Celery background tasks"),
-            ("Core", "Redis caching layer"),
-            ("Core", "PostgreSQL schema with migrations"),
-            ("DevOps", "Docker + docker-compose"),
-            ("DevOps", "GitHub Actions CI pipeline"),
-            ("Testing", "Unit + integration tests"),
-            ("Docs", "Clean README with setup guide"),
-            ("Docs", "API documentation"),
-            ("Docs", "Trade-offs section"),
+            ("Architecture", "Design Text-to-SQL architecture, parser schema, and clarification flows"),
+            ("Core", "Database schema metadata ingestion & representation generator"),
+            ("Core", "Pydantic structured output model for query parsing & intent classification"),
+            ("Core", "Ambiguity detector to evaluate if user query requires clarification"),
+            ("Core", "Interactive clarification API to ask clarifying questions and merge user feedback"),
+            ("Core", "Secure read-only SQL execution sandbox with query execution timeout guardrails"),
+            ("Core", "Self-healing loop that retries/corrects generated SQL on syntax or schema errors"),
+            ("DevOps", "Docker compose with sandbox PostgreSQL container"),
+            ("Testing", "SQL generation evaluation suite with ground truth test cases"),
+            ("Docs", "Detailed README documenting schema security, sandbox isolation, and trade-offs"),
+        ],
+    },
+    {
+        "name": "AI Observability & Evaluation Pipeline",
+        "description": "Continuous monitoring and tracing pipeline for AI metrics like cost, latency (p50/p95), and regression gating in CI.",
+        "tech_stack": "FastAPI, Prometheus, Grafana, OpenTelemetry, LangSmith/Phoenix, GitHub Actions",
+        "tasks": [
+            ("Architecture", "Design telemetry collection architecture and Prometheus metrics mapping"),
+            ("Core", "Instrumentation of LLM calls with OpenTelemetry tracing spans"),
+            ("Core", "FastAPI middleware to track p50/p95 latency, prompt/completion token count, and cost"),
+            ("Core", "Telemetry dashboard setup for tracking cached token ratios and cost efficiency"),
+            ("Core", "Continuous evaluation service running accuracy and faithfulness metrics on live logs"),
+            ("DevOps", "Prometheus configuration and Grafana dashboards for visual monitoring"),
+            ("DevOps", "GitHub Actions CI pipeline with evaluation gating (build fails if accuracy drops below threshold)"),
+            ("Testing", "Automated traffic generator simulating user queries and edge cases"),
+            ("Docs", "README outlining latency budget, dashboard setup, and evaluation criteria"),
+        ],
+    },
+    {
+        "name": "Real-Time Multimodal Streaming Pipeline",
+        "description": "WebSocket-based live streaming audio/video assistant with speech-to-text, text-to-speech, and latency profiling.",
+        "tech_stack": "FastAPI, WebSockets, WebRTC, Ollama/Gemini Live API, PyRTC, Docker",
+        "tasks": [
+            ("Architecture", "Design real-time audio/video streaming flow and latency budget breakdown"),
+            ("Core", "FastAPI WebSocket and WebRTC signaling servers for low-latency streaming"),
+            ("Core", "Streaming Speech-to-Text (STT) ingestion with silence detection"),
+            ("Core", "Streaming LLM inference with sentence/phrase-based chunking"),
+            ("Core", "Streaming Text-to-Speech (TTS) synthesis engine for real-time response generation"),
+            ("Core", "Latency profiling module measuring end-to-end audio roundtrip latency"),
+            ("DevOps", "Docker configuration optimized for media stream processing and GPU passthrough"),
+            ("Testing", "Websocket connection load tests and audio streaming latency benchmarks"),
+            ("Docs", "Detailed README with streaming architecture, latency metrics, and performance optimizations"),
+        ],
+    },
+    {
+        "name": "Scalable Multi-Tenant Backend API",
+        "description": "Enterprise-grade multi-tenant API framework featuring row-level schema isolation and Celery task execution.",
+        "tech_stack": "FastAPI, PostgreSQL, SQLAlchemy, Redis, Celery, GitHub Actions, Docker",
+        "tasks": [
+            ("Architecture", "Design multi-tenant row-level security and schema isolation model"),
+            ("Core", "FastAPI multi-tenant middleware detecting tenant context via subdomain/header"),
+            ("Core", "Dynamic database schema creation and connection pooling per tenant"),
+            ("Core", "Granular Role-Based Access Control (RBAC) validation decorator layer"),
+            ("Core", "Asynchronous background task runner with Celery, Redis, and flower monitor"),
+            ("Core", "Caching strategy using Redis for high-throughput endpoint optimization"),
+            ("DevOps", "Docker compose orchestration and database migration setup using Alembic"),
+            ("DevOps", "GitHub Actions CI/CD deployment pipeline with database migrations"),
+            ("Testing", "Concurrent tenant access isolation tests and API performance testing"),
+            ("Docs", "Clean README with multi-tenancy trade-offs, scaling, and database migration docs"),
         ],
     },
 ]
@@ -288,18 +330,22 @@ def seed_database(db: Session):
             db.add(AILLMTopic(topic_name=name, category=cat, order_index=i + 1))
 
     # --- GitHub Projects ---
-    if not db.query(GithubProject).first():
-        for i, proj in enumerate(GITHUB_PROJECTS):
-            p = GithubProject(
-                name=proj["name"],
-                description=proj["description"],
-                tech_stack=proj["tech_stack"],
-                order_index=i + 1,
-            )
-            db.add(p)
-            db.flush()  # get p.id
-            for cat, task_name in proj["tasks"]:
-                db.add(GithubTask(project_id=p.id, task_name=task_name, category=cat))
+    # Delete existing GitHub projects and tasks to reset/re-seed the updated portfolio
+    db.query(GithubTask).delete()
+    db.query(GithubProject).delete()
+    db.commit()
+
+    for i, proj in enumerate(GITHUB_PROJECTS):
+        p = GithubProject(
+            name=proj["name"],
+            description=proj["description"],
+            tech_stack=proj["tech_stack"],
+            order_index=i + 1,
+        )
+        db.add(p)
+        db.flush()  # get p.id
+        for cat, task_name in proj["tasks"]:
+            db.add(GithubTask(project_id=p.id, task_name=task_name, category=cat))
 
     db.commit()
     print("✅ Database seeded successfully.")

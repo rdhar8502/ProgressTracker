@@ -2,6 +2,12 @@
 {% block title %}Daily Log{% endblock %}
 {% block page_title %}Daily Log{% endblock %}
 
+{% block head %}
+<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+{% endblock %}
+
 {% block content %}
 <!-- ── Date Nav ── -->
 <div class="flex items-center gap-3 mb-6">
@@ -86,8 +92,20 @@
                 {% endfor %}
               </div>
             </td>
-            <td class="text-muted text-sm" style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              {{ log.notes[:60] + '…' if log.notes and log.notes | length > 60 else log.notes }}
+            <td class="text-muted text-sm" style="max-width: 180px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">
+                  {{ (log.notes | striptags)[:60] + '…' if (log.notes | striptags) and (log.notes | striptags) | length > 60 else (log.notes | striptags) }}
+                </span>
+                {% if log.notes %}
+                <button class="btn btn-ghost btn-xs btn-icon view-log-note-btn" 
+                        data-category="{{ log.category }}"
+                        data-sub-topic="{{ log.sub_topic }}"
+                        data-notes="{{ log.notes | escape }}"
+                        style="padding: 2px 4px; font-size: 11px; flex-shrink: 0;"
+                        title="View Notes">👁️</button>
+                {% endif %}
+              </div>
             </td>
             <td style="max-width: 150px;">
               {% if log.sources %}
@@ -143,7 +161,7 @@
 
 <!-- ── Add Log Modal ── -->
 <div class="modal-overlay" id="addLogModal">
-  <div class="modal">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Log Study Session</span>
       <button class="modal-close" onclick="closeModal('addLogModal')">✕</button>
@@ -191,7 +209,10 @@
 
         <div class="form-group">
           <label class="form-label">Notes / Key learnings</label>
-          <textarea name="notes" class="form-textarea" placeholder="What did I learn? Any key patterns or mistakes?"></textarea>
+          <textarea name="notes" id="notesTextarea" class="form-textarea" placeholder="What did I learn? Any key patterns or mistakes?"></textarea>
+          <div class="quill-editor-wrapper" id="notesQuillWrapper" style="display: none;">
+            <div id="notesQuillEditor" style="height: 140px;"></div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -207,11 +228,33 @@
     </div>
   </div>
 </div>
+
+<!-- ── View Log Note Modal ── -->
+<div class="modal-overlay" id="viewLogNoteModal">
+  <div class="modal" style="max-width: 600px; width: 90%;">
+    <div class="modal-header">
+      <span class="modal-title" id="logNoteModalTitle">Study Session Note</span>
+      <button class="modal-close" onclick="closeModal('viewLogNoteModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-title">
+        📝 Session Notes
+      </div>
+      <div class="modal-section-content" id="logNoteModalContent" style="max-height: 350px; white-space: pre-wrap;">
+        <!-- Notes content goes here -->
+      </div>
+      <div class="flex justify-end mt-4">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('viewLogNoteModal')">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 const selectedDate = '{{ selected_date }}';
+let quill;
 
 function navDate(delta) {
   const d = new Date(selectedDate + 'T00:00:00');
@@ -229,7 +272,9 @@ function toggleProblems(cat) {
 
 // Support keyboard arrow keys navigation (ArrowLeft for previous, ArrowRight for next)
 document.addEventListener('keydown', function(e) {
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+  // Ignore keys if input is focused, or if Quill editor has focus
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) || 
+      document.activeElement.closest('.ql-editor')) {
     return;
   }
   if (e.key === 'ArrowLeft') {
@@ -237,6 +282,61 @@ document.addEventListener('keydown', function(e) {
   } else if (e.key === 'ArrowRight') {
     navDate(1);
   }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Quill WYSIWYG notes editor if loaded
+  if (window.Quill) {
+    document.getElementById('notesTextarea').style.display = 'none';
+    document.getElementById('notesQuillWrapper').style.display = 'block';
+
+    const richToolbar = [
+      [{ 'header': [1, 2, 3, 4, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'align': [] }],
+      ['link', 'blockquote', 'code-block'],
+      ['clean']
+    ];
+
+    quill = new Quill('#notesQuillEditor', {
+      theme: 'snow',
+      modules: {
+        toolbar: richToolbar
+      },
+      placeholder: 'What did I learn? Any key patterns or mistakes?'
+    });
+
+    // Sync Quill content with textarea before form submit
+    const form = document.querySelector('#addLogModal form');
+    if (form) {
+      form.addEventListener('submit', function() {
+        const textarea = document.getElementById('notesTextarea');
+        // If Quill is empty (only whitespace/tags), send empty string
+        if (quill.getText().trim().length === 0) {
+          textarea.value = '';
+        } else {
+          textarea.value = quill.root.innerHTML;
+        }
+      });
+    }
+  }
+
+  // Wire up view log note buttons
+  document.querySelectorAll('.view-log-note-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const category = this.getAttribute('data-category');
+      const subTopic = this.getAttribute('data-sub-topic');
+      const notes = this.getAttribute('data-notes');
+      
+      document.getElementById('logNoteModalTitle').textContent = `Note: ${category} — ${subTopic}`;
+      document.getElementById('logNoteModalContent').innerHTML = notes || '<p class="text-muted">No notes recorded for this session.</p>';
+      openModal('viewLogNoteModal');
+    });
+  });
 });
 </script>
 {% endblock %}

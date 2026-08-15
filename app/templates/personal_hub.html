@@ -1,6 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Notes & Reminders{% endblock %}
+{% block title %}Personal Hub{% endblock %}
 {% block page_title %}Notes & Reminders{% endblock %}
+
+{% block head %}
+<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+{% endblock %}
 
 {% block content %}
 <!-- Stats Grid -->
@@ -93,7 +99,7 @@
       <!-- Content Markdown/Text -->
       <div style="font-size: 13px; color: var(--text-secondary); flex-grow: 1; margin-bottom: 12px; white-space: pre-wrap;
                   opacity: {% if item.status == 'Completed' %}0.6{% else %}1.0{% endif %};">
-        {{ item.content or 'No description provided.' }}
+        {{ (item.content or 'No description provided.') | safe }}
       </div>
 
       <!-- Metadata & Actions footer -->
@@ -142,7 +148,7 @@
                   data-id="{{ item.id }}"
                   data-title="{{ item.title }}"
                   data-category="{{ item.category }}"
-                  data-content="{{ item.content }}"
+                  data-content="{{ item.content | escape }}"
                   data-source="{{ item.source }}"
                   data-due-date="{{ item.due_date.isoformat() if item.due_date else '' }}"
                   data-status="{{ item.status }}"
@@ -178,7 +184,7 @@
 
 <!-- Add Hub Item Modal -->
 <div class="modal-overlay" id="addHubItemModal">
-  <div class="modal" style="max-width: 600px;">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Add Note or Reminder</span>
       <button class="modal-close" onclick="closeModal('addHubItemModal')">✕</button>
@@ -207,7 +213,10 @@
 
         <div class="form-group">
           <label class="form-label">Details / Content</label>
-          <textarea name="content" class="form-textarea" placeholder="Enter research notes, checklist items, questions, etc." style="min-height: 120px;"></textarea>
+          <textarea name="content" id="addHubNotesTextarea" class="form-textarea auto-resize-code" placeholder="Enter research notes, checklist items, questions, etc."></textarea>
+          <div class="quill-editor-wrapper" id="addHubNotesQuillWrapper" style="display: none;">
+            <div id="addHubNotesQuillEditor" style="height: 140px;"></div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -234,7 +243,7 @@
 
 <!-- Edit Hub Item Modal -->
 <div class="modal-overlay" id="editHubItemModal">
-  <div class="modal" style="max-width: 600px;">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Edit Note or Reminder</span>
       <button class="modal-close" onclick="closeModal('editHubItemModal')">✕</button>
@@ -263,7 +272,10 @@
 
         <div class="form-group">
           <label class="form-label">Details / Content</label>
-          <textarea name="content" id="editContent" class="form-textarea" style="min-height: 120px;"></textarea>
+          <textarea name="content" id="editContent" class="form-textarea auto-resize-code" placeholder="Details..."></textarea>
+          <div class="quill-editor-wrapper" id="editHubNotesQuillWrapper" style="display: none;">
+            <div id="editHubNotesQuillEditor" style="height: 140px;"></div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -291,6 +303,14 @@
 
 {% block scripts %}
 <script>
+  let addHubNotesQuill, editHubNotesQuill;
+
+  function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     // Edit buttons hook
     document.querySelectorAll('.edit-hub-btn').forEach(btn => {
@@ -306,7 +326,13 @@
         // Populate fields
         document.getElementById('editTitle').value = title;
         document.getElementById('editCategory').value = category;
-        document.getElementById('editContent').value = content || '';
+        
+        const contentTextarea = document.getElementById('editContent');
+        contentTextarea.value = content || '';
+        if (window.Quill && editHubNotesQuill) {
+          editHubNotesQuill.root.innerHTML = content || '';
+        }
+
         document.getElementById('editSource').value = source || '';
         document.getElementById('editDueDate').value = dueDate || '';
         document.getElementById('editStatus').value = status;
@@ -316,8 +342,85 @@
         form.setAttribute('action', `/personal-hub/update/${id}`);
 
         openModal('editHubItemModal');
+
+        // Resize textareas
+        setTimeout(() => {
+          autoResizeTextarea(contentTextarea);
+        }, 80);
       });
     });
+
+    // Rich toolbar config
+    const richToolbar = [
+      [{ 'header': [1, 2, 3, 4, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'align': [] }],
+      ['link', 'blockquote', 'code-block'],
+      ['clean']
+    ];
+
+    // Initialize Quill if loaded
+    if (window.Quill) {
+      // Add Notes
+      document.getElementById('addHubNotesTextarea').style.display = 'none';
+      document.getElementById('addHubNotesQuillWrapper').style.display = 'block';
+
+      addHubNotesQuill = new Quill('#addHubNotesQuillEditor', {
+        theme: 'snow',
+        modules: { toolbar: richToolbar },
+        placeholder: 'Enter research notes, checklist items, questions, etc...'
+      });
+
+      // Edit Notes
+      document.getElementById('editContent').style.display = 'none';
+      document.getElementById('editHubNotesQuillWrapper').style.display = 'block';
+
+      editHubNotesQuill = new Quill('#editHubNotesQuillEditor', {
+        theme: 'snow',
+        modules: { toolbar: richToolbar },
+        placeholder: 'Details...'
+      });
+    }
+
+    // Auto-resize standard textareas
+    document.querySelectorAll('textarea.auto-resize-code').forEach(ta => {
+      ta.addEventListener('input', function() {
+        autoResizeTextarea(this);
+      });
+    });
+
+    // Sync Quill content before forms submit
+    const addForm = document.querySelector('#addHubItemModal form');
+    if (addForm) {
+      addForm.addEventListener('submit', function() {
+        if (window.Quill && addHubNotesQuill) {
+          const textarea = document.getElementById('addHubNotesTextarea');
+          if (addHubNotesQuill.getText().trim().length === 0) {
+            textarea.value = '';
+          } else {
+            textarea.value = addHubNotesQuill.root.innerHTML;
+          }
+        }
+      });
+    }
+
+    const editForm = document.getElementById('editHubItemForm');
+    if (editForm) {
+      editForm.addEventListener('submit', function() {
+        if (window.Quill && editHubNotesQuill) {
+          const textarea = document.getElementById('editContent');
+          if (editHubNotesQuill.getText().trim().length === 0) {
+            textarea.value = '';
+          } else {
+            textarea.value = editHubNotesQuill.root.innerHTML;
+          }
+        }
+      });
+    }
   });
 </script>
 {% endblock %}

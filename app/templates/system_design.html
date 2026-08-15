@@ -1,6 +1,12 @@
 {% extends "base.html" %}
-{% block title %}System Design{% endblock %}
-{% block page_title %}System Design{% endblock %}
+{% block title %}System Design Prep{% endblock %}
+{% block page_title %}System Design Preparation{% endblock %}
+
+{% block head %}
+<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+{% endblock %}
 
 {% block content %}
 <!-- Page Header Action -->
@@ -66,7 +72,7 @@
               <span class="concept-title" style="font-weight: 700; font-size: 15px; color: var(--text);">{{ concept.concept_name }}</span>
               {% set concept_total = concept.sub_concepts | length %}
               {% set concept_done = concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
-              <span class="text-xs text-muted" style="font-size: 11px; background: rgba(0,0,0,0.25); padding: 1px 6px; border-radius: 99px;">
+              <span class="badge {% if concept_done == concept_total and concept_total > 0 %}badge-green{% else %}badge-purple{% endif %}" style="font-size: 10px; padding: 2px 6px; margin-left: 4px;">
                 {{ concept_done }}/{{ concept_total }}
               </span>
             </div>
@@ -120,7 +126,16 @@
                     {% if sub.resources %}
                       <a href="{{ sub.resources }}" target="_blank" title="Resource Link" style="text-decoration: none; font-size: 13px;">🔗</a>
                     {% endif %}
-                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openSubModal({{ sub.id }}, '{{ sub.subconcept_name | replace("'", "\\'") }}', '{{ sub.status }}', {{ sub.reading_done | lower }}, {{ sub.practical_done | lower }}, `{{ sub.notes | replace('`','') }}`, `{{ sub.resources | replace('`','') }}`, `{{ sub.sources | replace('`','') }}`)" title="Edit Details">✏️</button>
+                    <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" 
+                            data-id="{{ sub.id }}"
+                            data-name="{{ sub.subconcept_name | escape }}"
+                            data-status="{{ sub.status }}"
+                            data-reading="{{ sub.reading_done | lower }}"
+                            data-practical="{{ sub.practical_done | lower }}"
+                            data-notes="{{ sub.notes | escape }}"
+                            data-resources="{{ sub.resources | escape }}"
+                            data-sources="{{ sub.sources | escape }}"
+                            title="Edit Details">✏️</button>
                     <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin: 0;" onsubmit="return confirm('Delete this sub-concept?')">
                       <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: #EF4444;" title="Delete Sub-concept">🗑️</button>
                     </form>
@@ -185,7 +200,14 @@
             <span class="badge {% if case.status == 'Done' %}status-done{% elif case.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">
               {{ case.status }}
             </span>
-            <button class="btn btn-ghost btn-sm btn-icon" onclick="openCaseModal({{ case.id }}, '{{ case.system_name }}', '{{ case.status }}', `{{ case.key_components | replace('`','') }}`, '{{ case.diagram_url }}', `{{ case.notes | replace('`','') }}`)" title="Edit">✏️</button>
+            <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" 
+                    data-id="{{ case.id }}"
+                    data-name="{{ case.system_name | escape }}"
+                    data-status="{{ case.status }}"
+                    data-components="{{ case.key_components | escape }}"
+                    data-diagram="{{ case.diagram_url | escape }}"
+                    data-notes="{{ case.notes | escape }}"
+                    title="Edit">✏️</button>
           </div>
         </div>
         {% endfor %}
@@ -253,7 +275,7 @@
 
 <!-- Sub-concept Update Modal -->
 <div class="modal-overlay" id="subModal">
-  <div class="modal">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title" id="subModalTitle">Update Sub-concept</span>
       <button class="modal-close" onclick="closeModal('subModal')">✕</button>
@@ -286,7 +308,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Notes</label>
-          <textarea name="notes" class="form-textarea" id="sNotes" rows="4"></textarea>
+          <textarea name="notes" id="sNotes" class="form-textarea auto-resize-code" placeholder="Notes..."></textarea>
+          <div class="quill-editor-wrapper" id="sNotesQuillWrapper" style="display: none;">
+            <div id="sNotesQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('subModal')">Cancel</button>
@@ -299,7 +324,7 @@
 
 <!-- Case Update Modal -->
 <div class="modal-overlay" id="caseModal">
-  <div class="modal">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title" id="caseModalTitle">Update Case Study</span>
       <button class="modal-close" onclick="closeModal('caseModal')">✕</button>
@@ -314,7 +339,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Key Components</label>
-          <textarea name="key_components" class="form-textarea" id="cKeyComponents" placeholder="API Gateway, Load Balancer, Redis cache, Kafka..."></textarea>
+          <textarea name="key_components" class="form-textarea auto-resize-code" id="cKeyComponents" placeholder="API Gateway, Load Balancer, Redis cache, Kafka..."></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">Diagram URL</label>
@@ -322,7 +347,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Notes</label>
-          <textarea name="notes" class="form-textarea" id="cNotes" rows="4"></textarea>
+          <textarea name="notes" id="cNotes" class="form-textarea auto-resize-code" placeholder="Notes..."></textarea>
+          <div class="quill-editor-wrapper" id="cNotesQuillWrapper" style="display: none;">
+            <div id="cNotesQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('caseModal')">Cancel</button>
@@ -336,6 +364,14 @@
 
 {% block scripts %}
 <script>
+let sNotesQuill, cNotesQuill;
+
+function autoResizeTextarea(textarea) {
+  if (!textarea) return;
+  textarea.style.height = 'auto';
+  textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+}
+
 function openAddConceptModal() {
   document.getElementById('conceptForm').action = '/system-design/concept/add';
   document.getElementById('conceptModalTitle').textContent = 'Add Concept';
@@ -369,19 +405,48 @@ function openSubModal(id, name, status, reading, practical, notes, resources, so
   document.getElementById('sReading').checked = reading;
   document.getElementById('sPractical').checked = practical;
   document.getElementById('sResources').value = resources || '';
-  document.getElementById('sSources').value = sources || '';
-  document.getElementById('sNotes').value = notes || '';
+  
+  const sourcesTextarea = document.getElementById('sSources');
+  sourcesTextarea.value = sources || '';
+
+  const notesTextarea = document.getElementById('sNotes');
+  notesTextarea.value = notes || '';
+  if (window.Quill && sNotesQuill) {
+    sNotesQuill.root.innerHTML = notes || '';
+  }
+
   openModal('subModal');
+
+  // Trigger resize
+  setTimeout(() => {
+    autoResizeTextarea(sourcesTextarea);
+    autoResizeTextarea(notesTextarea);
+  }, 80);
 }
 
 function openCaseModal(id, name, status, components, diagram, notes) {
   document.getElementById('caseForm').action = '/system-design/case/update/' + id;
   document.getElementById('caseModalTitle').textContent = 'Update Case Study: ' + name;
   document.getElementById('cStatus').value = status;
-  document.getElementById('cKeyComponents').value = components || '';
+  
+  const compTextarea = document.getElementById('cKeyComponents');
+  compTextarea.value = components || '';
+  
   document.getElementById('cDiagramUrl').value = diagram || '';
-  document.getElementById('cNotes').value = notes || '';
+  
+  const notesTextarea = document.getElementById('cNotes');
+  notesTextarea.value = notes || '';
+  if (window.Quill && cNotesQuill) {
+    cNotesQuill.root.innerHTML = notes || '';
+  }
+
   openModal('caseModal');
+
+  // Trigger resize
+  setTimeout(() => {
+    autoResizeTextarea(compTextarea);
+    autoResizeTextarea(notesTextarea);
+  }, 80);
 }
 
 function quickUpdateSub(id, currentStatus) {
@@ -393,5 +458,107 @@ function quickUpdateSub(id, currentStatus) {
   document.body.appendChild(form);
   form.submit();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Wire up edit sub buttons using data attributes
+  document.querySelectorAll('.edit-sub-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      const status = this.getAttribute('data-status');
+      const reading = this.getAttribute('data-reading') === 'true';
+      const practical = this.getAttribute('data-practical') === 'true';
+      const notes = this.getAttribute('data-notes');
+      const resources = this.getAttribute('data-resources');
+      const sources = this.getAttribute('data-sources');
+      openSubModal(id, name, status, reading, practical, notes, resources, sources);
+    });
+  });
+
+  // Wire up edit case buttons using data attributes
+  document.querySelectorAll('.edit-case-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      const status = this.getAttribute('data-status');
+      const components = this.getAttribute('data-components');
+      const diagram = this.getAttribute('data-diagram');
+      const notes = this.getAttribute('data-notes');
+      openCaseModal(id, name, status, components, diagram, notes);
+    });
+  });
+
+  // Rich toolbar config
+  const richToolbar = [
+    [{ 'header': [1, 2, 3, 4, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'indent': '-1'}, { 'indent': '+1' }],
+    [{ 'align': [] }],
+    ['link', 'blockquote', 'code-block'],
+    ['clean']
+  ];
+
+  // Initialize Quill if loaded
+  if (window.Quill) {
+    // Sub-concept Notes Editor
+    document.getElementById('sNotes').style.display = 'none';
+    document.getElementById('sNotesQuillWrapper').style.display = 'block';
+    
+    sNotesQuill = new Quill('#sNotesQuillEditor', {
+      theme: 'snow',
+      modules: { toolbar: richToolbar },
+      placeholder: 'Notes...'
+    });
+
+    // Case Study Notes Editor
+    document.getElementById('cNotes').style.display = 'none';
+    document.getElementById('cNotesQuillWrapper').style.display = 'block';
+
+    cNotesQuill = new Quill('#cNotesQuillEditor', {
+      theme: 'snow',
+      modules: { toolbar: richToolbar },
+      placeholder: 'Notes...'
+    });
+  }
+
+  // Auto-resize standard textareas
+  document.querySelectorAll('textarea.auto-resize-code').forEach(ta => {
+    ta.addEventListener('input', function() {
+      autoResizeTextarea(this);
+    });
+  });
+
+  // Sync Quill content before forms submit
+  const subForm = document.getElementById('subForm');
+  if (subForm) {
+    subForm.addEventListener('submit', function() {
+      if (window.Quill && sNotesQuill) {
+        const textarea = document.getElementById('sNotes');
+        if (sNotesQuill.getText().trim().length === 0) {
+          textarea.value = '';
+        } else {
+          textarea.value = sNotesQuill.root.innerHTML;
+        }
+      }
+    });
+  }
+
+  const caseForm = document.getElementById('caseForm');
+  if (caseForm) {
+    caseForm.addEventListener('submit', function() {
+      if (window.Quill && cNotesQuill) {
+        const textarea = document.getElementById('cNotes');
+        if (cNotesQuill.getText().trim().length === 0) {
+          textarea.value = '';
+        } else {
+          textarea.value = cNotesQuill.root.innerHTML;
+        }
+      }
+    });
+  }
+});
 </script>
 {% endblock %}

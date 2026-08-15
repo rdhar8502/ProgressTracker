@@ -2,6 +2,12 @@
 {% block title %}Applications{% endblock %}
 {% block page_title %}Job Applications{% endblock %}
 
+{% block head %}
+<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+{% endblock %}
+
 {% block content %}
 <!-- Pipeline Overview -->
 <div class="pipeline-stages mb-6">
@@ -101,10 +107,16 @@
               </td>
               <td class="text-sm text-muted">{{ app.applied_date.strftime('%b %d') if app.applied_date else '—' }}</td>
               <td class="text-sm text-muted">{{ app.follow_up_date.strftime('%b %d') if app.follow_up_date else '—' }}</td>
-              <td class="text-sm text-muted" style="max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ app.notes[:50] if app.notes else '—' }}</td>
+              <td class="text-sm text-muted" style="max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ (app.notes | striptags)[:50] if app.notes else '—' }}
+              </td>
               <td>
                 <div class="flex gap-1">
-                  <button class="btn btn-ghost btn-sm btn-icon" onclick="openUpdateApp({{ app.id }}, '{{ app.stage }}', `{{ app.notes | replace('`','') }}`)" title="Edit">✏️</button>
+                  <button class="btn btn-ghost btn-sm btn-icon edit-app-btn" 
+                          data-id="{{ app.id }}"
+                          data-stage="{{ app.stage }}"
+                          data-notes="{{ app.notes | escape }}"
+                          title="Edit">✏️</button>
                   <form method="post" action="/applications/delete/{{ app.id }}" style="display: inline;">
                     <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete?')" title="Delete">🗑</button>
                   </form>
@@ -129,7 +141,7 @@
 
 <!-- Add Application Modal -->
 <div class="modal-overlay" id="addAppModal">
-  <div class="modal" style="max-width: 640px;">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Add Job Application</span>
       <button class="modal-close" onclick="closeModal('addAppModal')">✕</button>
@@ -198,7 +210,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Notes</label>
-          <textarea name="notes" class="form-textarea" placeholder="Referral, recruiter name, key requirements..."></textarea>
+          <textarea name="notes" id="addAppNotesTextarea" class="form-textarea auto-resize-code" placeholder="Referral, recruiter name, key requirements..."></textarea>
+          <div class="quill-editor-wrapper" id="addAppNotesQuillWrapper" style="display: none;">
+            <div id="addAppNotesQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="flex gap-3 justify-between">
           <button type="button" class="btn btn-secondary" onclick="closeModal('addAppModal')">Cancel</button>
@@ -211,7 +226,7 @@
 
 <!-- Update Application Modal -->
 <div class="modal-overlay" id="updateAppModal">
-  <div class="modal">
+  <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Update Application</span>
       <button class="modal-close" onclick="closeModal('updateAppModal')">✕</button>
@@ -236,7 +251,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Notes</label>
-          <textarea name="notes" class="form-textarea" id="uAppNotes"></textarea>
+          <textarea name="notes" id="uAppNotes" class="form-textarea auto-resize-code" placeholder="Notes..."></textarea>
+          <div class="quill-editor-wrapper" id="uAppNotesQuillWrapper" style="display: none;">
+            <div id="uAppNotesQuillEditor" style="height: 120px;"></div>
+          </div>
         </div>
         <div class="flex gap-3 justify-between">
           <button type="button" class="btn btn-secondary" onclick="closeModal('updateAppModal')">Cancel</button>
@@ -250,11 +268,115 @@
 
 {% block scripts %}
 <script>
+let addAppNotesQuill, uAppNotesQuill;
+
+function autoResizeTextarea(textarea) {
+  if (!textarea) return;
+  textarea.style.height = 'auto';
+  textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+}
+
 function openUpdateApp(id, stage, notes) {
   document.getElementById('updateAppForm').action = '/applications/update/' + id;
   document.getElementById('uAppStage').value = stage;
-  document.getElementById('uAppNotes').value = notes;
+  
+  const notesTextarea = document.getElementById('uAppNotes');
+  notesTextarea.value = notes || '';
+  
+  if (window.Quill && uAppNotesQuill) {
+    uAppNotesQuill.root.innerHTML = notes || '';
+  }
+  
   openModal('updateAppModal');
+  
+  // Resize textarea on opening in case Quill is not loaded
+  setTimeout(() => {
+    autoResizeTextarea(notesTextarea);
+  }, 80);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Wire up edit buttons using data attributes
+  document.querySelectorAll('.edit-app-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const stage = this.getAttribute('data-stage');
+      const notes = this.getAttribute('data-notes');
+      openUpdateApp(id, stage, notes);
+    });
+  });
+
+  // Rich toolbar config
+  const richToolbar = [
+    [{ 'header': [1, 2, 3, 4, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'indent': '-1'}, { 'indent': '+1' }],
+    [{ 'align': [] }],
+    ['link', 'blockquote', 'code-block'],
+    ['clean']
+  ];
+
+  // Initialize Quill if loaded
+  if (window.Quill) {
+    // Add App Notes
+    document.getElementById('addAppNotesTextarea').style.display = 'none';
+    document.getElementById('addAppNotesQuillWrapper').style.display = 'block';
+    
+    addAppNotesQuill = new Quill('#addAppNotesQuillEditor', {
+      theme: 'snow',
+      modules: { toolbar: richToolbar },
+      placeholder: 'Referral, recruiter name, key requirements...'
+    });
+
+    // Update App Notes
+    document.getElementById('uAppNotes').style.display = 'none';
+    document.getElementById('uAppNotesQuillWrapper').style.display = 'block';
+
+    uAppNotesQuill = new Quill('#uAppNotesQuillEditor', {
+      theme: 'snow',
+      modules: { toolbar: richToolbar },
+      placeholder: 'Recruiter notes, timeline, key contacts...'
+    });
+  }
+
+  // Auto-resize for textarea on input
+  document.querySelectorAll('textarea.auto-resize-code').forEach(ta => {
+    ta.addEventListener('input', function() {
+      autoResizeTextarea(this);
+    });
+  });
+
+  // Sync Quill content before forms submit
+  const addForm = document.querySelector('#addAppModal form');
+  if (addForm) {
+    addForm.addEventListener('submit', function() {
+      if (window.Quill && addAppNotesQuill) {
+        const textarea = document.getElementById('addAppNotesTextarea');
+        if (addAppNotesQuill.getText().trim().length === 0) {
+          textarea.value = '';
+        } else {
+          textarea.value = addAppNotesQuill.root.innerHTML;
+        }
+      }
+    });
+  }
+
+  const updateForm = document.getElementById('updateAppForm');
+  if (updateForm) {
+    updateForm.addEventListener('submit', function() {
+      if (window.Quill && uAppNotesQuill) {
+        const textarea = document.getElementById('uAppNotes');
+        if (uAppNotesQuill.getText().trim().length === 0) {
+          textarea.value = '';
+        } else {
+          textarea.value = uAppNotesQuill.root.innerHTML;
+        }
+      }
+    });
+  }
+});
 </script>
 {% endblock %}
