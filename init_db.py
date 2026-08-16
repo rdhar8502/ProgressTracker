@@ -146,6 +146,41 @@ def init():
                 );
             """))
             logger.info("✅ Verified dsa_companies and dsa_problem_companies tables.")
+
+            # Check track column in system_design_concepts
+            res_sd_track = conn.execute(text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='system_design_concepts' AND column_name='track'"
+            )).fetchone()
+            if not res_sd_track:
+                logger.info("Adding track column to system_design_concepts...")
+                conn.execute(text(
+                    "ALTER TABLE system_design_concepts ADD COLUMN track VARCHAR(20) DEFAULT 'HLD'"
+                ))
+                logger.info("✅ Added track column to system_design_concepts.")
+
+            # Check track and category columns in system_design_cases
+            res_case_track = conn.execute(text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='system_design_cases' AND column_name='track'"
+            )).fetchone()
+            if not res_case_track:
+                logger.info("Adding track column to system_design_cases...")
+                conn.execute(text(
+                    "ALTER TABLE system_design_cases ADD COLUMN track VARCHAR(20) DEFAULT 'HLD'"
+                ))
+                logger.info("✅ Added track column to system_design_cases.")
+
+            res_case_cat = conn.execute(text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='system_design_cases' AND column_name='category'"
+            )).fetchone()
+            if not res_case_cat:
+                logger.info("Adding category column to system_design_cases...")
+                conn.execute(text(
+                    "ALTER TABLE system_design_cases ADD COLUMN category VARCHAR(100) DEFAULT 'Distributed Systems'"
+                ))
+                logger.info("✅ Added category column to system_design_cases.")
     except Exception as e:
         logger.error(f"Error migrating database schema: {e}")
 

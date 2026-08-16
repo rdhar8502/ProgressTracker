@@ -2912,4 +2912,393 @@ tbody tr:hover { background: #F8FAFC; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .rings-grid { grid-template-columns: 1fr 1fr; }
   .header-search { display: none; }
+  .sd-track-nav { overflow-x: auto; flex-wrap: nowrap; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SYSTEM DESIGN MODERN UI/UX STYLES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Hero Banner & Track Switcher */
+.sd-hero-card {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  color: #F8FAFC;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);
+}
+
+.sd-hero-card::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.18) 0%, rgba(99, 102, 241, 0.05) 50%, transparent 80%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sd-hero-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sd-track-nav {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 18px;
+}
+
+.sd-track-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sd-track-tab:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sd-track-tab.active {
+  color: #FFFFFF;
+  background: #2563EB;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.sd-track-tab.tab-hld.active {
+  background: linear-gradient(135deg, #0284C7, #0EA5E9);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+}
+
+.sd-track-tab.tab-lld.active {
+  background: linear-gradient(135deg, #D97706, #F59E0B);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
+.sd-track-tab.tab-cheat.active {
+  background: linear-gradient(135deg, #7C3AED, #9333EA);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+}
+
+/* Track Badges */
+.badge-hld {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-lld {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Dual-Track Stats Grid */
+.sd-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sd-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sd-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.sd-stat-card.hld-card {
+  border-left: 4px solid #0EA5E9;
+}
+
+.sd-stat-card.lld-card {
+  border-left: 4px solid #F59E0B;
+}
+
+.sd-stat-card.overall-card {
+  border-left: 4px solid #10B981;
+}
+
+/* Concept Cards */
+.sd-concept-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+}
+
+.sd-concept-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: #CBD5E1;
+}
+
+.sd-concept-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+.sd-subconcept-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.15s ease;
+}
+
+.sd-subconcept-row:last-child {
+  border-bottom: none;
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+}
+
+.sd-subconcept-row:hover {
+  background-color: var(--surface-alt);
+}
+
+.sd-subconcept-row.done-row {
+  background-color: rgba(240, 253, 244, 0.4);
+}
+
+.sd-status-cycle-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: transparent;
+  flex-shrink: 0;
+}
+
+.sd-status-cycle-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--accent);
+}
+
+.sd-status-cycle-btn.done {
+  background: #10B981;
+  border-color: #059669;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+}
+
+.sd-status-cycle-btn.in-progress {
+  background: #3B82F6;
+  border-color: #2563EB;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.35);
+}
+
+/* Case Study Cards Grid */
+.sd-case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.sd-case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+}
+
+.sd-case-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #CBD5E1;
+}
+
+.sd-case-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sd-case-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.sd-comp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.sd-comp-chip {
+  font-size: 11px;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Frameworks & Cheat Sheets Accordion Cards */
+.framework-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-xs);
+}
+
+.framework-step-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2563EB;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* ── Refined Case Cards ──────────────────────────────────────────────── */
+.sd-case-card {
+  min-height: 120px; /* ensure consistent card height */
+}
+
+/* Inline case item hover */
+.cases-list-container .sd-case-list-item:hover {
+  border-color: var(--border-focus) !important;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* Concept card within category — no extra box-shadow */
+.sd-category-card .sd-concept-card {
+  box-shadow: none;
+}
+
+/* ── Equal-height category cards with inner scroll ─────────────────── */
+
+/* All cards in the grid stretch to the tallest in their row */
+div[style*="grid-template-columns: repeat(auto-fill, minmax(480px"] {
+  align-items: stretch;
+}
+
+.sd-category-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important; /* clip at card boundary */
+}
+
+/* Card header stays fixed */
+.sd-category-card > .card-header {
+  flex-shrink: 0;
+}
+
+/* Accordion body scrolls when content exceeds threshold */
+.sd-category-card > .category-accordion-content {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 420px; /* ~10 subconcepts visible before scroll kicks in */
+  overscroll-behavior: contain;
+}
+
+/* Thin custom scrollbar inside cards */
+.sd-category-card > .category-accordion-content::-webkit-scrollbar {
+  width: 4px;
+}
+.sd-category-card > .category-accordion-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sd-category-card > .category-accordion-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.sd-category-card > .category-accordion-content::-webkit-scrollbar-thumb:hover {
+  background: var(--border-focus);
+}
+
+/* Make subconcept name wrap instead of hard truncate on narrower screens */
+@media (max-width: 1024px) {
+  .sd-subconcept-row span[style*="text-overflow"] {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+  }
+}
+

@@ -8,7 +8,8 @@ class SystemDesignConcept(Base):
     __tablename__ = "system_design_concepts"
 
     id = Column(Integer, primary_key=True, index=True)
-    category = Column(String(50), default="Core")   # Core / Advanced / Infrastructure
+    track = Column(String(20), default="HLD")       # HLD / LLD
+    category = Column(String(100), default="Core")  # Core, Distributed Systems, Design Patterns, etc.
     concept_name = Column(String(200), nullable=False)
     order_index = Column(Integer, default=0)
     sources = Column(Text, default="")
@@ -48,6 +49,8 @@ class SystemDesignCase(Base):
     __tablename__ = "system_design_cases"
 
     id = Column(Integer, primary_key=True, index=True)
+    track = Column(String(20), default="HLD")       # HLD / LLD
+    category = Column(String(100), default="Distributed Systems")
     system_name = Column(String(200), nullable=False)
     order_index = Column(Integer, default=0)
     status = Column(String(20), default="Not Started")  # Not Started / In Progress / Done

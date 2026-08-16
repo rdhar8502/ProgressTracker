@@ -1,263 +1,582 @@
 {% extends "base.html" %}
-{% block title %}System Design Prep{% endblock %}
-{% block page_title %}System Design Preparation{% endblock %}
+{% block title %}System Design (HLD & LLD) Mastery{% endblock %}
+{% block page_title %}System Design & Architecture{% endblock %}
 
 {% block head %}
-<!-- Quill Rich Text Editor (BSD License - Open Source) -->
+<!-- Quill Rich Text Editor -->
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 {% endblock %}
 
 {% block content %}
-<!-- Page Header Action -->
-<div class="flex justify-between items-center mb-6" style="margin-top: -8px;">
-  <p style="margin: 0; color: var(--text-muted); font-size: 14px;">
-    Track architectural concepts, sub-concepts, and full scale system design case studies.
-  </p>
-  <button class="btn btn-primary btn-sm" onclick="openAddConceptModal()">
-    <i data-lucide="plus" class="icon-xs"></i>
-    <span>Add Concept</span>
-  </button>
+<!-- ══ Modern Hero Card & Track Switcher ══ -->
+<div class="sd-hero-card">
+  <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge" style="background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 11px; font-weight: 700;">
+          <i data-lucide="sparkles" class="icon-xs"></i> Dual-Track Architecture
+        </span>
+        <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.3); font-size: 11px; font-weight: 700;">
+          Senior & Lead Engineer Level
+        </span>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 6px;">
+        System Design: High Level (HLD) & Low Level (LLD)
+      </h2>
+      <p style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 680px; line-height: 1.5;">
+        Master large-scale distributed architectures, scalability, and storage engines for <strong>HLD</strong> alongside object-oriented design, SOLID principles, design patterns, and machine coding for <strong>LLD</strong>.
+      </p>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="flex gap-2" style="align-items: center; flex-wrap: wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="openFrameworksModal()" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #FFFFFF;">
+        <i data-lucide="book-marked" class="icon-xs"></i>
+        <span>Interview Frameworks</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="openAddCaseModal()" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #FFFFFF;">
+        <i data-lucide="plus" class="icon-xs"></i>
+        <span>Add Case Study</span>
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="openAddConceptModal()">
+        <i data-lucide="plus" class="icon-xs"></i>
+        <span>Add Concept</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Track Navigation Tabs -->
+  <div class="sd-track-nav" style="position: relative; z-index: 2;">
+    <a href="/system-design?track=all" class="sd-track-tab {% if selected_track == 'all' or not selected_track %}active{% endif %}">
+      <i data-lucide="layout-grid" class="icon-sm"></i>
+      <span>All Topics & Cases</span>
+      <span class="badge" style="font-size: 10px; padding: 1px 6px; background: rgba(255,255,255,0.15); color: #FFFFFF;">{{ overall_total }}</span>
+    </a>
+
+    <a href="/system-design?track=hld" class="sd-track-tab tab-hld {% if selected_track == 'hld' %}active{% endif %}">
+      <i data-lucide="network" class="icon-sm"></i>
+      <span>High Level Design (HLD)</span>
+      <span class="badge badge-hld" style="font-size: 10px; padding: 1px 6px;">{{ hld_subs_done + hld_cases_done }}/{{ hld_subs_total + hld_cases_total }}</span>
+    </a>
+
+    <a href="/system-design?track=lld" class="sd-track-tab tab-lld {% if selected_track == 'lld' %}active{% endif %}">
+      <i data-lucide="binary" class="icon-sm"></i>
+      <span>Low Level Design (LLD / OOD)</span>
+      <span class="badge badge-lld" style="font-size: 10px; padding: 1px 6px;">{{ lld_subs_done + lld_cases_done }}/{{ lld_subs_total + lld_cases_total }}</span>
+    </a>
+
+    <a href="/system-design?track=cases" class="sd-track-tab {% if selected_track == 'cases' %}active{% endif %}">
+      <i data-lucide="layers" class="icon-sm"></i>
+      <span>Case Studies & Machine Coding</span>
+      <span class="badge" style="font-size: 10px; padding: 1px 6px; background: rgba(255,255,255,0.15); color: #FFFFFF;">{{ cases_total }}</span>
+    </a>
+
+    <button type="button" class="sd-track-tab tab-cheat" onclick="openFrameworksModal()">
+      <i data-lucide="compass" class="icon-sm"></i>
+      <span>45-Min Cheat Sheets</span>
+    </button>
+  </div>
 </div>
 
-<!-- Stats -->
-<div class="stats-grid" style="margin-bottom: 24px;">
-  <div class="stat-card blue">
-    <i data-lucide="network" class="stat-icon icon-xl"></i>
-    <div class="stat-label">Sub-concepts Done</div>
-    <div class="stat-value">{{ topics_done }}</div>
-    <div class="stat-sub">of {{ topics_total }} sub-concepts</div>
+<!-- ══ Dual-Track Progress KPI Grid ══ -->
+<div class="sd-stats-grid">
+  <!-- HLD Stat Card -->
+  <div class="sd-stat-card hld-card">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #0284C7; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="network" class="icon-xs"></i> High Level Design (HLD)
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ hld_pct }}%
+        </div>
+      </div>
+      <div class="badge badge-hld" style="padding: 3px 8px;">
+        {{ hld_subs_done + hld_cases_done }} / {{ hld_subs_total + hld_cases_total }} Done
+      </div>
+    </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ hld_pct }}%; background: linear-gradient(90deg, #0284C7, #38BDF8);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>{{ hld_subs_done }}/{{ hld_subs_total }} Sub-concepts</span>
+      <span>{{ hld_cases_done }}/{{ hld_cases_total }} Case Studies</span>
+    </div>
   </div>
-  <div class="stat-card purple">
-    <i data-lucide="layers" class="stat-icon icon-xl"></i>
-    <div class="stat-label">In Progress</div>
-    <div class="stat-value">{{ topics_in_progress }}</div>
-    <div class="stat-sub">sub-concepts in progress</div>
+
+  <!-- LLD Stat Card -->
+  <div class="sd-stat-card lld-card">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #D97706; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="binary" class="icon-xs"></i> Low Level Design (LLD / OOD)
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ lld_pct }}%
+        </div>
+      </div>
+      <div class="badge badge-lld" style="padding: 3px 8px;">
+        {{ lld_subs_done + lld_cases_done }} / {{ lld_subs_total + lld_cases_total }} Done
+      </div>
+    </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ lld_pct }}%; background: linear-gradient(90deg, #D97706, #FBBF24);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>{{ lld_subs_done }}/{{ lld_subs_total }} SOLID & Patterns</span>
+      <span>{{ lld_cases_done }}/{{ lld_cases_total }} Machine Coding</span>
+    </div>
   </div>
-  <div class="stat-card green">
-    <i data-lucide="check-circle-2" class="stat-icon icon-xl"></i>
-    <div class="stat-label">Case Studies Done</div>
-    <div class="stat-value">{{ cases_done }}</div>
-    <div class="stat-sub">of {{ cases_total }} systems</div>
+
+  <!-- Study Vectors (Read vs Practical) -->
+  <div class="sd-stat-card">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="check-check" class="icon-xs"></i> Study Vectors Completed
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ reading_done_count + practical_done_count }}
+        </div>
+      </div>
+      <div class="badge badge-purple" style="padding: 3px 8px;">
+        Actions Completed
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 6px;">
+      <div style="flex: 1; background: var(--surface-alt); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="book-open" class="icon-xs" style="color: #10B981;"></i> Reading Done
+        </div>
+        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">{{ reading_done_count }}/{{ topics_total }}</div>
+      </div>
+      <div style="flex: 1; background: var(--surface-alt); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="code" class="icon-xs" style="color: #2563EB;"></i> Practical Code
+        </div>
+        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">{{ practical_done_count }}/{{ topics_total }}</div>
+      </div>
+    </div>
   </div>
-  <div class="stat-card amber">
-    <i data-lucide="pie-chart" class="stat-icon icon-xl"></i>
-    <div class="stat-label">Overall Progress</div>
-    <div class="stat-value">
-      {% if (topics_total + cases_total) > 0 %}
-        {{ (((topics_done + cases_done) / (topics_total + cases_total)) * 100) | int }}%
-      {% else %}
-        0%
+
+  <!-- Overall Mastery -->
+  <div class="sd-stat-card overall-card">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #059669; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="trophy" class="icon-xs"></i> Overall Mastery
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ overall_pct }}%
+        </div>
+      </div>
+      <div class="badge badge-green" style="padding: 3px 8px;">
+        {{ overall_done }} / {{ overall_total }}
+      </div>
+    </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ overall_pct }}%; background: linear-gradient(90deg, #059669, #10B981);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>{{ topics_in_progress + cases_in_progress }} in progress</span>
+      <span>Target: 100% Prepared</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Search & Filter Toolbar ══ -->
+<div class="card mb-4" style="padding: 12px 16px;">
+  <form method="get" action="/system-design" id="sdFilterForm" class="flex justify-between items-center" style="flex-wrap: wrap; gap: 12px;">
+    <input type="hidden" name="track" value="{{ selected_track }}">
+    
+    <!-- Search Input -->
+    <div class="flex items-center gap-2" style="flex: 1; min-width: 260px;">
+      <div style="position: relative; width: 100%;">
+        <i data-lucide="search" class="icon-sm" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+        <input type="text" name="search" id="sdSearchInput" class="form-input" value="{{ selected_search }}" placeholder="Search concept, pattern, subconcept, case study, or notes (e.g. Kafka, Redis, Strategy, Parking Lot)..." style="padding-left: 32px;">
+      </div>
+      {% if selected_search %}
+        <a href="/system-design?track={{ selected_track }}" class="btn btn-ghost btn-sm" title="Clear search">Clear</a>
       {% endif %}
     </div>
-    <div class="stat-sub">{{ topics_done + cases_done }} / {{ topics_total + cases_total }} completed</div>
-  </div>
+
+    <!-- Quick Status Filter Pills -->
+    <div class="flex items-center gap-1" style="flex-wrap: wrap;">
+      <span style="font-size: 11px; color: var(--text-muted); margin-right: 4px;">Status:</span>
+      <button type="button" class="btn btn-sm sd-filter-pill active" data-filter="all" onclick="filterItemsByStatus('all')">All</button>
+      <button type="button" class="btn btn-sm sd-filter-pill" data-filter="done" onclick="filterItemsByStatus('done')">
+        <span class="status-indicator solved" style="width: 7px; height: 7px; margin-right: 4px;"></span> Done
+      </button>
+      <button type="button" class="btn btn-sm sd-filter-pill" data-filter="in-progress" onclick="filterItemsByStatus('in-progress')">
+        <span class="status-indicator attempting" style="width: 7px; height: 7px; margin-right: 4px;"></span> In Progress
+      </button>
+      <button type="button" class="btn btn-sm sd-filter-pill" data-filter="not-started" onclick="filterItemsByStatus('not-started')">
+        <span class="status-indicator not-started" style="width: 7px; height: 7px; margin-right: 4px;"></span> Todo
+      </button>
+    </div>
+
+    <!-- Accordion Expand/Collapse All -->
+    <div class="flex gap-1">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllAccordions(true)" title="Expand all concept accordions">
+        <i data-lucide="chevrons-down" class="icon-xs"></i>
+        <span>Expand</span>
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllAccordions(false)" title="Collapse all concept accordions">
+        <i data-lucide="chevrons-up" class="icon-xs"></i>
+        <span>Collapse</span>
+      </button>
+    </div>
+  </form>
 </div>
 
-<div class="grid-2">
-  <!-- Topics by Category -->
-  <div>
-    {% for cat, cat_concepts in by_category.items() %}
-    <div class="card mb-4">
-      <div class="card-header">
-        <span class="card-title">{{ cat }} Concepts</span>
+<!-- ══ Main Content Layout ══ -->
+{% if selected_track == 'cases' %}
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- VIEW: Case Studies Dedicated Full Grid                               -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- HLD Distributed Systems Section -->
+  <div class="card mb-5">
+    <div class="card-header" style="background: linear-gradient(135deg, #F0F9FF, #E0F2FE); border-bottom: 1px solid #BAE6FD;">
+      <div class="flex items-center gap-2">
+        <span class="badge badge-hld">HLD</span>
+        <span class="card-title" style="color: #0369A1;">High Level Design — Distributed Systems Case Studies</span>
+      </div>
+      <span class="badge badge-blue">{{ hld_cases_done }}/{{ hld_cases_total }} completed</span>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+        {% for case in cases_hld %}
+          <div class="sd-case-card sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}">
+            <div class="sd-case-header">
+              <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                {{ case.system_name }}
+              </span>
+              <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status">
+                {% if case.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
+              </button>
+            </div>
+            {% if case.key_components %}
+              <div class="sd-comp-chips" style="margin-top: 6px;">
+                {% for comp in case.key_components.split(',')[:4] %}
+                  <span class="sd-comp-chip">{{ comp.strip() }}</span>
+                {% endfor %}
+                {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+              </div>
+            {% endif %}
+            <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px;">{{ case.status }}</span>
+              <div class="flex items-center gap-1">
+                {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="badge badge-purple" style="text-decoration: none; font-size: 10px;"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- LLD Machine Coding Section -->
+  <div class="card mb-5">
+    <div class="card-header" style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border-bottom: 1px solid #FDE68A;">
+      <div class="flex items-center gap-2">
+        <span class="badge badge-lld">LLD</span>
+        <span class="card-title" style="color: #B45309;">Low Level Design — Machine Coding & OOD Case Studies</span>
+      </div>
+      <span class="badge badge-amber">{{ lld_cases_done }}/{{ lld_cases_total }} completed</span>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+        {% for case in cases_lld %}
+          <div class="sd-case-card sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}">
+            <div class="sd-case-header">
+              <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                {{ case.system_name }}
+              </span>
+              <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status">
+                {% if case.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
+              </button>
+            </div>
+            {% if case.key_components %}
+              <div class="sd-comp-chips" style="margin-top: 6px;">
+                {% for comp in case.key_components.split(',')[:4] %}
+                  <span class="sd-comp-chip">{{ comp.strip() }}</span>
+                {% endfor %}
+                {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+              </div>
+            {% endif %}
+            <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px;">{{ case.status }}</span>
+              <div class="flex items-center gap-1">
+                {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="badge badge-purple" style="text-decoration: none; font-size: 10px;"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+{% else %}
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- VIEW: Full-width Concept Cards Grid + Inline Case Studies            -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  {% if selected_track == 'all' or selected_track == 'hld' %}
+    <!-- HLD Track Section Header -->
+    <div class="flex justify-between items-center mb-4" style="border-bottom: 2px solid #0EA5E9; padding-bottom: 10px;">
+      <div class="flex items-center gap-3">
+        <span class="badge badge-hld" style="font-size: 12px; padding: 4px 10px;">HLD Track</span>
+        <h3 style="font-size: 17px; font-weight: 800; color: var(--text-primary); margin: 0;">High Level Design Concepts</h3>
+      </div>
+      <span class="badge badge-blue" style="font-size: 12px;">{{ hld_subs_done }}/{{ hld_subs_total }} done</span>
+    </div>
+
+    <!-- HLD Concept Cards Grid (2 per row on wide screens, 1 on narrow) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      {% for cat, cat_concepts in by_category_hld.items() %}
         {% set total_subs = namespace(value=0) %}
         {% set done_subs = namespace(value=0) %}
         {% for concept in cat_concepts %}
           {% set total_subs.value = total_subs.value + concept.sub_concepts | length %}
           {% set done_subs.value = done_subs.value + concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
         {% endfor %}
-        <span class="badge badge-blue">{{ done_subs.value }}/{{ total_subs.value }} done</span>
-      </div>
-      <div class="card-body no-top" style="padding-top: 14px;">
-        {% for concept in cat_concepts %}
-        <div class="concept-group mb-4" style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; background-color: var(--surface); box-shadow: var(--shadow-xs); position: relative; transition: all 0.2s;">
-          
-          <!-- Concept Header -->
-          <div class="flex justify-between items-center" style="margin-bottom: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+
+        <div class="card sd-category-card" style="overflow: hidden;">
+          <div class="card-header flex justify-between items-center" style="background: linear-gradient(135deg, rgba(14,165,233,0.06), var(--surface-alt)); cursor: pointer; border-left: 3px solid #0EA5E9;" onclick="toggleCategoryAccordion(this)">
             <div class="flex items-center gap-2">
-              <span class="concept-title" style="font-weight: 700; font-size: 14px; color: var(--text-primary);">{{ concept.concept_name }}</span>
-              {% set concept_total = concept.sub_concepts | length %}
-              {% set concept_done = concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
-              <span class="badge {% if concept_done == concept_total and concept_total > 0 %}badge-green{% else %}badge-purple{% endif %}" style="font-size: 10px; padding: 2px 6px; margin-left: 4px;">
-                {{ concept_done }}/{{ concept_total }}
-              </span>
+              <i data-lucide="chevron-down" class="icon-sm category-accordion-icon" style="transition: transform 0.2s; color: #0284C7;"></i>
+              <span class="card-title" style="font-size: 13px; font-weight: 700;">{{ cat }}</span>
             </div>
-            
-            <div class="concept-actions flex gap-1" style="align-items: center;">
-              <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddSubModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\\'") }}')" title="Add Sub-concept">
-                <i data-lucide="plus" class="icon-xs"></i>
-              </button>
-              <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditConceptModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\\'") }}', '{{ concept.category }}', `{{ concept.sources | replace('`','') }}`)" title="Edit Concept">
-                <i data-lucide="pencil" class="icon-xs"></i>
-              </button>
-              <form method="post" action="/system-design/concept/delete/{{ concept.id }}" style="display:inline; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this concept and all its sub-concepts?')">
-                <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: var(--danger);" title="Delete Concept">
-                  <i data-lucide="trash-2" class="icon-xs"></i>
-                </button>
-              </form>
-            </div>
+            <span class="badge {% if done_subs.value == total_subs.value and total_subs.value > 0 %}badge-green{% else %}badge-blue{% endif %}">{{ done_subs.value }}/{{ total_subs.value }}</span>
           </div>
 
-          <!-- Concept Sources -->
-          {% if concept.sources %}
-          <div class="concept-sources mb-3 flex gap-2" style="flex-wrap: wrap; align-items: center; padding-left: 2px;">
-            <span style="font-size: 11px; color: var(--text-muted);">Sources:</span>
-            {% for src in concept.sources.split('\n') %}
-              {% set src = src.strip() %}
-              {% if src %}
-                {% if src.startswith('http://') or src.startswith('https://') %}
-                  <a href="{{ src }}" target="_blank" class="badge badge-blue" style="font-size: 10px; text-decoration: none; padding: 2px 6px; border-radius: 4px;">
-                    <i data-lucide="link" class="icon-xs"></i>
-                    <span>{{ src[:25] }}{% if src | length > 25 %}...{% endif %}</span>
-                  </a>
-                {% else %}
-                  <span class="badge badge-gray" style="font-size: 10px; padding: 2px 6px; border-radius: 4px;">
-                    <i data-lucide="file-text" class="icon-xs"></i>
-                    <span>{{ src }}</span>
-                  </span>
+          <div class="category-accordion-content">
+            {% for concept in cat_concepts %}
+              <div style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
+                <!-- Concept Header -->
+                <div class="sd-concept-header" style="padding: 10px 14px; background: rgba(14,165,233,0.025);">
+                  <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                    <span class="badge badge-hld" style="font-size: 9px; padding: 1px 5px; flex-shrink: 0;">HLD</span>
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">{{ concept.concept_name }}</span>
+                    {% set concept_total = concept.sub_concepts | length %}
+                    {% set concept_done = concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
+                    <span class="badge {% if concept_done == concept_total and concept_total > 0 %}badge-green{% else %}badge-purple{% endif %}" style="font-size: 9px; flex-shrink: 0;">{{ concept_done }}/{{ concept_total }}</span>
+                  </div>
+                  <div class="flex items-center gap-1" style="flex-shrink: 0;">
+                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddSubModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\'") }}')" title="Add"><i data-lucide="plus" class="icon-xs"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditConceptModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\'") }}', '{{ concept.track }}', '{{ concept.category | replace("'", "\'") }}', `{{ concept.sources | replace('\`','') }}`)" title="Edit"><i data-lucide="pencil" class="icon-xs"></i></button>
+                    <form method="post" action="/system-design/concept/delete/{{ concept.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                  </div>
+                </div>
+
+                {% if concept.sources %}
+                  <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 14px; background: rgba(0,0,0,0.015); border-bottom: 1px solid var(--border-light);">
+                    <span style="font-size: 10px; color: var(--text-muted);">Sources:</span>
+                    {% for src in concept.sources.split('
+') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-blue" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
+                  </div>
                 {% endif %}
-              {% endif %}
+
+                <!-- Subconcepts -->
+                {% for sub in concept.sub_concepts %}
+                  <div class="sd-subconcept-row {% if sub.status == 'Done' %}done-row{% endif %}" data-status="{{ sub.status | lower | replace(' ', '-') }}">
+                    <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                      <button type="button" class="sd-status-cycle-btn {% if sub.status == 'Done' %}done{% elif sub.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateSub({{ sub.id }}, '{{ sub.status }}')" style="flex-shrink: 0;">
+                        {% if sub.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif sub.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
+                      </button>
+                      <span style="font-size: 12px; color: var(--text-primary); {% if sub.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ sub.subconcept_name }}</span>
+                    </div>
+                    <div class="flex items-center gap-1" style="flex-shrink: 0;">
+                      {% if sub.reading_done %}<span class="badge badge-green" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="book-open" class="icon-xs"></i></span>{% endif %}
+                      {% if sub.practical_done %}<span class="badge badge-blue" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="code" class="icon-xs"></i></span>{% endif %}
+                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
+                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
             {% endfor %}
           </div>
-          {% endif %}
-
-          <!-- Sub-concepts list -->
-          <div class="sub-concepts-list" style="padding-left: 2px; display: flex; flex-direction: column; gap: 6px;">
-            {% if concept.sub_concepts %}
-              {% for sub in concept.sub_concepts %}
-              <div style="display: flex; flex-direction: column; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
-                <div class="topic-item" style="padding: 4px 6px; border-radius: 6px; margin-bottom: 0;">
-                  <div class="topic-check {% if sub.status == 'Done' %}done{% elif sub.status == 'In Progress' %}in-progress{% endif %}"
-                       onclick="quickUpdateSub({{ sub.id }}, '{{ sub.status }}')" style="cursor: pointer;">
-                    {% if sub.status == 'Done' %}
-                      <i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>
-                    {% elif sub.status == 'In Progress' %}
-                      <i data-lucide="minus" class="icon-xs"></i>
-                    {% endif %}
-                  </div>
-                  <span class="topic-name" style="font-size: 13px; text-decoration: {% if sub.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %}; flex: 1;">
-                    {{ sub.subconcept_name }}
-                  </span>
-                  <div class="topic-actions" style="display: flex; align-items: center; gap: 4px;">
-                    {% if sub.reading_done %}
-                      <span class="badge badge-green" style="font-size: 10px; padding: 1px 6px;" title="Reading done">
-                        <i data-lucide="book-open" class="icon-xs"></i> Read
-                      </span>
-                    {% endif %}
-                    {% if sub.practical_done %}
-                      <span class="badge badge-blue" style="font-size: 10px; padding: 1px 6px;" title="Practical done">
-                        <i data-lucide="code" class="icon-xs"></i> Code
-                      </span>
-                    {% endif %}
-                    {% if sub.resources %}
-                      <a href="{{ sub.resources }}" target="_blank" title="Resource Link" class="btn btn-ghost btn-sm btn-icon">
-                        <i data-lucide="external-link" class="icon-xs"></i>
-                      </a>
-                    {% endif %}
-                    <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" 
-                            data-id="{{ sub.id }}"
-                            data-name="{{ sub.subconcept_name | escape }}"
-                            data-status="{{ sub.status }}"
-                            data-reading="{{ sub.reading_done | lower }}"
-                            data-practical="{{ sub.practical_done | lower }}"
-                            data-notes="{{ sub.notes | escape }}"
-                            data-resources="{{ sub.resources | escape }}"
-                            data-sources="{{ sub.sources | escape }}"
-                            title="Edit Details">
-                      <i data-lucide="pencil" class="icon-xs"></i>
-                    </button>
-                    <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin: 0;" onsubmit="return confirm('Delete this sub-concept?')">
-                      <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: var(--danger);" title="Delete Sub-concept">
-                        <i data-lucide="trash-2" class="icon-xs"></i>
-                      </button>
-                    </form>
-                  </div>
-                </div>
-
-                <!-- Sub-concept sources -->
-                {% if sub.sources %}
-                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-left: 28px; margin-top: 2px; margin-bottom: 2px;">
-                  {% for src in sub.sources.split('\n') %}
-                    {% set src = src.strip() %}
-                    {% if src %}
-                      {% if src.startswith('http://') or src.startswith('https://') %}
-                        <a href="{{ src }}" target="_blank" class="badge badge-purple" style="font-size: 9px; text-decoration: none; padding: 1px 6px; border-radius: 4px;">
-                          <i data-lucide="link" class="icon-xs"></i>
-                          <span>{{ src[:25] }}{% if src | length > 25 %}...{% endif %}</span>
-                        </a>
-                      {% else %}
-                        <span class="badge badge-gray" style="font-size: 9px; padding: 1px 6px; border-radius: 4px;">
-                          <i data-lucide="file-text" class="icon-xs"></i>
-                          <span>{{ src }}</span>
-                        </span>
-                      {% endif %}
-                    {% endif %}
-                  {% endfor %}
-                </div>
-                {% endif %}
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="text-muted" style="font-style: italic; font-size: 12px; padding: 4px;">No sub-concepts added yet. Click + to add one.</div>
-            {% endif %}
-          </div>
-          
         </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if selected_track == 'all' or selected_track == 'lld' %}
+    <!-- LLD Track Section Header -->
+    <div class="flex justify-between items-center mb-4" style="border-bottom: 2px solid #F59E0B; padding-bottom: 10px;">
+      <div class="flex items-center gap-3">
+        <span class="badge badge-lld" style="font-size: 12px; padding: 4px 10px;">LLD Track</span>
+        <h3 style="font-size: 17px; font-weight: 800; color: var(--text-primary); margin: 0;">Low Level Design & Object-Oriented Design (OOD)</h3>
+      </div>
+      <span class="badge badge-amber" style="font-size: 12px;">{{ lld_subs_done }}/{{ lld_subs_total }} done</span>
+    </div>
+
+    <!-- LLD Concept Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      {% for cat, cat_concepts in by_category_lld.items() %}
+        {% set total_subs = namespace(value=0) %}
+        {% set done_subs = namespace(value=0) %}
+        {% for concept in cat_concepts %}
+          {% set total_subs.value = total_subs.value + concept.sub_concepts | length %}
+          {% set done_subs.value = done_subs.value + concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
         {% endfor %}
+
+        <div class="card sd-category-card" style="overflow: hidden;">
+          <div class="card-header flex justify-between items-center" style="background: linear-gradient(135deg, rgba(245,158,11,0.06), var(--surface-alt)); cursor: pointer; border-left: 3px solid #F59E0B;" onclick="toggleCategoryAccordion(this)">
+            <div class="flex items-center gap-2">
+              <i data-lucide="chevron-down" class="icon-sm category-accordion-icon" style="transition: transform 0.2s; color: #D97706;"></i>
+              <span class="card-title" style="font-size: 13px; font-weight: 700;">{{ cat }}</span>
+            </div>
+            <span class="badge {% if done_subs.value == total_subs.value and total_subs.value > 0 %}badge-green{% else %}badge-amber{% endif %}">{{ done_subs.value }}/{{ total_subs.value }}</span>
+          </div>
+
+          <div class="category-accordion-content">
+            {% for concept in cat_concepts %}
+              <div style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
+                <!-- Concept Header -->
+                <div class="sd-concept-header" style="padding: 10px 14px; background: rgba(245,158,11,0.025);">
+                  <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                    <span class="badge badge-lld" style="font-size: 9px; padding: 1px 5px; flex-shrink: 0;">LLD</span>
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">{{ concept.concept_name }}</span>
+                    {% set concept_total = concept.sub_concepts | length %}
+                    {% set concept_done = concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
+                    <span class="badge {% if concept_done == concept_total and concept_total > 0 %}badge-green{% else %}badge-amber{% endif %}" style="font-size: 9px; flex-shrink: 0;">{{ concept_done }}/{{ concept_total }}</span>
+                  </div>
+                  <div class="flex items-center gap-1" style="flex-shrink: 0;">
+                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddSubModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\'") }}')" title="Add"><i data-lucide="plus" class="icon-xs"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditConceptModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\'") }}', '{{ concept.track }}', '{{ concept.category | replace("'", "\'") }}', `{{ concept.sources | replace('\`','') }}`)" title="Edit"><i data-lucide="pencil" class="icon-xs"></i></button>
+                    <form method="post" action="/system-design/concept/delete/{{ concept.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                  </div>
+                </div>
+
+                {% if concept.sources %}
+                  <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 14px; background: rgba(0,0,0,0.015); border-bottom: 1px solid var(--border-light);">
+                    <span style="font-size: 10px; color: var(--text-muted);">Sources:</span>
+                    {% for src in concept.sources.split('
+') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-purple" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
+                  </div>
+                {% endif %}
+
+                <!-- Subconcepts -->
+                {% for sub in concept.sub_concepts %}
+                  <div class="sd-subconcept-row {% if sub.status == 'Done' %}done-row{% endif %}" data-status="{{ sub.status | lower | replace(' ', '-') }}">
+                    <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                      <button type="button" class="sd-status-cycle-btn {% if sub.status == 'Done' %}done{% elif sub.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateSub({{ sub.id }}, '{{ sub.status }}')" style="flex-shrink: 0;">
+                        {% if sub.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif sub.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
+                      </button>
+                      <span style="font-size: 12px; color: var(--text-primary); {% if sub.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ sub.subconcept_name }}</span>
+                    </div>
+                    <div class="flex items-center gap-1" style="flex-shrink: 0;">
+                      {% if sub.reading_done %}<span class="badge badge-green" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="book-open" class="icon-xs"></i></span>{% endif %}
+                      {% if sub.practical_done %}<span class="badge badge-blue" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="code" class="icon-xs"></i></span>{% endif %}
+                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
+                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ━━ Inline Case Studies (Collapsible Section) ━━ -->
+  <div class="card mb-4">
+    <div class="card-header flex justify-between items-center" style="cursor: pointer;" onclick="toggleInlineCases()">
+      <div class="flex items-center gap-3">
+        <i data-lucide="chevron-down" id="inlineCasesChevron" class="icon-sm" style="transition: transform 0.2s; color: var(--text-muted);"></i>
+        <i data-lucide="layers" class="icon-sm" style="color: var(--accent);"></i>
+        <span class="card-title">Case Studies & Machine Coding Problems</span>
+        <span class="badge badge-purple" style="font-size: 11px;">{{ cases_total }} total</span>
+      </div>
+      <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+        <div class="flex gap-1" style="background: var(--surface-alt); padding: 3px; border-radius: var(--radius-sm);">
+          <button type="button" class="btn btn-sm case-filter-btn active" onclick="filterCasesByTrack('all', this)" style="font-size: 11px; padding: 2px 8px;">All ({{ cases | length }})</button>
+          <button type="button" class="btn btn-sm case-filter-btn" onclick="filterCasesByTrack('HLD', this)" style="font-size: 11px; padding: 2px 8px;">HLD ({{ cases_hld | length }})</button>
+          <button type="button" class="btn btn-sm case-filter-btn" onclick="filterCasesByTrack('LLD', this)" style="font-size: 11px; padding: 2px 8px;">LLD ({{ cases_lld | length }})</button>
+        </div>
+        <a href="/system-design?track=cases" class="btn btn-ghost btn-sm" style="font-size: 11px;">
+          Full View <i data-lucide="arrow-right" class="icon-xs"></i>
+        </a>
       </div>
     </div>
-    {% endfor %}
-  </div>
 
-  <!-- Case Studies -->
-  <div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">System Design Case Studies</span>
-        <span class="badge badge-green">{{ cases_done }}/{{ cases_total }} done</span>
-      </div>
-      <div class="card-body no-top">
+    <div id="inlineCasesContent" class="card-body" style="padding: 16px;">
+      <div class="cases-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
         {% for case in cases %}
-        <div class="topic-item">
-          <div class="topic-check {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}">
-            {% if case.status == 'Done' %}
-              <i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>
-            {% elif case.status == 'In Progress' %}
-              <i data-lucide="minus" class="icon-xs"></i>
-            {% endif %}
-          </div>
-          <div style="flex: 1;">
-            <div class="topic-name" style="text-decoration: {% if case.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %};">
-              {{ case.system_name }}
+          <div class="sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}"
+               style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; transition: all 0.15s;">
+            <div class="flex justify-between items-start gap-2 mb-1">
+              <div class="flex items-center gap-1" style="min-width: 0; flex: 1;">
+                <span class="badge {% if case.track == 'LLD' %}badge-lld{% else %}badge-hld{% endif %}" style="font-size: 9px; padding: 1px 4px; flex-shrink: 0;">{{ case.track }}</span>
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-primary); {% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ case.system_name }}</span>
+              </div>
+              <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status" style="flex-shrink: 0; width: 20px; height: 20px;">
+                {% if case.status == 'Done' %}<i data-lucide="check" style="width: 10px; height: 10px; stroke-width: 3px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus" style="width: 10px; height: 10px;"></i>{% endif %}
+              </button>
             </div>
             {% if case.key_components %}
-            <div class="text-sm text-muted mt-1" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;">{{ case.key_components[:80] }}</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 3px; margin: 4px 0;">
+                {% for comp in case.key_components.split(',')[:2] %}
+                  <span style="font-size: 10px; background: var(--surface-alt); color: var(--text-secondary); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border-light);">{{ comp.strip() }}</span>
+                {% endfor %}
+                {% if case.key_components.split(',') | length > 2 %}<span style="font-size: 10px; color: var(--text-muted);">+{{ case.key_components.split(',') | length - 2 }}</span>{% endif %}
+              </div>
             {% endif %}
+            <div class="flex justify-between items-center" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-light);">
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 9px;">{{ case.status }}</span>
+              <div class="flex items-center gap-1">
+                {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" style="width: 18px; height: 18px;"><i data-lucide="external-link" style="width: 10px; height: 10px;"></i></a>{% endif %}
+                <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" style="width: 18px; height: 18px;" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" style="width: 10px; height: 10px;"></i></button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="width: 18px; height: 18px;"><i data-lucide="trash-2" style="width: 10px; height: 10px;"></i></button></form>
+              </div>
+            </div>
           </div>
-          <div class="topic-actions">
-            <span class="badge {% if case.status == 'Done' %}status-done{% elif case.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">
-              {{ case.status }}
-            </span>
-            <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" 
-                    data-id="{{ case.id }}"
-                    data-name="{{ case.system_name | escape }}"
-                    data-status="{{ case.status }}"
-                    data-components="{{ case.key_components | escape }}"
-                    data-diagram="{{ case.diagram_url | escape }}"
-                    data-notes="{{ case.notes | escape }}"
-                    title="Edit">
-              <i data-lucide="pencil" class="icon-xs"></i>
-            </button>
-          </div>
-        </div>
         {% endfor %}
       </div>
     </div>
   </div>
-</div>
 
-<!-- Concept Add/Edit Modal -->
+  <!-- ━━ Interview Cheat Sheet Compact Banner ━━ -->
+  <div class="card mb-2" style="background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%); border: 1px solid rgba(124, 58, 237, 0.3);">
+    <div class="card-body" style="padding: 14px 20px;">
+      <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 12px;">
+        <div class="flex items-center gap-3">
+          <i data-lucide="compass" class="icon-md" style="color: #A855F7; flex-shrink: 0;"></i>
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: #FFFFFF; margin-bottom: 3px;">45-Min Interview Cheat Sheet</div>
+            <div style="font-size: 11px; color: #94A3B8; line-height: 1.5;">
+              <span style="color: #38BDF8; font-weight: 600;">HLD:</span> Requirements &rarr; Sizing &rarr; API/Schema &rarr; Architecture &rarr; Deep Dives
+              &nbsp; | &nbsp;
+              <span style="color: #FBBF24; font-weight: 600;">LLD:</span> Use Cases &rarr; Entities &rarr; Patterns &rarr; Concurrency &rarr; Clean Code
+            </div>
+          </div>
+        </div>
+        <button onclick="openFrameworksModal()" class="btn btn-sm" style="background: #7C3AED; color: #FFFFFF; border: none; white-space: nowrap; flex-shrink: 0;">
+          <i data-lucide="book-open" class="icon-xs"></i> Open Full Guide
+        </button>
+      </div>
+    </div>
+  </div>
+
+{% endif %}
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     MODALS SECTION
+     ══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- 1. Concept Add/Edit Modal -->
 <div class="modal-overlay" id="conceptModal">
   <div class="modal">
     <div class="modal-header">
@@ -269,31 +588,34 @@
     <div class="modal-body">
       <form method="post" id="conceptForm" action="/system-design/concept/add">
         <div class="form-group">
-          <label class="form-label">Concept Name</label>
-          <input type="text" name="concept_name" id="cNameInput" class="form-input" required placeholder="e.g. Caching">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <select name="category" id="cCategorySelect" class="form-select">
-            <option value="Core">Core</option>
-            <option value="Advanced">Advanced</option>
-            <option value="Infrastructure">Infrastructure</option>
+          <label class="form-label">Track</label>
+          <select name="track" id="cTrackSelect" class="form-select">
+            <option value="HLD">🏛️ High Level Design (HLD)</option>
+            <option value="LLD">⚙️ Low Level Design (LLD / OOD)</option>
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Concept Name</label>
+          <input type="text" name="concept_name" id="cNameInput" class="form-input" required placeholder="e.g. Caching Strategies & CDNs or Behavioral Design Patterns">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input type="text" name="category" id="cCategoryInput" class="form-input" required placeholder="e.g. Traffic Management & Caching or Design Patterns (GoF)">
+        </div>
+        <div class="form-group">
           <label class="form-label">Learning Sources (one URL/text per line)</label>
-          <textarea name="sources" id="cSourcesInput" class="form-textarea" placeholder="e.g. https://systemdesign.one/caching/&#10;YouTube: Caching Explained" rows="3"></textarea>
+          <textarea name="sources" id="cSourcesInput" class="form-textarea" placeholder="e.g. https://systemdesign.one/caching/&#10;Book: Designing Data-Intensive Applications" rows="3"></textarea>
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('conceptModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">Save Concept</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Add Subconcept Modal -->
+<!-- 2. Add Subconcept Modal -->
 <div class="modal-overlay" id="addSubModal">
   <div class="modal">
     <div class="modal-header">
@@ -307,18 +629,18 @@
         <input type="hidden" name="concept_id" id="addSubConceptId">
         <div class="form-group">
           <label class="form-label">Sub-concept Name</label>
-          <input type="text" name="subconcept_name" id="subNameInput" class="form-input" required placeholder="e.g. Redis">
+          <input type="text" name="subconcept_name" id="subNameInput" class="form-input" required placeholder="e.g. Strategy Pattern or Consistent Hashing">
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('addSubModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">Save Sub-concept</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Sub-concept Update Modal -->
+<!-- 3. Sub-concept Update Modal -->
 <div class="modal-overlay" id="subModal">
   <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
@@ -338,74 +660,343 @@
         <div class="form-row" style="display: flex; gap: 16px;">
           <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
             <input type="checkbox" name="reading_done" id="sReading" value="true">
-            <label for="sReading" class="form-label" style="margin: 0; cursor: pointer;">Reading Done</label>
+            <label for="sReading" class="form-label" style="margin: 0; cursor: pointer;">
+              <i data-lucide="book-open" class="icon-xs" style="color: #10B981;"></i> Reading Done
+            </label>
           </div>
           <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
             <input type="checkbox" name="practical_done" id="sPractical" value="true">
-            <label for="sPractical" class="form-label" style="margin: 0; cursor: pointer;">Practical Done</label>
+            <label for="sPractical" class="form-label" style="margin: 0; cursor: pointer;">
+              <i data-lucide="code" class="icon-xs" style="color: #2563EB;"></i> Practical / Code Done
+            </label>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Primary URL Resource</label>
-          <input type="text" name="resources" class="form-input" id="sResources" placeholder="e.g. https://redis.io/docs/">
+          <label class="form-label">Primary Resource URL</label>
+          <input type="text" name="resources" class="form-input" id="sResources" placeholder="e.g. https://refactoring.guru/design-patterns/strategy">
         </div>
         <div class="form-group">
           <label class="form-label">All Learning Sources (one per line)</label>
-          <textarea name="sources" class="form-textarea" id="sSources" placeholder="e.g. https://redis.io/docs/&#10;https://youtube.com/watch?v=...&#10;Book: Designing Data-Intensive Applications" rows="3"></textarea>
+          <textarea name="sources" class="form-textarea" id="sSources" placeholder="e.g. https://refactoring.guru/&#10;YouTube: Strategy Pattern Explained&#10;Book: Head First Design Patterns" rows="3"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">Notes</label>
+          <label class="form-label">Study Notes & Code Snippets</label>
           <textarea name="notes" id="sNotes" class="form-textarea auto-resize-code" placeholder="Notes..."></textarea>
           <div class="quill-editor-wrapper" id="sNotesQuillWrapper" style="display: none;">
-            <div id="sNotesQuillEditor" style="height: 120px;"></div>
+            <div id="sNotesQuillEditor" style="height: 180px;"></div>
           </div>
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('subModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Case Update Modal -->
+<!-- 4. Case Study Add/Edit Modal -->
 <div class="modal-overlay" id="caseModal">
   <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
-      <span class="modal-title" id="caseModalTitle">Update Case Study</span>
+      <span class="modal-title" id="caseModalTitle">Case Study</span>
       <button class="modal-close" onclick="closeModal('caseModal')">
         <i data-lucide="x" class="icon-sm"></i>
       </button>
     </div>
     <div class="modal-body">
-      <form method="post" id="caseForm" action="/system-design/case/update/0">
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select name="status" class="form-select" id="cStatus">
-            {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
-          </select>
+      <form method="post" id="caseForm" action="/system-design/case/add">
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label">Track</label>
+            <select name="track" id="caseTrackInput" class="form-select">
+              <option value="HLD">🏛️ High Level Design (HLD)</option>
+              <option value="LLD">⚙️ Low Level Design (LLD / Machine Coding)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" id="cStatus">
+              {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+            </select>
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Key Components</label>
-          <textarea name="key_components" class="form-textarea auto-resize-code" id="cKeyComponents" placeholder="API Gateway, Load Balancer, Redis cache, Kafka..."></textarea>
+          <label class="form-label">System / Problem Name</label>
+          <input type="text" name="system_name" id="caseNameInput" class="form-input" required placeholder="e.g. Design Parking Lot System or Design TinyURL">
         </div>
         <div class="form-group">
-          <label class="form-label">Diagram URL</label>
-          <input type="url" name="diagram_url" class="form-input" id="cDiagramUrl" placeholder="https://...">
+          <label class="form-label">Category</label>
+          <input type="text" name="category" id="caseCatInput" class="form-input" placeholder="e.g. Distributed Systems or Machine Coding">
         </div>
         <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea name="notes" id="cNotes" class="form-textarea auto-resize-code" placeholder="Notes..."></textarea>
+          <label class="form-label">Key Architectural Components / Design Patterns</label>
+          <textarea name="key_components" class="form-textarea auto-resize-code" id="cKeyComponents" placeholder="e.g. Strategy Pattern, Vehicle Factory, Multi-level Spot Allocation, Redis Cache, Kafka Queue..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Architecture / Class Diagram URL</label>
+          <input type="url" name="diagram_url" class="form-input" id="cDiagramUrl" placeholder="https://excalidraw.com/... or https://lucid.app/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Design Blueprint & Deep Dive Notes</label>
+          <textarea name="notes" id="cNotes" class="form-textarea auto-resize-code" placeholder="Detailed architectural notes..."></textarea>
           <div class="quill-editor-wrapper" id="cNotesQuillWrapper" style="display: none;">
-            <div id="cNotesQuillEditor" style="height: 120px;"></div>
+            <div id="cNotesQuillEditor" style="height: 180px;"></div>
           </div>
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('caseModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">Save Case Study</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Interview Frameworks & Cheat Sheets Modal Drawer -->
+<div class="modal-overlay" id="frameworksModal">
+  <div class="modal" style="max-width: 960px; width: 95%; max-height: 90vh; overflow-y: auto;">
+    <div class="modal-header" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFFFFF; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+      <div class="flex items-center gap-2">
+        <i data-lucide="compass" class="icon-md" style="color: #38BDF8;"></i>
+        <span class="modal-title" style="color: #FFFFFF;">System Design Interview Frameworks & Cheat Sheets</span>
+      </div>
+      <button class="modal-close" onclick="closeModal('frameworksModal')" style="color: #94A3B8;">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+    <div class="modal-body" style="padding: 24px;">
+      
+      <!-- Tabs for Frameworks -->
+      <div class="flex gap-2 mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+        <button class="btn btn-sm btn-primary fw-tab-btn" onclick="showFrameworkTab('hld-fw', this)">🏛️ 45-Min HLD Framework</button>
+        <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('lld-fw', this)">⚙️ 45-Min LLD / Machine Coding</button>
+        <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('patterns-fw', this)">🧩 GoF Patterns Matrix</button>
+        <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('latency-fw', this)">⚡ Latency & Math Numbers</button>
+      </div>
+
+      <!-- Tab 1: HLD Framework -->
+      <div id="hld-fw" class="fw-tab-content">
+        <div class="framework-card">
+          <h4 style="font-size: 15px; font-weight: 800; color: #0284C7; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="network" class="icon-sm"></i> 45-Minute High Level Design (HLD) Interview Strategy
+          </h4>
+          
+          <div class="flex flex-col gap-3">
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge">1</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Requirements Clarification & Scope (05 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Functional: What are the top 2–3 user actions? (e.g. Shorten URL, Redirect URL, View Analytics).<br>
+                  • Non-Functional: High availability vs Consistency (CAP), Latency targets (&lt;50ms read), Read-to-Write ratio (100:1).
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge">2</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Capacity & Back-of-Envelope Sizing (05 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • QPS: DAU &times; Actions / 86400 &rarr; Peak QPS = 2x to 5x average.<br>
+                  • Storage: Writes/day &times; Size/record &times; Retention (5 years).<br>
+                  • Memory / Cache: 80-20 Rule (Cache 20% of daily read requests in Redis).
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge">3</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">API & Database Schema Design (05 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • REST / gRPC API definitions with parameter validation & idempotency keys.<br>
+                  • Choose SQL vs NoSQL (Document, Key-Value, Columnar) with primary keys, indexes, and shard keys.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge">4</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">High-Level Architecture Diagram (15 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Draw the end-to-end flow: Client &rarr; DNS / CDN &rarr; Load Balancer (L4/L7) &rarr; API Gateway &rarr; Stateless App Servers &rarr; Distributed Cache (Redis) &rarr; Database Cluster (Master-Slave / Sharded) &rarr; Message Queue (Kafka) &rarr; Async Workers.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge">5</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Deep Dives & Failure Modes (15 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Cache Stampede / Invalidation strategies, DB replication lag, Network partitions, Circuit breakers, Rate limiting, and telemetry (SLO/SLI).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: LLD Framework -->
+      <div id="lld-fw" class="fw-tab-content" style="display: none;">
+        <div class="framework-card">
+          <h4 style="font-size: 15px; font-weight: 800; color: #D97706; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="binary" class="icon-sm"></i> 45-Minute Low Level Design (LLD / Machine Coding) Strategy
+          </h4>
+          
+          <div class="flex flex-col gap-3">
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #D97706;">1</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Clarify Core Use Cases & Boundary Conditions (05 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Identify actors (User, Admin, Sensor, Vehicle) and their explicit actions.<br>
+                  • Determine in-memory vs persisted requirements and single vs multi-threaded expectations.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #D97706;">2</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Identify Core Entities & Class Hierarchy (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Model domain nouns as Classes/Enums (e.g. <code>ParkingSpot</code>, <code>Vehicle</code>, <code>Ticket</code>, <code>Payment</code>).<br>
+                  • Establish relationships: Inheritance (Is-A), Composition (Has-A), and Aggregation.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #D97706;">3</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Select & Apply GoF Design Patterns (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • <strong>Strategy Pattern</strong> for pricing rules or dispatching algorithms.<br>
+                  • <strong>Factory Pattern</strong> for object creation.<br>
+                  • <strong>Observer Pattern</strong> for event notifications.<br>
+                  • <strong>State Pattern</strong> for lifecycle transitions (e.g. Order status, Elevator state).
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #D97706;">4</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Concurrency, Thread-Safety & Edge Cases (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Synchronize critical sections with <code>ReentrantLock</code> / <code>ReadWriteLock</code> or Atomic variables.<br>
+                  • Handle race conditions (two cars entering the same spot at the exact same millisecond).
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #D97706;">5</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Clean Working Implementation & Unit Tests (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Adhere to SOLID principles, DRY, KISS, and write a concise driver / test main function.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Design Patterns Matrix -->
+      <div id="patterns-fw" class="fw-tab-content" style="display: none;">
+        <div class="framework-card">
+          <h4 style="font-size: 15px; font-weight: 800; color: #7C3AED; margin-bottom: 14px;">
+            🧩 Gang of Four (GoF) Patterns Decision Matrix
+          </h4>
+          <div style="overflow-x: auto;">
+            <table class="table" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th>Pattern</th>
+                  <th>Type</th>
+                  <th>When to Use</th>
+                  <th>Real-World LLD Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Strategy</strong></td>
+                  <td><span class="badge badge-amber">Behavioral</span></td>
+                  <td>When multiple algorithms exist for a task and need to be interchangeable at runtime.</td>
+                  <td>Parking Lot pricing (Hourly vs Flat vs Peak), Payment Gateways (Stripe, PayPal, UPI).</td>
+                </tr>
+                <tr>
+                  <td><strong>Factory Method</strong></td>
+                  <td><span class="badge badge-blue">Creational</span></td>
+                  <td>When object creation logic needs to be decoupled from consumer classes.</td>
+                  <td>Vehicle creation (Bike, Car, Truck), Logger appender initialization.</td>
+                </tr>
+                <tr>
+                  <td><strong>Observer</strong></td>
+                  <td><span class="badge badge-amber">Behavioral</span></td>
+                  <td>When a change in one object requires automatic broadcast to multiple dependent objects.</td>
+                  <td>Pub-Sub message bus, Cricinfo live score updates, Stock price alerts.</td>
+                </tr>
+                <tr>
+                  <td><strong>State</strong></td>
+                  <td><span class="badge badge-amber">Behavioral</span></td>
+                  <td>When an object changes its behavior based on its internal state machine transitions.</td>
+                  <td>Vending Machine states (NoCoin, HasCoin, Sold, SoldOut), Elevator movement.</td>
+                </tr>
+                <tr>
+                  <td><strong>Decorator</strong></td>
+                  <td><span class="badge badge-green">Structural</span></td>
+                  <td>When you want to attach additional responsibilities dynamically without inheritance.</td>
+                  <td>Coffee topping price calculator, Pizza toppings, HTTP request middlewares.</td>
+                </tr>
+                <tr>
+                  <td><strong>Composite</strong></td>
+                  <td><span class="badge badge-green">Structural</span></td>
+                  <td>When treating individual objects and compositions of objects uniformly in a tree structure.</td>
+                  <td>File System (File vs Directory), Organization hierarchy, UI component trees.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Latency Numbers -->
+      <div id="latency-fw" class="fw-tab-content" style="display: none;">
+        <div class="framework-card">
+          <h4 style="font-size: 15px; font-weight: 800; color: #059669; margin-bottom: 14px;">
+            ⚡ Latency Numbers & Capacity Multipliers Every Engineer Must Know
+          </h4>
+          <div class="grid-2" style="gap: 16px; font-size: 12px;">
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <strong style="color: var(--text-primary); display: block; margin-bottom: 8px;">Hardware Latency Hierarchy</strong>
+              • L1 cache reference: <strong>0.5 ns</strong><br>
+              • Branch mispredict: <strong>5 ns</strong><br>
+              • L2 cache reference: <strong>7 ns</strong><br>
+              • Main memory reference (RAM): <strong>100 ns</strong><br>
+              • SSD random read: <strong>150 &mu;s (0.15 ms)</strong><br>
+              • Read 1 MB sequentially from RAM: <strong>250 &mu;s</strong><br>
+              • Read 1 MB sequentially from SSD: <strong>1,000 &mu;s (1 ms)</strong><br>
+              • Cross-datacenter Round Trip (SF to NYC): <strong>40 ms</strong>
+            </div>
+
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <strong style="color: var(--text-primary); display: block; margin-bottom: 8px;">Quick Estimation Rules</strong>
+              • 1 Day = <strong>86,400 seconds &approx; 100,000 seconds (10<sup>5</sup>)</strong>.<br>
+              • 1 Million requests/day &approx; <strong>12 QPS</strong> (Peak &approx; 25-50 QPS).<br>
+              • 1 Billion requests/day &approx; <strong>12,000 QPS</strong> (Peak &approx; 30,000 QPS).<br>
+              • 1 char &approx; 1 Byte (ASCII), 2 Bytes (UTF-8).<br>
+              • 1 KB = 1,000 Bytes, 1 MB = 10<sup>6</sup> Bytes, 1 GB = 10<sup>9</sup> Bytes, 1 TB = 10<sup>12</sup> Bytes.
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -425,16 +1016,18 @@ function openAddConceptModal() {
   document.getElementById('conceptForm').action = '/system-design/concept/add';
   document.getElementById('conceptModalTitle').textContent = 'Add Concept';
   document.getElementById('cNameInput').value = '';
-  document.getElementById('cCategorySelect').value = 'Core';
+  document.getElementById('cTrackSelect').value = 'HLD';
+  document.getElementById('cCategoryInput').value = 'Core';
   document.getElementById('cSourcesInput').value = '';
   openModal('conceptModal');
 }
 
-function openEditConceptModal(id, name, category, sources) {
+function openEditConceptModal(id, name, track, category, sources) {
   document.getElementById('conceptForm').action = '/system-design/concept/update/' + id;
-  document.getElementById('conceptModalTitle').textContent = 'Edit Concept';
+  document.getElementById('conceptModalTitle').textContent = 'Edit Concept: ' + name;
   document.getElementById('cNameInput').value = name;
-  document.getElementById('cCategorySelect').value = category;
+  document.getElementById('cTrackSelect').value = track || 'HLD';
+  document.getElementById('cCategoryInput').value = category;
   document.getElementById('cSourcesInput').value = sources || '';
   openModal('conceptModal');
 }
@@ -443,13 +1036,13 @@ function openAddSubModal(conceptId, conceptName) {
   document.getElementById('addSubForm').action = '/system-design/subconcept/add';
   document.getElementById('addSubConceptId').value = conceptId;
   document.getElementById('subNameInput').value = '';
-  document.getElementById('addSubModalTitle').textContent = 'Add Sub-concept to ' + conceptName;
+  document.getElementById('addSubModalTitle').textContent = 'Add Sub-concept to: ' + conceptName;
   openModal('addSubModal');
 }
 
 function openSubModal(id, name, status, reading, practical, notes, resources, sources) {
   document.getElementById('subForm').action = '/system-design/subconcept/update/' + id;
-  document.getElementById('subModalTitle').textContent = 'Update: ' + name;
+  document.getElementById('subModalTitle').textContent = 'Update Sub-concept: ' + name;
   document.getElementById('sStatus').value = status;
   document.getElementById('sReading').checked = reading;
   document.getElementById('sPractical').checked = practical;
@@ -472,9 +1065,28 @@ function openSubModal(id, name, status, reading, practical, notes, resources, so
   }, 80);
 }
 
-function openCaseModal(id, name, status, components, diagram, notes) {
+function openAddCaseModal() {
+  document.getElementById('caseForm').action = '/system-design/case/add';
+  document.getElementById('caseModalTitle').textContent = 'Add New Case Study';
+  document.getElementById('caseTrackInput').value = 'HLD';
+  document.getElementById('caseNameInput').value = '';
+  document.getElementById('caseCatInput').value = 'Distributed Systems';
+  document.getElementById('cStatus').value = 'Not Started';
+  document.getElementById('cKeyComponents').value = '';
+  document.getElementById('cDiagramUrl').value = '';
+  document.getElementById('cNotes').value = '';
+  if (window.Quill && cNotesQuill) {
+    cNotesQuill.root.innerHTML = '';
+  }
+  openModal('caseModal');
+}
+
+function openEditCaseModal(id, name, track, category, status, components, diagram, notes) {
   document.getElementById('caseForm').action = '/system-design/case/update/' + id;
   document.getElementById('caseModalTitle').textContent = 'Update Case Study: ' + name;
+  document.getElementById('caseTrackInput').value = track || 'HLD';
+  document.getElementById('caseNameInput').value = name;
+  document.getElementById('caseCatInput').value = category || 'Distributed Systems';
   document.getElementById('cStatus').value = status;
   
   const compTextarea = document.getElementById('cKeyComponents');
@@ -496,6 +1108,24 @@ function openCaseModal(id, name, status, components, diagram, notes) {
   }, 80);
 }
 
+function openFrameworksModal() {
+  openModal('frameworksModal');
+}
+
+function showFrameworkTab(tabId, btnEl) {
+  document.querySelectorAll('.fw-tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.fw-tab-btn').forEach(b => {
+    b.classList.remove('btn-primary');
+    b.classList.add('btn-secondary');
+  });
+  const target = document.getElementById(tabId);
+  if (target) target.style.display = 'block';
+  if (btnEl) {
+    btnEl.classList.remove('btn-secondary');
+    btnEl.classList.add('btn-primary');
+  }
+}
+
 function quickUpdateSub(id, currentStatus) {
   const next = currentStatus === 'Not Started' ? 'In Progress' : (currentStatus === 'In Progress' ? 'Done' : 'Not Started');
   const form = document.createElement('form');
@@ -506,8 +1136,98 @@ function quickUpdateSub(id, currentStatus) {
   form.submit();
 }
 
+function quickUpdateCase(id, currentStatus) {
+  const next = currentStatus === 'Not Started' ? 'In Progress' : (currentStatus === 'In Progress' ? 'Done' : 'Not Started');
+  const form = document.createElement('form');
+  form.method = 'post';
+  form.action = '/system-design/case/quick-update/' + id;
+  form.innerHTML = `<input type="hidden" name="status" value="${next}">`;
+  document.body.appendChild(form);
+  form.submit();
+}
+
+function toggleCategoryAccordion(headerEl) {
+  const content = headerEl.nextElementSibling;
+  const icon = headerEl.querySelector('.category-accordion-icon');
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    if (icon) icon.style.transform = 'rotate(0deg)';
+  } else {
+    content.style.display = 'none';
+    if (icon) icon.style.transform = 'rotate(-90deg)';
+  }
+}
+
+function toggleAllAccordions(expand) {
+  document.querySelectorAll('.category-accordion-content').forEach(c => {
+    c.style.display = expand ? 'block' : 'none';
+  });
+  document.querySelectorAll('.category-accordion-icon').forEach(icon => {
+    icon.style.transform = expand ? 'rotate(0deg)' : 'rotate(-90deg)';
+  });
+}
+
+function toggleInlineCases() {
+  const content = document.getElementById('inlineCasesContent');
+  const chevron = document.getElementById('inlineCasesChevron');
+  if (!content) return;
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'block' : 'none';
+  if (chevron) chevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+}
+
+function filterItemsByStatus(status) {
+  document.querySelectorAll('.sd-filter-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-filter') === status);
+  });
+
+  document.querySelectorAll('.sd-subconcept-row').forEach(row => {
+    const rowStatus = row.getAttribute('data-status');
+    if (status === 'all') {
+      row.style.display = 'flex';
+    } else if (status === 'done' && rowStatus === 'done') {
+      row.style.display = 'flex';
+    } else if (status === 'in-progress' && rowStatus === 'in-progress') {
+      row.style.display = 'flex';
+    } else if (status === 'not-started' && rowStatus === 'not-started') {
+      row.style.display = 'flex';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('.sd-case-list-item').forEach(item => {
+    const itemStatus = item.getAttribute('data-status');
+    if (status === 'all') {
+      item.style.display = 'block';
+    } else if (status === 'done' && itemStatus === 'done') {
+      item.style.display = 'block';
+    } else if (status === 'in-progress' && itemStatus === 'in-progress') {
+      item.style.display = 'block';
+    } else if (status === 'not-started' && itemStatus === 'not-started') {
+      item.style.display = 'block';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+function filterCasesByTrack(track, btnEl) {
+  document.querySelectorAll('.case-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+
+  document.querySelectorAll('.sd-case-list-item').forEach(item => {
+    const itemTrack = item.getAttribute('data-track');
+    if (track === 'all' || itemTrack === track) {
+      item.style.display = 'block';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Wire up edit sub buttons using data attributes
+  // Wire up subconcept edit buttons
   document.querySelectorAll('.edit-sub-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
@@ -522,16 +1242,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Wire up edit case buttons using data attributes
+  // Wire up case study edit buttons
   document.querySelectorAll('.edit-case-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
       const name = this.getAttribute('data-name');
+      const track = this.getAttribute('data-track');
+      const category = this.getAttribute('data-category');
       const status = this.getAttribute('data-status');
       const components = this.getAttribute('data-components');
       const diagram = this.getAttribute('data-diagram');
       const notes = this.getAttribute('data-notes');
-      openCaseModal(id, name, status, components, diagram, notes);
+      openEditCaseModal(id, name, track, category, status, components, diagram, notes);
     });
   });
 
@@ -540,15 +1262,12 @@ document.addEventListener('DOMContentLoaded', () => {
     [{ 'header': [1, 2, 3, 4, false] }],
     ['bold', 'italic', 'underline', 'strike'],
     [{ 'color': [] }, { 'background': [] }],
-    [{ 'script': 'sub'}, { 'script': 'super' }],
     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'indent': '-1'}, { 'indent': '+1' }],
-    [{ 'align': [] }],
     ['link', 'blockquote', 'code-block'],
     ['clean']
   ];
 
-  // Initialize Quill if loaded
+  // Initialize Quill editors
   if (window.Quill) {
     const sNotesEl = document.getElementById('sNotes');
     if (sNotesEl) sNotesEl.style.display = 'none';
@@ -558,7 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sNotesQuill = new Quill('#sNotesQuillEditor', {
       theme: 'snow',
       modules: { toolbar: richToolbar },
-      placeholder: 'Notes...'
+      placeholder: 'Notes & Key architecture insights...'
     });
 
     const cNotesEl = document.getElementById('cNotes');
@@ -569,7 +1288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cNotesQuill = new Quill('#cNotesQuillEditor', {
       theme: 'snow',
       modules: { toolbar: richToolbar },
-      placeholder: 'Notes...'
+      placeholder: 'Case study blueprint & deep dives...'
     });
   }
 
@@ -580,17 +1299,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Sync Quill content before forms submit
+  // Sync Quill content on submit
   const subForm = document.getElementById('subForm');
   if (subForm) {
     subForm.addEventListener('submit', function() {
       if (window.Quill && sNotesQuill) {
         const textarea = document.getElementById('sNotes');
-        if (sNotesQuill.getText().trim().length === 0) {
-          textarea.value = '';
-        } else {
-          textarea.value = sNotesQuill.root.innerHTML;
-        }
+        textarea.value = sNotesQuill.getText().trim().length === 0 ? '' : sNotesQuill.root.innerHTML;
       }
     });
   }
@@ -600,11 +1315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     caseForm.addEventListener('submit', function() {
       if (window.Quill && cNotesQuill) {
         const textarea = document.getElementById('cNotes');
-        if (cNotesQuill.getText().trim().length === 0) {
-          textarea.value = '';
-        } else {
-          textarea.value = cNotesQuill.root.innerHTML;
-        }
+        textarea.value = cNotesQuill.getText().trim().length === 0 ? '' : cNotesQuill.root.innerHTML;
       }
     });
   }

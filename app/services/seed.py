@@ -79,91 +79,78 @@ WEEK_THEMES = [
 ]
 
 SYSTEM_DESIGN_TOPICS = [
-    # --- Category: Core ---
+    # ══════════════════════════════════════════════════════════════════════════
+    # 🏛️ HIGH LEVEL DESIGN (HLD) — Distributed Systems & Architecture
+    # ══════════════════════════════════════════════════════════════════════════
     (
-        "Core",
+        "HLD",
+        "Fundamentals & Scale Estimation",
         "Basics & Scaling Fundamentals",
         [
-            "What is System Design & Interview Framework",
-            "Horizontal vs. Vertical Scaling",
-            "Capacity Estimation & Back-of-the-Envelope Calculations",
-            "Latency Numbers Every Engineer Should Know",
-            "Single Point of Failure (SPOF) & High Availability",
-            "Concurrency, Threads & OS Processes",
+            "What is System Design & 45-Min Interview Framework",
+            "Horizontal vs. Vertical Scaling & Bottlenecks",
+            "Capacity Estimation & Back-of-the-Envelope Calculations (QPS, Storage, Bandwidth)",
+            "Latency Numbers Every Engineer Should Know (L1, RAM, SSD, Network, Cross-DC)",
+            "High Availability (HA), Fault Tolerance & Single Point of Failure (SPOF)",
+            "Concurrency, Thread Pools & OS Resource Management",
             "Thrashing & OS Memory Management",
         ],
     ),
     (
-        "Core",
+        "HLD",
         "Networking & Web Protocols",
+        "Protocols & Network Stack",
         [
-            "HTTP, HTTPS & HTTP/2 vs HTTP/3 (QUIC)",
-            "Internet TCP/IP Stack & UDP",
+            "HTTP/1.1, HTTP/2, and HTTP/3 (QUIC Protocol)",
+            "Internet TCP/IP Stack vs UDP (Handshake, Flow & Congestion Control)",
             "What Happens When You Enter google.com (DNS, Handshake, TLS)",
             "WebSockets & Server-Sent Events (SSE)",
             "Polling vs Long Polling vs WebSockets vs WebRTC",
+            "RPC Architectures & Protocol Buffers (gRPC vs REST vs GraphQL)",
         ],
     ),
     (
-        "Core",
-        "Load Balancing & Traffic Management",
+        "HLD",
+        "Traffic Management & Caching",
+        "Load Balancing & Edge Routing",
         [
             "Load Balancing Algorithms (Round Robin, Least Connections, IP Hash)",
             "Layer 4 vs Layer 7 Load Balancing & SSL Termination",
             "Consistent Hashing & Virtual Nodes / Hash Ring",
-            "Reverse Proxy vs Forward Proxy (Nginx / HAProxy)",
+            "Reverse Proxy vs Forward Proxy (Nginx / HAProxy / Envoy)",
+            "API Gateway Architecture (Routing, Aggregation, Rate Limiting, Auth)",
             "DNS Load Balancing & Anycast Routing",
         ],
     ),
     (
-        "Core",
-        "API Design & Gateways",
+        "HLD",
+        "Traffic Management & Caching",
+        "Caching Strategies & CDNs",
         [
-            "RESTful API Design & Best Practices",
-            "API Gateway Architecture (Routing, Aggregation, Rate Limiting, Auth)",
-            "GraphQL Architecture & Trade-offs",
-            "gRPC & Protocol Buffers (Protobuf)",
-            "Asynchronous APIs & Webhook Architecture",
-        ],
-    ),
-    (
-        "Core",
-        "Rate Limiting & Traffic Shaping",
-        [
-            "Token Bucket Algorithm",
-            "Leaky Bucket Algorithm",
-            "Fixed Window & Sliding Window Counter",
-            "Distributed Rate Limiting (Redis & Lua Scripting)",
-            "Throttling & DDoS Protection",
-        ],
-    ),
-    (
-        "Core",
-        "Caching Deep Dive",
-        [
-            "Distributed Caching (Redis vs Memcached)",
+            "Distributed In-Memory Caching (Redis vs Memcached Cluster)",
             "Content Delivery Networks (CDN) & Edge Caching (Push vs Pull)",
             "Cache Write Policies (Write-Through, Write-Around, Write-Back / Write-Behind)",
-            "Cache Eviction & Replacement Policies (LRU, LFU, Segmented LRU, ARC)",
+            "Cache Eviction & Replacement Policies (LRU, LFU, Segmented LRU, ARC, TTL)",
             "Cache Invalidation & Pitfalls (Cache Avalanche, Stampede, Penetration)",
         ],
     ),
     (
-        "Core",
+        "HLD",
+        "Databases & Storage Engines",
         "Relational Databases (SQL & PostgreSQL)",
         [
-            "RDBMS Fundamentals & Normalization",
-            "Database Indexes (B-Tree, B+Tree, Composite, Hash)",
+            "RDBMS Fundamentals, ACID Properties & Normalization",
+            "Database Index Mechanics (B-Tree, B+Tree, Composite, Hash)",
             "Transaction Isolation Levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable)",
             "Query Optimization & EXPLAIN ANALYZE",
-            "Database Connection Pooling (PgBouncer, SQLAlchemy Pool)",
-            "Postgres Pooling",
+            "Database Connection Pooling (PgBouncer, SQLAlchemy Pool) & Read Replicas",
             "Database Migrations & Zero-Downtime Schema Evolution",
         ],
     ),
     (
-        "Core",
-        "NoSQL Databases & Internals",
+        "HLD",
+        "Databases & Storage Engines",
+        "NoSQL & Specialized Storage",
         [
             "Key-Value & Document Stores (DynamoDB, MongoDB)",
             "Wide-Column & Columnar Stores (Cassandra, ClickHouse)",
@@ -171,172 +158,485 @@ SYSTEM_DESIGN_TOPICS = [
             "Bloom Filters & Counting Bloom Filters",
             "Location-Based Databases & Spatial Indexing (Geohash, QuadTree, Google S2)",
             "Time-Series Databases (Gorilla Compression, InfluxDB, TimescaleDB)",
-        ],
-    ),
-
-    # --- Category: Advanced ---
-    (
-        "Advanced",
-        "Message Queues & Event Streaming",
-        [
-            "Message Queues (RabbitMQ, AWS SQS)",
-            "Event Streaming & Distributed Log (Apache Kafka Architecture, Partitions, Offsets)",
-            "Publisher-Subscriber (Pub/Sub) Model",
-            "Event-Driven Architecture & Event Sourcing",
-            "Database as a Message Queue Anti-Pattern & Transactional Outbox Pattern",
-        ],
-    ),
-    (
-        "Advanced",
-        "Background Jobs & Stream Processing",
-        [
-            "Task Queues & Asynchronous Workers (Celery, BullMQ)",
-            "Distributed Workflow Orchestration (Temporal, Airflow, Netflix Conductor)",
-            "Batch Processing vs Stream Processing (Apache Spark, Apache Flink)",
-        ],
-    ),
-    (
-        "Advanced",
-        "Search & Specialized Storage",
-        [
-            "Inverted Indexes & Full-Text Search (Elasticsearch, Lucene)",
             "Vector Search & Vector Databases (pgvector, Milvus, HNSW)",
             "Distributed Object Storage (S3 Architecture, Multipart Uploads, Blob Store)",
         ],
     ),
     (
-        "Advanced",
-        "Microservices Architecture & Migration",
+        "HLD",
+        "Asynchronous & Event Streaming",
+        "Message Queues & Event Streaming",
         [
-            "Microservices vs Monoliths & Modular Monolith",
-            "Monolith to Microservices Migration (Strangler Fig Pattern)",
-            "Service-to-Service Communication (Synchronous vs Asynchronous)",
-            "Domain-Driven Design (DDD) & Bounded Contexts",
+            "Message Queues (RabbitMQ, AWS SQS)",
+            "Event Streaming & Distributed Log (Apache Kafka Architecture, Partitions, Offsets)",
+            "Publisher-Subscriber (Pub/Sub) Model & Consumer Groups",
+            "Event-Driven Architecture & Event Sourcing",
+            "Database as a Message Queue Anti-Pattern & Transactional Outbox Pattern",
+            "Task Queues & Asynchronous Workers (Celery, BullMQ, Temporal Orchestration)",
+            "Batch Processing vs Stream Processing (Apache Spark, Apache Flink)",
         ],
     ),
-
-    # --- Category: Distributed Systems ---
     (
-        "Distributed Systems",
+        "HLD",
+        "Distributed Systems & Consensus",
         "Distributed Consistency & Theorems",
         [
-            "CAP Theorem & PACELC Theorem",
+            "CAP Theorem & PACELC Theorem in Practice",
             "Data Consistency Models (Strong / Linearizability, Causal, Eventual Consistency)",
             "Optimistic Concurrency Control (OCC) vs Pessimistic Locking",
-            "Vector Clocks & Conflict Resolution",
+            "Vector Clocks, Lamport Timestamps & Conflict Resolution",
         ],
     ),
     (
-        "Distributed Systems",
+        "HLD",
+        "Distributed Systems & Consensus",
         "Distributed Transactions & Consensus",
         [
             "Two-Phase Commit (2PC) & Three-Phase Commit (3PC)",
             "Saga Pattern (Choreography vs Orchestration)",
-            "Distributed Consensus Protocols (Raft, Paxos)",
+            "Distributed Consensus Protocols (Raft, Paxos, Multi-Paxos)",
             "Distributed Locking (Redis Redlock, ZooKeeper, etcd)",
-            "Quorum Reads & Writes (Leaderless Replication / Dynamo-style)",
+            "Quorum Reads & Writes (Leaderless Dynamo-style Replication)",
         ],
     ),
     (
-        "Distributed Systems",
+        "HLD",
+        "Distributed Systems & Consensus",
         "Scalability & Data Partitioning",
         [
             "Master-Slave (Leader-Follower) Replication & Read Replicas",
             "Multi-Leader Replication & Conflict Handling",
             "Database Sharding Strategies (Range, Hash, Directory-Based)",
-            "Cross-Shard Transactions & Resharding",
-        ],
-    ),
-
-    # --- Category: Infrastructure ---
-    (
-        "Infrastructure",
-        "Observability, SRE & Monitoring",
-        [
-            "Three Pillars of Observability: Logs, Metrics, Traces",
-            "Distributed Tracing (OpenTelemetry, Jaeger)",
-            "Metrics Collection & Dashboards (Prometheus, Grafana)",
-            "Centralized Structured Logging (ELK / EFK / Vector)",
-            "Anomaly Detection, Alerting & SLO / SLA / SLI Tracking",
+            "Cross-Shard Transactions, Joins & Resharding",
         ],
     ),
     (
-        "Infrastructure",
-        "Reliability & Fault Tolerance",
+        "HLD",
+        "Reliability & Microservices",
+        "Reliability, Fault Tolerance & Resiliency",
         [
             "Circuit Breaker Pattern & Fallback Mechanisms",
             "Retry Strategies with Exponential Backoff & Jitter",
             "Bulkhead Pattern & Cascading Failure Prevention",
             "Dead Letter Queues (DLQ) & Poison Message Handling",
             "Graceful Degradation & Load Shedding",
+            "Distributed Rate Limiting (Token Bucket, Leaky Bucket, Redis Lua)",
         ],
     ),
     (
-        "Infrastructure",
-        "Deployment, Containers & Service Mesh",
+        "HLD",
+        "Reliability & Microservices",
+        "Observability, SRE & Microservices",
         [
-            "Docker & Containerization Internals",
-            "Kubernetes Architecture & Pod Orchestration",
-            "Service Discovery & Heartbeats (Consul, Eureka, ZooKeeper)",
-            "Service Mesh & Sidecar Pattern (Envoy, Istio, Data Plane vs Control Plane)",
-            "CI/CD & Deployment Strategies (Blue-Green, Canary, Rolling)",
+            "Three Pillars of Observability: Logs, Metrics, Traces",
+            "Distributed Tracing (OpenTelemetry, Jaeger)",
+            "Metrics Collection & Dashboards (Prometheus, Grafana)",
+            "Centralized Structured Logging (ELK / EFK / Vector)",
+            "Anomaly Detection, Alerting & SLO / SLA / SLI Tracking",
+            "Microservices vs Monoliths & Strangler Fig Pattern",
+            "Service Mesh & Sidecar Pattern (Envoy, Istio)",
         ],
     ),
     (
-        "Infrastructure",
-        "Security, Authentication & Authorization",
+        "HLD",
+        "Security & Tradeoffs",
+        "Security, Auth & Architectural Trade-offs",
         [
             "Token-Based Auth (JWT, PASETO, Session Management, Refresh Tokens)",
             "OAuth 2.0 & OpenID Connect (OIDC Authorization Flows)",
             "Access Control Models: ACL, RBAC, and ABAC",
-            "Network Security: mTLS, TLS Termination, DDoS Mitigation, Vault / Secret Management",
+            "Network Security: mTLS, TLS Termination, DDoS Mitigation, Vault Secret Management",
+            "Pull vs. Push Architectures & Sizing Trade-offs",
+            "Consistency vs. Availability Trade-offs & SQL vs. NoSQL Decision Matrix",
         ],
     ),
 
-    # --- Category: Tradeoffs ---
+    # ══════════════════════════════════════════════════════════════════════════
+    # ⚙️ LOW LEVEL DESIGN (LLD / OOD) — Object Oriented Design & Machine Coding
+    # ══════════════════════════════════════════════════════════════════════════
     (
-        "Tradeoffs",
-        "System Design Trade-offs & Sizing",
+        "LLD",
+        "OOP & SOLID Principles",
+        "Object-Oriented Programming Fundamentals",
         [
-            "Pull vs. Push Architectures",
-            "Memory vs. Latency Trade-offs",
-            "Throughput vs. Latency Trade-offs",
-            "Consistency vs. Availability Trade-offs",
-            "Latency vs. Accuracy (Approximate Counting, HyperLogLog)",
-            "SQL vs. NoSQL vs. NewSQL Decision Matrix",
-            "Cost-Aware Design & Resource Optimization",
+            "4 Pillars of OOP (Encapsulation, Abstraction, Inheritance, Polymorphism)",
+            "Composition vs. Inheritance (Has-A vs. Is-A Trade-offs)",
+            "Static vs. Dynamic Polymorphism (Method Overloading vs. Overriding)",
+            "Abstract Classes vs. Interfaces & Pure Virtual Contracts",
+            "Coupling vs. Cohesion in Software Architecture",
+        ],
+    ),
+    (
+        "LLD",
+        "OOP & SOLID Principles",
+        "SOLID Principles in Practice",
+        [
+            "Single Responsibility Principle (SRP) — Violations & Refactoring",
+            "Open-Closed Principle (OCP) — Extension via Interfaces & Polymorphism",
+            "Liskov Substitution Principle (LSP) — Contract & Invariant Preservation",
+            "Interface Segregation Principle (ISP) — Role Interfaces vs Fat Interfaces",
+            "Dependency Inversion Principle (DIP) & Inversion of Control (IoC Containers)",
+        ],
+    ),
+    (
+        "LLD",
+        "OOP & SOLID Principles",
+        "Clean Code & Object Modeling",
+        [
+            "DRY (Don't Repeat Yourself), KISS & YAGNI Principles",
+            "Law of Demeter (Principle of Least Knowledge)",
+            "Tell, Don't Ask Principle & Defensive Programming",
+            "Code Smells Identification & Refactoring Strategies",
+        ],
+    ),
+    (
+        "LLD",
+        "Design Patterns (GoF)",
+        "Creational Design Patterns",
+        [
+            "Singleton Pattern (Thread-Safe, Double-Checked Locking, Enum / Eager)",
+            "Factory Method Pattern (Decoupling Object Creation from Usage)",
+            "Abstract Factory Pattern (Families of Related Objects)",
+            "Builder Pattern (Step-by-Step Construction & Method Chaining)",
+            "Prototype Pattern (Object Cloning & Deep vs Shallow Copy)",
+            "Object Pool Pattern (Connection & Thread Resource Reuse)",
+        ],
+    ),
+    (
+        "LLD",
+        "Design Patterns (GoF)",
+        "Structural Design Patterns",
+        [
+            "Adapter Pattern (Interface Compatibility & Wrapper Layer)",
+            "Decorator Pattern (Dynamic Behavior Extension without Subclassing)",
+            "Facade Pattern (Simplified Unified Interface for Complex Subsystems)",
+            "Composite Pattern (Tree Structures & Uniform Object Hierarchy)",
+            "Proxy Pattern (Virtual, Protection, Caching & Remote Proxies)",
+            "Bridge Pattern (Decoupling Abstraction from Implementation)",
+            "Flyweight Pattern (Fine-Grained Memory Optimization)",
+        ],
+    ),
+    (
+        "LLD",
+        "Design Patterns (GoF)",
+        "Behavioral Design Patterns",
+        [
+            "Strategy Pattern (Interchangeable Algorithms & Policy Injection)",
+            "Observer Pattern (Event Listeners, Pub/Sub & Notification Engine)",
+            "Command Pattern (Encapsulating Requests, Undo/Redo, Macro Execution)",
+            "State Pattern (Finite State Machines & State Context Transitions)",
+            "Chain of Responsibility Pattern (Request Handlers, Middlewares, Filters)",
+            "Template Method Pattern (Algorithm Skeletons with Invariant Steps)",
+            "Iterator Pattern (Collection Traversal Decoupling)",
+            "Mediator Pattern (Centralized Inter-Object Communication)",
+            "Memento Pattern (State Snapshots & Rollback Mechanisms)",
+            "Visitor Pattern (Separating Operations from Object Data Structures)",
+        ],
+    ),
+    (
+        "LLD",
+        "Concurrency & Low-Level Systems",
+        "Multi-Threading & Concurrency Primitives",
+        [
+            "Thread Lifecycle, Mutexes & Reentrant Locks",
+            "Semaphores, CountdownLatches & CyclicBarriers",
+            "Read-Write Locks (Shared vs Exclusive Access)",
+            "Atomic Variables, Memory Barriers & Compare-And-Swap (CAS)",
+            "Thread Pools, ExecutorService & Async Worker Queues",
+        ],
+    ),
+    (
+        "LLD",
+        "Concurrency & Low-Level Systems",
+        "Concurrent Design Patterns & Safety",
+        [
+            "Producer-Consumer Pattern with Thread-Safe Blocking Queue",
+            "ThreadLocal Storage & Context Propagation",
+            "Deadlock Detection, Prevention & Lock Ordering Strategies",
+            "Double-Checked Locking & Safe Lazy Initialization",
+        ],
+    ),
+    (
+        "LLD",
+        "UML & Schema Modeling",
+        "UML & Class Diagram Modeling",
+        [
+            "Class Diagrams (Associations, Aggregations, Compositions, Dependencies)",
+            "Sequence Diagrams (Lifelines, Sync vs Async Message Flow)",
+            "State Transition Diagrams (State Machine Modeling)",
+            "Entity-Relationship (ER) Modeling & Table Schemas for LLD",
         ],
     ),
 ]
 
 SYSTEM_DESIGN_CASES = [
-    "URL Shortener (TinyURL / Bitly)",
-    "WhatsApp / Messenger Real-Time Chat System",
-    "Notification System (Push, SMS, Email)",
-    "Distributed File Storage (Dropbox / Google Drive / S3)",
-    "Payment Processing & Order System (UPI / Stripe)",
-    "Ride Booking & Driver Matching (Uber / Lyft)",
-    "Distributed Log Ingestion & Analytics Pipeline",
-    "Live Video Streaming Platform (Twitch / YouTube Live)",
-    "Video Transcoding & Ingestion Pipeline (Netflix)",
-    "Social Network News Feed & Timeline (Instagram / Twitter)",
-    "Dating & Proximity Matching Platform (Tinder)",
-    "Short Video Sharing & Recommendation Platform (TikTok / Reels)",
-    "Online Coding Judge & Sandbox Execution (LeetCode)",
-    "High-Concurrency Ticket / Train Reservation System (IRCTC / Ticketmaster)",
-    "Food Delivery & Driver Dispatch Platform (DoorDash / Swiggy)",
-    "E-Commerce Marketplace & Flash Sales (Amazon / Flipkart)",
-    "Maps & Navigation Service (Google Maps)",
-    "Scalable Email Service (Gmail)",
-    "Collaborative Real-Time Document Editor (Google Docs / OT vs CRDT)",
-    "Online Chess Engine & Matchmaking (Chess.com)",
-    "Distributed Web Crawler & Indexer (Google Search)",
-    "Typeahead / Autocomplete Search Suggestion System",
-    "Distributed Key-Value Store (DynamoDB / Cassandra Style)",
-    "Global Distributed Rate Limiter Service",
-    "Enterprise RAG Document Chatbot & Knowledge Retrieval System",
-    "Autonomous AI Agent Workflow Platform (LangGraph / MCP)",
-    "Multi-Tenant SaaS Backend Architecture",
+    # ── High Level Design (HLD) Distributed Systems ──
+    {
+        "track": "HLD",
+        "category": "Distributed Systems",
+        "system_name": "URL Shortener (TinyURL / Bitly)",
+        "key_components": "Base62 Encoding, KGS (Key Generation Service), Redis Cache, SQL Sharding, 301 vs 302 Redirects",
+    },
+    {
+        "track": "HLD",
+        "category": "Communication & Messaging",
+        "system_name": "WhatsApp / Messenger Real-Time Chat System",
+        "key_components": "WebSockets, Gateway Servers, Message Service, Cassandra Message Store, Redis Pub/Sub, Push Notifications",
+    },
+    {
+        "track": "HLD",
+        "category": "Infrastructure & Microservices",
+        "system_name": "Notification System (Push, SMS, Email)",
+        "key_components": "Notification API, Priority Kafka Queues, Worker Fleet, 3rd Party Gateways (APNS, FCM, Twilio), Rate Limiter",
+    },
+    {
+        "track": "HLD",
+        "category": "Storage & File Systems",
+        "system_name": "Distributed File Storage (Dropbox / Google Drive / S3)",
+        "key_components": "Block Server, Chunking Engine (4MB chunks), Deduplication (SHA-256), Metadata DB, S3 Storage, Sync Service",
+    },
+    {
+        "track": "HLD",
+        "category": "Fintech & Payments",
+        "system_name": "Payment Processing & Order System (UPI / Stripe)",
+        "key_components": "Double-Entry Ledger, Idempotency Keys, Payment Gateway Integrations, 2PC/Saga Orchestration, Reconciliation",
+    },
+    {
+        "track": "HLD",
+        "category": "Geospatial & Mobility",
+        "system_name": "Ride Booking & Driver Matching (Uber / Lyft)",
+        "key_components": "Geohashing / Google S2, Driver Location Ingestion (WebSockets), Matching Engine, Surge Pricing, Trip Lifecycle State Machine",
+    },
+    {
+        "track": "HLD",
+        "category": "Big Data & Streaming",
+        "system_name": "Distributed Log Ingestion & Analytics Pipeline",
+        "key_components": "Log Agents, Kafka Distributed Buffer, Flink Stream Processing, ClickHouse / Elasticsearch, Grafana Dashboards",
+    },
+    {
+        "track": "HLD",
+        "category": "Streaming & Media",
+        "system_name": "Live Video Streaming Platform (Twitch / YouTube Live)",
+        "key_components": "RTMP/WebRTC Ingestion, Transcoder Cluster, Low-Latency HLS (LL-HLS), Edge CDN Mesh, Live Chat Sharding",
+    },
+    {
+        "track": "HLD",
+        "category": "Streaming & Media",
+        "system_name": "Video Transcoding & Ingestion Pipeline (Netflix)",
+        "key_components": "Chunk Splitter, Async Task Queue, GPU Transcoding Cluster, Adaptive Bitrate Manifest (DASH/HLS), CDN Pre-warming",
+    },
+    {
+        "track": "HLD",
+        "category": "Social & Feed Architecture",
+        "system_name": "Social Network News Feed & Timeline (Instagram / Twitter)",
+        "key_components": "Fanout-on-Write vs Fanout-on-Read, Celebrity Invalidation, Redis Sorted Sets, Feed Aggregator, Ranking Service",
+    },
+    {
+        "track": "HLD",
+        "category": "Geospatial & Social",
+        "system_name": "Dating & Proximity Matching Platform (Tinder)",
+        "key_components": "Geohash Location Clusters, Recommendation Engine, Swipe Processing Queue, Mutual Match Notification Service",
+    },
+    {
+        "track": "HLD",
+        "category": "Streaming & AI",
+        "system_name": "Short Video Sharing & Recommendation Platform (TikTok / Reels)",
+        "key_components": "Video Upload Pipeline, Recommendation Model Scoring, CDN Edge Delivery, User Engagement Event Stream",
+    },
+    {
+        "track": "HLD",
+        "category": "Compute & Sandboxing",
+        "system_name": "Online Coding Judge & Sandbox Execution (LeetCode)",
+        "key_components": "Docker/cgroups Sandbox, Task Dispatcher, Worker Daemon, Resource Throttler, Result Aggregator",
+    },
+    {
+        "track": "HLD",
+        "category": "High Concurrency & Ticketing",
+        "system_name": "High-Concurrency Ticket / Train Reservation System (IRCTC / Ticketmaster)",
+        "key_components": "Seat Inventory Cache, Redis Temporary Hold (10-min TTL), Fair Queueing with Kafka, Transactional DB Lock",
+    },
+    {
+        "track": "HLD",
+        "category": "E-Commerce & Logistics",
+        "system_name": "Food Delivery & Driver Dispatch Platform (DoorDash / Swiggy)",
+        "key_components": "Restaurant Catalog, Order State Machine, Geospatial Driver Dispatcher, Live GPS WebSocket Tracker",
+    },
+    {
+        "track": "HLD",
+        "category": "E-Commerce & Logistics",
+        "system_name": "E-Commerce Marketplace & Flash Sales (Amazon / Flipkart)",
+        "key_components": "Catalog Service, Redis Inventory Pre-allocation, Optimistic Concurrency Control, Asynchronous Order Checkout Queue",
+    },
+    {
+        "track": "HLD",
+        "category": "Geospatial & Mobility",
+        "system_name": "Maps & Navigation Service (Google Maps)",
+        "key_components": "Graph Road Network, Dijkstra / A* Routing Engine, Real-time Traffic Ingestion, Tile Vector Rendering",
+    },
+    {
+        "track": "HLD",
+        "category": "Communication & Messaging",
+        "system_name": "Scalable Email Service (Gmail)",
+        "key_components": "SMTP Receiving Gateway, Distributed Mailbox Store, Inverted Search Index (Elasticsearch), Spam Filter Pipeline",
+    },
+    {
+        "track": "HLD",
+        "category": "Collaboration & Real-Time",
+        "system_name": "Collaborative Real-Time Document Editor (Google Docs / OT vs CRDT)",
+        "key_components": "Operational Transformation (OT) / CRDTs, WebSocket Event Stream, Snapshot Service, Document Version History",
+    },
+    {
+        "track": "HLD",
+        "category": "Search & Web Systems",
+        "system_name": "Distributed Web Crawler & Indexer (Google Search)",
+        "key_components": "URL Frontier (Kafka/Redis), Politeness Manager, HTML Parser, Content Deduplication, Inverted Index Builder",
+    },
+    {
+        "track": "HLD",
+        "category": "Search & Web Systems",
+        "system_name": "Typeahead / Autocomplete Search Suggestion System",
+        "key_components": "Trie Data Structure, Top-K Aggregations, Redis Distributed Cache, Frequency Aggregator Pipeline",
+    },
+    {
+        "track": "HLD",
+        "category": "Storage & Databases",
+        "system_name": "Distributed Key-Value Store (DynamoDB / Cassandra Style)",
+        "key_components": "Consistent Hashing, Quorum Consensus (R+W>N), Vector Clocks, Gossip Protocol, LSM-Tree Storage Engine",
+    },
+    {
+        "track": "HLD",
+        "category": "Infrastructure & Security",
+        "system_name": "Global Distributed Rate Limiter Service",
+        "key_components": "Token Bucket & Sliding Window Log, Redis Lua Scripts, Local Memory Cache, Fallback Bypass Circuit",
+    },
+    {
+        "track": "HLD",
+        "category": "AI & Knowledge Systems",
+        "system_name": "Enterprise RAG Document Chatbot & Knowledge Retrieval System",
+        "key_components": "Document Chunking Pipeline, pgvector / Milvus Vector Store, Hybrid Keyword + Semantic Search, Cohere Reranker",
+    },
+    {
+        "track": "HLD",
+        "category": "AI & Knowledge Systems",
+        "system_name": "Autonomous AI Agent Workflow Platform (LangGraph / MCP)",
+        "key_components": "State Machine Engine, Persistent SQLite Checkpointer, MCP Tool Registry, Human-in-the-Loop Gateway",
+    },
+    {
+        "track": "HLD",
+        "category": "Infrastructure & Microservices",
+        "system_name": "Multi-Tenant SaaS Backend Architecture",
+        "key_components": "Tenant Subdomain Routing, Row-Level Security vs Dynamic Schema Isolation, Redis Per-Tenant Rate Limiting",
+    },
+
+    # ── Low Level Design (LLD / Machine Coding) Problems ──
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Parking Lot System",
+        "key_components": "Strategy Pattern for Pricing, Vehicle Polymorphism (Bike/Car/Truck), Multi-Floor Spot Allocation, Entry/Exit Gate Controllers",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design In-Memory Cache with Eviction Policies (LRU / LFU / TTL)",
+        "key_components": "Doubly Linked List + HashMap, Min-Heap for LFU, ReadWriteLock Thread-Safety, Generic Key-Value Storage",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Splitwise (Expense Sharing App)",
+        "key_components": "Strategy Pattern (Equal, Exact, Percentage Splits), User Graph, Minimum Cash Flow Simplification Algorithm",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Elevator Management System",
+        "key_components": "State Pattern (Idle, MovingUp, MovingDown), SCAN/LOOK Scheduling Algorithm, Dispatcher Strategy, Multi-Car Controller",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Rate Limiter Library",
+        "key_components": "Strategy Pattern (Token Bucket, Leaky Bucket, Sliding Window Log), Atomic Variables & Mutex Concurrency Safety",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Logging Framework (Log4j Style)",
+        "key_components": "Singleton Logger, Chain of Responsibility for Log Levels (DEBUG/INFO/ERROR), Strategy for Appenders (Console/File), Async Buffer",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Movie Ticket Booking System (BookMyShow)",
+        "key_components": "Cinema/Hall/Screen Hierarchy, Seat Locking with TTL, Payment Gateway Adapter, Concurrency-Safe Booking Transactions",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Snake and Ladder Board Game",
+        "key_components": "Board & Cell Entities, Dice Roll Strategy, Jumper Interface (Snake/Ladder), Turn-based Game Loop Controller",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Pub-Sub Message Broker / Event Bus",
+        "key_components": "Topic, Subscription, Observer Pattern, Broadcast vs Consumer Group Routing, ThreadPool Worker Queue",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Chess Game / Tic-Tac-Toe",
+        "key_components": "Board Model, Piece Movement Rules (Polymorphism), Move Validator, Game Loop, Check/Checkmate Engine",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Food Delivery / Order Management System",
+        "key_components": "State Pattern for Order Status, Cart Price Calculation Decorator, Restaurant/Menu Model, Rider Assignment Strategy",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design ATM / Vending Machine",
+        "key_components": "State Pattern (Idle, CardInserted, PinVerified, Dispensing), Chain of Responsibility for Cash Dispense ($100, $50, $20)",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Notification Dispatcher Library",
+        "key_components": "Adapter Pattern for Channels (Email, SMS, Push), Observer Pattern, Bulk Dispatcher, Retry & Rate Limit Decorators",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design File System & Directory Tree",
+        "key_components": "Composite Pattern (File vs Directory), Command Pattern for Operations, Visitor Pattern for Size Calculation & Search",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Online Shopping Cart & Coupon Engine",
+        "key_components": "Decorator / Strategy Pattern for Discount Rules, Tax Calculator, Item Model, Inventory Reservation Lock",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Meeting Scheduler / Calendar",
+        "key_components": "Room Booking Model, Interval Tree / Overlap Checker, Recurring Event Builder, Invitation Dispatcher",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Live Cricket Scoreboard (Cricinfo)",
+        "key_components": "Observer Pattern for Live Ball Updates, Innings/Match State Machine, Player Statistics Aggregator, Commentary Stream",
+    },
+    {
+        "track": "LLD",
+        "category": "Machine Coding & Object Design",
+        "system_name": "Design Ride Booking Application (Uber LLD)",
+        "key_components": "Driver Matching Strategy, Fare Estimation Strategy, Trip State Machine, Rating System, Payment Adapter",
+    },
 ]
 
 AI_LLM_TOPICS = [
@@ -737,8 +1037,14 @@ def seed_database(db: Session):
     db.query(SystemDesignConcept).delete()
     db.commit()
 
-    for i, (cat, concept_name, sub_list) in enumerate(SYSTEM_DESIGN_TOPICS):
-        concept = SystemDesignConcept(category=cat, concept_name=concept_name, sources="", order_index=i + 1)
+    for i, (track, cat, concept_name, sub_list) in enumerate(SYSTEM_DESIGN_TOPICS):
+        concept = SystemDesignConcept(
+            track=track,
+            category=cat,
+            concept_name=concept_name,
+            sources="",
+            order_index=i + 1
+        )
         db.add(concept)
         db.flush()
         for j, sub_name in enumerate(sub_list):
@@ -775,18 +1081,26 @@ def seed_database(db: Session):
     db.query(SystemDesignCase).delete()
     db.commit()
 
-    for i, name in enumerate(SYSTEM_DESIGN_CASES):
+    for i, c_data in enumerate(SYSTEM_DESIGN_CASES):
+        name = c_data["system_name"]
+        track = c_data.get("track", "HLD")
+        category = c_data.get("category", "Distributed Systems")
+        default_components = c_data.get("key_components", "")
+
         prev = case_state.get(name.lower().strip(), {})
         if not prev:
             for k, v in case_state.items():
                 if k in name.lower() or name.lower() in k:
                     prev = v
                     break
+
         db.add(SystemDesignCase(
+            track=track,
+            category=category,
             system_name=name,
             order_index=i + 1,
             status=prev.get("status", "Not Started"),
-            key_components=prev.get("key_components", ""),
+            key_components=prev.get("key_components") or default_components,
             diagram_url=prev.get("diagram_url", ""),
             notes=prev.get("notes", ""),
         ))
