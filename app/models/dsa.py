@@ -87,13 +87,15 @@ class DSAProblem(Base):
 
     @property
     def clean_title(self) -> str:
+        if not self.title or self.title.strip().lower() in ("none", "null"):
+            return ""
         if self.title.startswith("http://") or self.title.startswith("https://"):
             return clean_title_from_url(self.title)
         return self.title
 
     @property
     def clean_alternate_title(self) -> str:
-        if not self.alternate_title:
+        if not self.alternate_title or self.alternate_title.strip().lower() in ("none", "null"):
             return ""
         if self.alternate_title.startswith("http://") or self.alternate_title.startswith("https://"):
             return clean_title_from_url(self.alternate_title)
@@ -116,13 +118,13 @@ class DSAProblem(Base):
 
     @property
     def solution_snippet_js_escaped(self) -> str:
-        if not self.solution_snippet:
+        if not self.solution_snippet or self.solution_snippet.strip().lower() in ("none", "null"):
             return ""
         return self.solution_snippet.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
 
     @property
     def source_site(self) -> str:
-        if not self.problem_url:
+        if not self.problem_url or self.problem_url.strip().lower() in ("none", "null"):
             return "Other"
         
         url_lower = self.problem_url.lower()
@@ -169,7 +171,7 @@ class DSAProblem(Base):
 
     @property
     def alternate_source_site(self) -> str:
-        if not self.alternate_url:
+        if not self.alternate_url or self.alternate_url.strip().lower() in ("none", "null"):
             return "Other"
         
         url_lower = self.alternate_url.lower()

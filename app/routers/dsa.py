@@ -190,6 +190,15 @@ def dsa_page(
     })
 
 
+def sanitize_str(val: Optional[str]) -> str:
+    if not val:
+        return ""
+    val_clean = val.strip()
+    if val_clean.lower() in ("none", "null"):
+        return ""
+    return val_clean
+
+
 @router.post("/add")
 def add_problem(
     category: str = Form("Arrays and Strings"),
@@ -205,9 +214,20 @@ def add_problem(
     problem_url: str = Form(""),
     alternate_title: str = Form(""),
     alternate_url: str = Form(""),
-    topic_ids: Optional[List[int]] = Form(default=None),
+    topic_ids: List[int] = Form(default=[]),
     db: Session = Depends(get_db),
 ):
+    category = sanitize_str(category) or "Arrays and Strings"
+    title = sanitize_str(title)
+    problem_url = sanitize_str(problem_url)
+    alternate_title = sanitize_str(alternate_title)
+    alternate_url = sanitize_str(alternate_url)
+    pattern = sanitize_str(pattern)
+    mistake = sanitize_str(mistake)
+    time_complexity = sanitize_str(time_complexity)
+    space_complexity = sanitize_str(space_complexity)
+    solution_snippet = sanitize_str(solution_snippet)
+
     if title.startswith("http://") or title.startswith("https://"):
         if not problem_url:
             problem_url = title
@@ -233,19 +253,19 @@ def add_problem(
             topics = [matching_topic]
 
     p = DSAProblem(
-        category=category.strip() if category else "Arrays and Strings",
-        title=title.strip(),
+        category=category,
+        title=title,
         difficulty=difficulty,
         status=status,
-        pattern=pattern.strip() if pattern else "",
-        mistake=mistake.strip() if mistake else "",
-        time_complexity=time_complexity.strip() if time_complexity else "",
-        space_complexity=space_complexity.strip() if space_complexity else "",
-        solution_snippet=solution_snippet.strip() if solution_snippet else "",
+        pattern=pattern,
+        mistake=mistake,
+        time_complexity=time_complexity,
+        space_complexity=space_complexity,
+        solution_snippet=solution_snippet,
         confidence=confidence,
-        problem_url=problem_url.strip() if problem_url else "",
-        alternate_title=alternate_title.strip() if alternate_title else "",
-        alternate_url=alternate_url.strip() if alternate_url else "",
+        problem_url=problem_url,
+        alternate_title=alternate_title,
+        alternate_url=alternate_url,
         solved_date=date.today() if status == "Solved" else None,
         topics=topics,
     )
@@ -270,12 +290,23 @@ def update_problem(
     space_complexity: str = Form(""),
     solution_snippet: str = Form(""),
     confidence: int = Form(3),
-    topic_ids: Optional[List[int]] = Form(default=None),
+    topic_ids: List[int] = Form(default=[]),
     db: Session = Depends(get_db),
 ):
     p = db.query(DSAProblem).filter(DSAProblem.id == problem_id).first()
     if not p:
         raise HTTPException(status_code=404)
+
+    category = sanitize_str(category) or "Arrays and Strings"
+    title = sanitize_str(title)
+    problem_url = sanitize_str(problem_url)
+    alternate_title = sanitize_str(alternate_title)
+    alternate_url = sanitize_str(alternate_url)
+    pattern = sanitize_str(pattern)
+    mistake = sanitize_str(mistake)
+    time_complexity = sanitize_str(time_complexity)
+    space_complexity = sanitize_str(space_complexity)
+    solution_snippet = sanitize_str(solution_snippet)
 
     if title.startswith("http://") or title.startswith("https://"):
         if not problem_url:
@@ -292,22 +323,21 @@ def update_problem(
         from app.models.dsa import clean_title_from_url
         alternate_title = clean_title_from_url(alternate_url)
     
-    if topic_ids is not None:
-        topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
-        p.topics = topics
+    topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all() if topic_ids else []
+    p.topics = topics
 
-    p.category = category.strip() if category else "Arrays and Strings"
-    p.title = title.strip()
+    p.category = category
+    p.title = title
     p.difficulty = difficulty
-    p.problem_url = problem_url.strip() if problem_url else ""
-    p.alternate_title = alternate_title.strip() if alternate_title else ""
-    p.alternate_url = alternate_url.strip() if alternate_url else ""
+    p.problem_url = problem_url
+    p.alternate_title = alternate_title
+    p.alternate_url = alternate_url
     p.status = status
-    p.pattern = pattern.strip() if pattern else ""
-    p.mistake = mistake.strip() if mistake else ""
-    p.time_complexity = time_complexity.strip() if time_complexity else ""
-    p.space_complexity = space_complexity.strip() if space_complexity else ""
-    p.solution_snippet = solution_snippet.strip() if solution_snippet else ""
+    p.pattern = pattern
+    p.mistake = mistake
+    p.time_complexity = time_complexity
+    p.space_complexity = space_complexity
+    p.solution_snippet = solution_snippet
     p.confidence = confidence
     if status == "Solved" and not p.solved_date:
         p.solved_date = date.today()

@@ -297,19 +297,19 @@
                       </button>
                       <button class="btn btn-ghost btn-sm btn-icon edit-problem-btn"
                         data-id="{{ p.id }}"
-                        data-category="{{ p.category }}"
-                        data-title="{{ p.title }}"
-                        data-difficulty="{{ p.difficulty }}"
-                        data-url="{{ p.problem_url }}"
-                        data-alt-title="{{ p.alternate_title }}"
-                        data-alt-url="{{ p.alternate_url }}"
-                        data-status="{{ p.status }}"
-                        data-pattern="{{ p.pattern }}"
-                        data-mistake="{{ p.mistake | escape }}"
-                        data-time-complexity="{{ p.time_complexity }}"
-                        data-space-complexity="{{ p.space_complexity }}"
-                        data-confidence="{{ p.confidence }}"
-                        data-solution="{{ p.solution_snippet }}"
+                        data-category="{{ p.category or 'Arrays and Strings' }}"
+                        data-title="{{ p.title or '' }}"
+                        data-difficulty="{{ p.difficulty or 'Medium' }}"
+                        data-url="{{ p.problem_url or '' }}"
+                        data-alt-title="{{ p.alternate_title or '' }}"
+                        data-alt-url="{{ p.alternate_url or '' }}"
+                        data-status="{{ p.status or 'Not Started' }}"
+                        data-pattern="{{ p.pattern or '' }}"
+                        data-mistake="{{ (p.mistake or '') | escape }}"
+                        data-time-complexity="{{ p.time_complexity or '' }}"
+                        data-space-complexity="{{ p.space_complexity or '' }}"
+                        data-confidence="{{ p.confidence or 3 }}"
+                        data-solution="{{ p.solution_snippet or '' }}"
                         data-topic-ids="{{ p.topics | map(attribute='id') | join(',') }}"
                         title="Edit Problem">
                         <i data-lucide="pencil" class="icon-sm"></i>
@@ -525,11 +525,11 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Problem Title *</label>
-            <input type="text" name="title" class="form-input" id="uTitle" required>
+            <input type="text" name="title" class="form-input" id="uTitle" placeholder="e.g. Two Sum or Trapping Rain Water" required>
           </div>
           <div class="form-group">
             <label class="form-label">Problem URL</label>
-            <input type="url" name="problem_url" class="form-input" id="uUrl">
+            <input type="url" name="problem_url" class="form-input" id="uUrl" placeholder="e.g. https://leetcode.com/problems/...">
           </div>
         </div>
 
@@ -537,11 +537,11 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Alternate Title (Optional)</label>
-            <input type="text" name="alternate_title" class="form-input" id="uAltTitle">
+            <input type="text" name="alternate_title" class="form-input" id="uAltTitle" placeholder="e.g. Smallest Positive Missing Number">
           </div>
           <div class="form-group">
             <label class="form-label">Alternate URL (Optional)</label>
-            <input type="url" name="alternate_url" class="form-input" id="uAltUrl">
+            <input type="url" name="alternate_url" class="form-input" id="uAltUrl" placeholder="e.g. https://www.geeksforgeeks.org/problems/...">
           </div>
         </div>
 
@@ -584,17 +584,17 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Time Complexity</label>
-            <input type="text" name="time_complexity" class="form-input" id="uTimeComplexity">
+            <input type="text" name="time_complexity" class="form-input" id="uTimeComplexity" placeholder="O(n)">
           </div>
           <div class="form-group">
             <label class="form-label">Space Complexity</label>
-            <input type="text" name="space_complexity" class="form-input" id="uSpaceComplexity">
+            <input type="text" name="space_complexity" class="form-input" id="uSpaceComplexity" placeholder="O(1)">
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">Pattern</label>
-          <input type="text" name="pattern" class="form-input" id="uPattern">
+          <input type="text" name="pattern" class="form-input" id="uPattern" placeholder="e.g. Sliding window, Two Pointers, Monotonic Stack">
         </div>
 
         <!-- Mistakes / Notes (Quill) -->
@@ -704,25 +704,27 @@
     const uDiff = document.getElementById('uDifficulty');
     if (uDiff) uDiff.value = difficulty || 'Medium';
 
-    document.getElementById('uTitle').value = title;
-    document.getElementById('uUrl').value = url || '';
-    document.getElementById('uAltTitle').value = altTitle || '';
-    document.getElementById('uAltUrl').value = altUrl || '';
-    document.getElementById('uStatus').value = status;
-    document.getElementById('uPattern').value = pattern || '';
-    document.getElementById('uMistake').value = mistake || '';
+    const cleanVal = (v) => (!v || v === 'None' || v === 'null') ? '' : v;
+
+    document.getElementById('uTitle').value = cleanVal(title);
+    document.getElementById('uUrl').value = cleanVal(url);
+    document.getElementById('uAltTitle').value = cleanVal(altTitle);
+    document.getElementById('uAltUrl').value = cleanVal(altUrl);
+    document.getElementById('uStatus').value = status || 'Not Started';
+    document.getElementById('uPattern').value = cleanVal(pattern);
+    document.getElementById('uMistake').value = cleanVal(mistake);
     
     // Populate Quill editor if active
     if (window.Quill && uMistakeQuill) {
-      uMistakeQuill.root.innerHTML = mistake || '';
+      uMistakeQuill.root.innerHTML = cleanVal(mistake);
     }
 
-    document.getElementById('uTimeComplexity').value = timeC || '';
-    document.getElementById('uSpaceComplexity').value = spaceC || '';
+    document.getElementById('uTimeComplexity').value = cleanVal(timeC);
+    document.getElementById('uSpaceComplexity').value = cleanVal(spaceC);
     document.getElementById('uConfidence').value = confidence || 3;
     
     const uSolution = document.getElementById('uSolution');
-    uSolution.value = solution || '';
+    uSolution.value = cleanVal(solution);
 
     const checkboxes = document.querySelectorAll('#updateModal input[name="topic_ids"]');
     checkboxes.forEach(cb => {
@@ -819,7 +821,7 @@
         const confidence = parseInt(this.getAttribute('data-confidence')) || 3;
         const solution = this.getAttribute('data-solution');
         const topicIdsStr = this.getAttribute('data-topic-ids');
-        const topicIds = topicIdsStr ? topicIdsStr.split(',').map(x => parseInt(x)) : [];
+        const topicIds = topicIdsStr ? topicIdsStr.split(',').map(x => parseInt(x)).filter(x => !isNaN(x)) : [];
 
         openUpdateModal(id, category, title, difficulty, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds);
       });
