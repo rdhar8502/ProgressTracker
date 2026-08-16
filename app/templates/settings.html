@@ -4,7 +4,10 @@
 
 {% block content %}
 {% if request.query_params.get('saved') %}
-<div class="alert alert-success mb-4">✅ Settings saved successfully!</div>
+<div class="alert alert-success mb-4" style="display: flex; align-items: center; gap: 8px;">
+  <i data-lucide="check-circle" class="icon-sm"></i>
+  <span>Settings saved successfully!</span>
+</div>
 {% endif %}
 
 {% if user %}
@@ -12,7 +15,10 @@
   <!-- Profile Settings -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title">👤 Profile</span>
+      <div class="flex items-center gap-2">
+        <i data-lucide="user" class="icon-sm" style="color: var(--accent);"></i>
+        <span class="card-title">Profile Settings</span>
+      </div>
     </div>
     <div class="card-body no-top">
       <form method="post" action="/settings/profile">
@@ -53,7 +59,10 @@
           <input type="url" name="github_url" class="form-input" value="{{ user.github_url or '' }}" placeholder="https://github.com/...">
         </div>
         <hr class="divider">
-        <div class="section-title" style="font-size: 13px;">⏱️ Daily Study Targets</div>
+        <div class="section-title" style="font-size: 13px; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+          <i data-lucide="clock" class="icon-xs" style="color: var(--accent);"></i>
+          <span>Daily Study Targets</span>
+        </div>
         <div class="form-row-3">
           <div class="form-group">
             <label class="form-label">Weekday (hrs/day)</label>
@@ -68,9 +77,12 @@
             <input type="number" name="sunday_target_hours" class="form-input" value="{{ user.sunday_target_hours }}" step="0.5" min="0" max="12">
           </div>
         </div>
-        <div class="alert alert-info" style="font-size: 12px;">
-          📊 Weekly target: <strong>{{ (user.weekday_target_hours * 5 + user.saturday_target_hours + user.sunday_target_hours) | round(1) }}h</strong>
-          ({{ user.weekday_target_hours }}h × 5 weekdays + {{ user.saturday_target_hours }}h Sat + {{ user.sunday_target_hours }}h Sun)
+        <div class="alert alert-info" style="font-size: 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="info" class="icon-xs" style="flex-shrink: 0;"></i>
+          <div>
+            Weekly target: <strong>{{ (user.weekday_target_hours * 5 + user.saturday_target_hours + user.sunday_target_hours) | round(1) }}h</strong>
+            ({{ user.weekday_target_hours }}h × 5 weekdays + {{ user.saturday_target_hours }}h Sat + {{ user.sunday_target_hours }}h Sun)
+          </div>
         </div>
         <button type="submit" class="btn btn-primary w-full">Save Profile</button>
       </form>
@@ -81,37 +93,44 @@
   <div>
     <div class="card mb-4">
       <div class="card-header">
-        <span class="card-title">💰 Salary Targets by Region</span>
+        <div class="flex items-center gap-2">
+          <i data-lucide="dollar-sign" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">Salary Targets by Region</span>
+        </div>
       </div>
       <div class="card-body no-top">
         {% for st in salary_targets %}
         <div style="padding: 10px 0; border-bottom: 1px solid var(--border-light);">
           <div class="flex justify-between items-center">
             <div>
-              <div style="font-size: 13px; font-weight: 600;">{{ st.region }}</div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">{{ st.region }}</div>
               <div class="text-sm text-muted">{{ st.currency }}</div>
             </div>
             <div style="text-align: right;">
               <div style="font-size: 14px; font-weight: 700; color: var(--accent);">
                 {{ st.currency }} {{ (st.salary_min / 1000) | int }}k — {{ (st.salary_max / 1000) | int }}k
               </div>
-              <div class="text-sm text-muted">per {{ st.salary_unit }}</div>
+              <div class="text-xs text-muted">per {{ st.salary_unit }}</div>
             </div>
           </div>
         </div>
         {% endfor %}
-        <div class="alert alert-warning mt-3" style="font-size: 12px;">
-          ⚠️ Below these ranges, you are likely being under-sold. Target the higher end as Senior / Lead AI Engineer.
+        <div class="alert alert-warning mt-3" style="font-size: 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="alert-triangle" class="icon-xs" style="flex-shrink: 0;"></i>
+          <div>Below these ranges, you are likely being under-sold. Target the higher end as Senior / Lead AI Engineer.</div>
         </div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <span class="card-title">📋 Prep Plan Timeline</span>
+        <div class="flex items-center gap-2">
+          <i data-lucide="calendar" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">Prep Plan Timeline</span>
+        </div>
       </div>
       <div class="card-body no-top">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 12px; padding-top: 6px;">
           {% set timeline = [
             ("Aug–Nov 2026", "Preparation only", "DSA, System Design, AI/LLM, GitHub", "blue"),
             ("Nov–Dec 2026", "Start applying slowly", "10–15 high-fit roles/week", "purple"),
@@ -120,7 +139,7 @@
           ] %}
           {% for period, phase, desc, color in timeline %}
           <div style="display: flex; gap: 12px; align-items: flex-start;">
-            <div style="width: 3px; background: var(--{% if color == 'blue' %}accent-2{% elif color == 'purple' %}accent{% elif color == 'amber' %}warning{% else %}success{% endif %}); border-radius: 99px; margin-top: 4px; align-self: stretch; min-height: 40px; flex-shrink: 0;"></div>
+            <div style="width: 3px; background: var(--{% if color == 'blue' %}accent-2{% elif color == 'purple' %}accent{% elif color == 'amber' %}warning{% else %}success{% endif %}); border-radius: 99px; margin-top: 4px; align-self: stretch; min-height: 36px; flex-shrink: 0;"></div>
             <div>
               <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ period }}</div>
               <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">{{ phase }}</div>

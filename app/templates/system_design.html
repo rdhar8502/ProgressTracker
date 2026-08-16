@@ -12,29 +12,36 @@
 <!-- Page Header Action -->
 <div class="flex justify-between items-center mb-6" style="margin-top: -8px;">
   <p style="margin: 0; color: var(--text-muted); font-size: 14px;">
-    Track concepts, sub-concepts, and full system design case studies.
+    Track architectural concepts, sub-concepts, and full scale system design case studies.
   </p>
-  <button class="btn btn-primary btn-sm" onclick="openAddConceptModal()">+ Add Concept</button>
+  <button class="btn btn-primary btn-sm" onclick="openAddConceptModal()">
+    <i data-lucide="plus" class="icon-xs"></i>
+    <span>Add Concept</span>
+  </button>
 </div>
 
 <!-- Stats -->
 <div class="stats-grid" style="margin-bottom: 24px;">
   <div class="stat-card blue">
+    <i data-lucide="network" class="stat-icon icon-xl"></i>
     <div class="stat-label">Sub-concepts Done</div>
     <div class="stat-value">{{ topics_done }}</div>
     <div class="stat-sub">of {{ topics_total }} sub-concepts</div>
   </div>
   <div class="stat-card purple">
+    <i data-lucide="layers" class="stat-icon icon-xl"></i>
     <div class="stat-label">In Progress</div>
     <div class="stat-value">{{ topics_in_progress }}</div>
     <div class="stat-sub">sub-concepts in progress</div>
   </div>
   <div class="stat-card green">
+    <i data-lucide="check-circle-2" class="stat-icon icon-xl"></i>
     <div class="stat-label">Case Studies Done</div>
     <div class="stat-value">{{ cases_done }}</div>
     <div class="stat-sub">of {{ cases_total }} systems</div>
   </div>
   <div class="stat-card amber">
+    <i data-lucide="pie-chart" class="stat-icon icon-xl"></i>
     <div class="stat-label">Overall Progress</div>
     <div class="stat-value">
       {% if (topics_total + cases_total) > 0 %}
@@ -62,14 +69,14 @@
         {% endfor %}
         <span class="badge badge-blue">{{ done_subs.value }}/{{ total_subs.value }} done</span>
       </div>
-      <div class="card-body no-top" style="padding-top: 12px;">
+      <div class="card-body no-top" style="padding-top: 14px;">
         {% for concept in cat_concepts %}
-        <div class="concept-group mb-4" style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background-color: rgba(255,255,255,0.015); position: relative; transition: all 0.2s;">
+        <div class="concept-group mb-4" style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; background-color: var(--surface); box-shadow: var(--shadow-xs); position: relative; transition: all 0.2s;">
           
           <!-- Concept Header -->
-          <div class="flex justify-between items-center" style="margin-bottom: 8px; border-bottom: 1px dashed var(--border); padding-bottom: 8px;">
+          <div class="flex justify-between items-center" style="margin-bottom: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
             <div class="flex items-center gap-2">
-              <span class="concept-title" style="font-weight: 700; font-size: 15px; color: var(--text);">{{ concept.concept_name }}</span>
+              <span class="concept-title" style="font-weight: 700; font-size: 14px; color: var(--text-primary);">{{ concept.concept_name }}</span>
               {% set concept_total = concept.sub_concepts | length %}
               {% set concept_done = concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
               <span class="badge {% if concept_done == concept_total and concept_total > 0 %}badge-green{% else %}badge-purple{% endif %}" style="font-size: 10px; padding: 2px 6px; margin-left: 4px;">
@@ -78,10 +85,16 @@
             </div>
             
             <div class="concept-actions flex gap-1" style="align-items: center;">
-              <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddSubModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\\'") }}')" title="Add Sub-concept">➕</button>
-              <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditConceptModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\\'") }}', '{{ concept.category }}', `{{ concept.sources | replace('`','') }}`)" title="Edit Concept">✏️</button>
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddSubModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\\'") }}')" title="Add Sub-concept">
+                <i data-lucide="plus" class="icon-xs"></i>
+              </button>
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditConceptModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\\'") }}', '{{ concept.category }}', `{{ concept.sources | replace('`','') }}`)" title="Edit Concept">
+                <i data-lucide="pencil" class="icon-xs"></i>
+              </button>
               <form method="post" action="/system-design/concept/delete/{{ concept.id }}" style="display:inline; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this concept and all its sub-concepts?')">
-                <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: #EF4444;" title="Delete Concept">🗑️</button>
+                <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: var(--danger);" title="Delete Concept">
+                  <i data-lucide="trash-2" class="icon-xs"></i>
+                </button>
               </form>
             </div>
           </div>
@@ -94,12 +107,14 @@
               {% set src = src.strip() %}
               {% if src %}
                 {% if src.startswith('http://') or src.startswith('https://') %}
-                  <a href="{{ src }}" target="_blank" class="badge" style="font-size: 10px; text-decoration: none; background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.2); color: #38BDF8; padding: 1px 6px; border-radius: 4px;">
-                    🔗 {{ src[:25] }}{% if src | length > 25 %}...{% endif %}
+                  <a href="{{ src }}" target="_blank" class="badge badge-blue" style="font-size: 10px; text-decoration: none; padding: 2px 6px; border-radius: 4px;">
+                    <i data-lucide="link" class="icon-xs"></i>
+                    <span>{{ src[:25] }}{% if src | length > 25 %}...{% endif %}</span>
                   </a>
                 {% else %}
-                  <span class="badge badge-gray" style="font-size: 10px; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05);">
-                    📄 {{ src }}
+                  <span class="badge badge-gray" style="font-size: 10px; padding: 2px 6px; border-radius: 4px;">
+                    <i data-lucide="file-text" class="icon-xs"></i>
+                    <span>{{ src }}</span>
                   </span>
                 {% endif %}
               {% endif %}
@@ -108,23 +123,37 @@
           {% endif %}
 
           <!-- Sub-concepts list -->
-          <div class="sub-concepts-list" style="padding-left: 4px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="sub-concepts-list" style="padding-left: 2px; display: flex; flex-direction: column; gap: 6px;">
             {% if concept.sub_concepts %}
               {% for sub in concept.sub_concepts %}
-              <div style="display: flex; flex-direction: column; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 4px;">
-                <div class="topic-item" style="padding: 4px 8px; border-radius: 6px; transition: background 0.15s; margin-bottom: 0;">
+              <div style="display: flex; flex-direction: column; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <div class="topic-item" style="padding: 4px 6px; border-radius: 6px; margin-bottom: 0;">
                   <div class="topic-check {% if sub.status == 'Done' %}done{% elif sub.status == 'In Progress' %}in-progress{% endif %}"
                        onclick="quickUpdateSub({{ sub.id }}, '{{ sub.status }}')" style="cursor: pointer;">
-                    {% if sub.status == 'Done' %}✓{% elif sub.status == 'In Progress' %}~{% endif %}
+                    {% if sub.status == 'Done' %}
+                      <i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>
+                    {% elif sub.status == 'In Progress' %}
+                      <i data-lucide="minus" class="icon-xs"></i>
+                    {% endif %}
                   </div>
-                  <span class="topic-name" style="font-size: 14px; text-decoration: {% if sub.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %}; flex: 1;">
+                  <span class="topic-name" style="font-size: 13px; text-decoration: {% if sub.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %}; flex: 1;">
                     {{ sub.subconcept_name }}
                   </span>
-                  <div class="topic-actions">
-                    {% if sub.reading_done %}<span title="Reading done">📖</span>{% endif %}
-                    {% if sub.practical_done %}<span title="Practical done">⚙️</span>{% endif %}
+                  <div class="topic-actions" style="display: flex; align-items: center; gap: 4px;">
+                    {% if sub.reading_done %}
+                      <span class="badge badge-green" style="font-size: 10px; padding: 1px 6px;" title="Reading done">
+                        <i data-lucide="book-open" class="icon-xs"></i> Read
+                      </span>
+                    {% endif %}
+                    {% if sub.practical_done %}
+                      <span class="badge badge-blue" style="font-size: 10px; padding: 1px 6px;" title="Practical done">
+                        <i data-lucide="code" class="icon-xs"></i> Code
+                      </span>
+                    {% endif %}
                     {% if sub.resources %}
-                      <a href="{{ sub.resources }}" target="_blank" title="Resource Link" style="text-decoration: none; font-size: 13px;">🔗</a>
+                      <a href="{{ sub.resources }}" target="_blank" title="Resource Link" class="btn btn-ghost btn-sm btn-icon">
+                        <i data-lucide="external-link" class="icon-xs"></i>
+                      </a>
                     {% endif %}
                     <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" 
                             data-id="{{ sub.id }}"
@@ -135,26 +164,32 @@
                             data-notes="{{ sub.notes | escape }}"
                             data-resources="{{ sub.resources | escape }}"
                             data-sources="{{ sub.sources | escape }}"
-                            title="Edit Details">✏️</button>
+                            title="Edit Details">
+                      <i data-lucide="pencil" class="icon-xs"></i>
+                    </button>
                     <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin: 0;" onsubmit="return confirm('Delete this sub-concept?')">
-                      <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: #EF4444;" title="Delete Sub-concept">🗑️</button>
+                      <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="color: var(--danger);" title="Delete Sub-concept">
+                        <i data-lucide="trash-2" class="icon-xs"></i>
+                      </button>
                     </form>
                   </div>
                 </div>
 
                 <!-- Sub-concept sources -->
                 {% if sub.sources %}
-                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-left: 28px; margin-top: 2px; margin-bottom: 4px;">
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-left: 28px; margin-top: 2px; margin-bottom: 2px;">
                   {% for src in sub.sources.split('\n') %}
                     {% set src = src.strip() %}
                     {% if src %}
                       {% if src.startswith('http://') or src.startswith('https://') %}
-                        <a href="{{ src }}" target="_blank" class="badge" style="font-size: 9px; text-decoration: none; background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.15); color: #C084FC; padding: 0.5px 5px; border-radius: 3px;">
-                          🔗 {{ src[:25] }}{% if src | length > 25 %}...{% endif %}
+                        <a href="{{ src }}" target="_blank" class="badge badge-purple" style="font-size: 9px; text-decoration: none; padding: 1px 6px; border-radius: 4px;">
+                          <i data-lucide="link" class="icon-xs"></i>
+                          <span>{{ src[:25] }}{% if src | length > 25 %}...{% endif %}</span>
                         </a>
                       {% else %}
-                        <span class="badge badge-gray" style="font-size: 9px; padding: 0.5px 5px; border-radius: 3px; background: rgba(255,255,255,0.03);">
-                          📄 {{ src }}
+                        <span class="badge badge-gray" style="font-size: 9px; padding: 1px 6px; border-radius: 4px;">
+                          <i data-lucide="file-text" class="icon-xs"></i>
+                          <span>{{ src }}</span>
                         </span>
                       {% endif %}
                     {% endif %}
@@ -164,7 +199,7 @@
               </div>
               {% endfor %}
             {% else %}
-              <div class="text-muted" style="font-style: italic; font-size: 12px; padding: 4px;">No sub-concepts added yet. Click ➕ to add one.</div>
+              <div class="text-muted" style="font-style: italic; font-size: 12px; padding: 4px;">No sub-concepts added yet. Click + to add one.</div>
             {% endif %}
           </div>
           
@@ -186,7 +221,11 @@
         {% for case in cases %}
         <div class="topic-item">
           <div class="topic-check {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}">
-            {% if case.status == 'Done' %}✓{% elif case.status == 'In Progress' %}~{% endif %}
+            {% if case.status == 'Done' %}
+              <i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>
+            {% elif case.status == 'In Progress' %}
+              <i data-lucide="minus" class="icon-xs"></i>
+            {% endif %}
           </div>
           <div style="flex: 1;">
             <div class="topic-name" style="text-decoration: {% if case.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %};">
@@ -207,7 +246,9 @@
                     data-components="{{ case.key_components | escape }}"
                     data-diagram="{{ case.diagram_url | escape }}"
                     data-notes="{{ case.notes | escape }}"
-                    title="Edit">✏️</button>
+                    title="Edit">
+              <i data-lucide="pencil" class="icon-xs"></i>
+            </button>
           </div>
         </div>
         {% endfor %}
@@ -221,7 +262,9 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="conceptModalTitle">Add Concept</span>
-      <button class="modal-close" onclick="closeModal('conceptModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('conceptModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <div class="modal-body">
       <form method="post" id="conceptForm" action="/system-design/concept/add">
@@ -255,7 +298,9 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="addSubModalTitle">Add Sub-concept</span>
-      <button class="modal-close" onclick="closeModal('addSubModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('addSubModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <div class="modal-body">
       <form method="post" id="addSubForm" action="/system-design/subconcept/add">
@@ -278,7 +323,9 @@
   <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title" id="subModalTitle">Update Sub-concept</span>
-      <button class="modal-close" onclick="closeModal('subModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('subModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <div class="modal-body">
       <form method="post" id="subForm" action="/system-design/subconcept/update/0">
@@ -327,7 +374,9 @@
   <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title" id="caseModalTitle">Update Case Study</span>
-      <button class="modal-close" onclick="closeModal('caseModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('caseModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <div class="modal-body">
       <form method="post" id="caseForm" action="/system-design/case/update/0">
@@ -417,7 +466,6 @@ function openSubModal(id, name, status, reading, practical, notes, resources, so
 
   openModal('subModal');
 
-  // Trigger resize
   setTimeout(() => {
     autoResizeTextarea(sourcesTextarea);
     autoResizeTextarea(notesTextarea);
@@ -442,7 +490,6 @@ function openCaseModal(id, name, status, components, diagram, notes) {
 
   openModal('caseModal');
 
-  // Trigger resize
   setTimeout(() => {
     autoResizeTextarea(compTextarea);
     autoResizeTextarea(notesTextarea);
@@ -503,9 +550,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Quill if loaded
   if (window.Quill) {
-    // Sub-concept Notes Editor
-    document.getElementById('sNotes').style.display = 'none';
-    document.getElementById('sNotesQuillWrapper').style.display = 'block';
+    const sNotesEl = document.getElementById('sNotes');
+    if (sNotesEl) sNotesEl.style.display = 'none';
+    const sQuillWrap = document.getElementById('sNotesQuillWrapper');
+    if (sQuillWrap) sQuillWrap.style.display = 'block';
     
     sNotesQuill = new Quill('#sNotesQuillEditor', {
       theme: 'snow',
@@ -513,9 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
       placeholder: 'Notes...'
     });
 
-    // Case Study Notes Editor
-    document.getElementById('cNotes').style.display = 'none';
-    document.getElementById('cNotesQuillWrapper').style.display = 'block';
+    const cNotesEl = document.getElementById('cNotes');
+    if (cNotesEl) cNotesEl.style.display = 'none';
+    const cQuillWrap = document.getElementById('cNotesQuillWrapper');
+    if (cQuillWrap) cQuillWrap.style.display = 'block';
 
     cNotesQuill = new Quill('#cNotesQuillEditor', {
       theme: 'snow',
@@ -558,6 +607,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+  }
+
+  if (window.lucide) {
+    lucide.createIcons();
   }
 });
 </script>

@@ -26,21 +26,25 @@
 <!-- Summary stats -->
 <div class="stats-grid" style="margin-bottom: 24px;">
   <div class="stat-card purple">
+    <i data-lucide="briefcase" class="stat-icon icon-xl"></i>
     <div class="stat-label">Total Applied</div>
     <div class="stat-value">{{ total }}</div>
     <div class="stat-sub">all applications</div>
   </div>
   <div class="stat-card blue">
+    <i data-lucide="clock" class="stat-icon icon-xl"></i>
     <div class="stat-label">Active Pipeline</div>
     <div class="stat-value">{{ active }}</div>
     <div class="stat-sub">in progress</div>
   </div>
   <div class="stat-card green">
+    <i data-lucide="award" class="stat-icon icon-xl"></i>
     <div class="stat-label">Offers</div>
     <div class="stat-value">{{ offers }}</div>
     <div class="stat-sub">offer{{ 's' if offers != 1 }} received</div>
   </div>
   <div class="stat-card amber">
+    <i data-lucide="calendar" class="stat-icon icon-xl"></i>
     <div class="stat-label">Applied This Week</div>
     <div class="stat-value">
       {% set this_week_apps = apps | selectattr('applied_date') | selectattr('applied_date', 'ge', today) | list | length %}
@@ -59,7 +63,10 @@
         {% if selected_stage %}{{ selected_stage }} Applications{% else %}All Applications{% endif %}
         ({{ apps | length }})
       </span>
-      <button class="btn btn-primary btn-sm" onclick="openModal('addAppModal')">+ Add Application</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addAppModal')">
+        <i data-lucide="plus" class="icon-xs"></i>
+        <span>Add Application</span>
+      </button>
     </div>
     <div class="card-body no-top">
       {% if apps %}
@@ -76,21 +83,23 @@
               <th>Applied</th>
               <th>Follow-up</th>
               <th>Notes</th>
-              <th></th>
+              <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for app in apps %}
             <tr>
-              <td style="font-weight: 700;">{{ app.company }}</td>
-              <td style="font-weight: 500;">{{ app.role }}</td>
+              <td style="font-weight: 700; color: var(--text-primary);">{{ app.company }}</td>
+              <td style="font-weight: 600;">{{ app.role }}</td>
               <td class="text-sm text-muted">
                 {{ app.location }}<br>
-                <span style="font-size: 10px; background: var(--bg); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border);">{{ app.country }}</span>
+                <span style="font-size: 10px; background: var(--surface-alt); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border);">{{ app.country }}</span>
               </td>
               <td>
                 {% if app.visa_sponsor %}
-                <span class="badge badge-green">✓ Sponsor</span>
+                <span class="badge badge-green">
+                  <i data-lucide="check" class="icon-xs"></i> Sponsor
+                </span>
                 {% else %}
                 <span class="badge badge-gray">No</span>
                 {% endif %}
@@ -107,18 +116,22 @@
               </td>
               <td class="text-sm text-muted">{{ app.applied_date.strftime('%b %d') if app.applied_date else '—' }}</td>
               <td class="text-sm text-muted">{{ app.follow_up_date.strftime('%b %d') if app.follow_up_date else '—' }}</td>
-              <td class="text-sm text-muted" style="max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <td class="text-sm text-muted" style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 {{ (app.notes | striptags)[:50] if app.notes else '—' }}
               </td>
-              <td>
-                <div class="flex gap-1">
+              <td style="text-align: right;">
+                <div class="flex gap-1 justify-end">
                   <button class="btn btn-ghost btn-sm btn-icon edit-app-btn" 
                           data-id="{{ app.id }}"
                           data-stage="{{ app.stage }}"
                           data-notes="{{ app.notes | escape }}"
-                          title="Edit">✏️</button>
+                          title="Edit">
+                    <i data-lucide="pencil" class="icon-xs"></i>
+                  </button>
                   <form method="post" action="/applications/delete/{{ app.id }}" style="display: inline;">
-                    <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete?')" title="Delete">🗑</button>
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete this application?')" title="Delete">
+                      <i data-lucide="trash-2" class="icon-xs"></i>
+                    </button>
                   </form>
                 </div>
               </td>
@@ -129,10 +142,13 @@
       </div>
       {% else %}
       <div class="empty-state">
-        <div class="empty-icon">📤</div>
+        <div class="empty-icon"><i data-lucide="briefcase" class="icon-xl"></i></div>
         <div class="empty-title">No applications yet</div>
         <div class="empty-desc">Start tracking your job applications. Add your first one!</div>
-        <button class="btn btn-primary mt-4" onclick="openModal('addAppModal')">+ Add Application</button>
+        <button class="btn btn-primary mt-4" onclick="openModal('addAppModal')">
+          <i data-lucide="plus" class="icon-xs"></i>
+          <span>Add Application</span>
+        </button>
       </div>
       {% endif %}
     </div>
@@ -144,7 +160,9 @@
   <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Add Job Application</span>
-      <button class="modal-close" onclick="closeModal('addAppModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('addAppModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <div class="modal-body">
       <form method="post" action="/applications/add">
@@ -201,7 +219,7 @@
           </div>
           <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 22px;">
             <input type="checkbox" name="visa_sponsor" id="visaSponsor" value="true">
-            <label for="visaSponsor" class="form-label" style="margin: 0;">Visa Sponsor</label>
+            <label for="visaSponsor" class="form-label" style="margin: 0; cursor: pointer;">Visa Sponsor</label>
           </div>
         </div>
         <div class="form-group">
@@ -229,7 +247,9 @@
   <div class="modal" style="max-width: 800px; width: 90%;">
     <div class="modal-header">
       <span class="modal-title">Update Application</span>
-      <button class="modal-close" onclick="closeModal('updateAppModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('updateAppModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <div class="modal-body">
       <form method="post" id="updateAppForm" action="/applications/update/0">
@@ -289,7 +309,6 @@ function openUpdateApp(id, stage, notes) {
   
   openModal('updateAppModal');
   
-  // Resize textarea on opening in case Quill is not loaded
   setTimeout(() => {
     autoResizeTextarea(notesTextarea);
   }, 80);
@@ -321,9 +340,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Quill if loaded
   if (window.Quill) {
-    // Add App Notes
-    document.getElementById('addAppNotesTextarea').style.display = 'none';
-    document.getElementById('addAppNotesQuillWrapper').style.display = 'block';
+    const addNotesEl = document.getElementById('addAppNotesTextarea');
+    if (addNotesEl) addNotesEl.style.display = 'none';
+    const addWrap = document.getElementById('addAppNotesQuillWrapper');
+    if (addWrap) addWrap.style.display = 'block';
     
     addAppNotesQuill = new Quill('#addAppNotesQuillEditor', {
       theme: 'snow',
@@ -331,9 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
       placeholder: 'Referral, recruiter name, key requirements...'
     });
 
-    // Update App Notes
-    document.getElementById('uAppNotes').style.display = 'none';
-    document.getElementById('uAppNotesQuillWrapper').style.display = 'block';
+    const uNotesEl = document.getElementById('uAppNotes');
+    if (uNotesEl) uNotesEl.style.display = 'none';
+    const uWrap = document.getElementById('uAppNotesQuillWrapper');
+    if (uWrap) uWrap.style.display = 'block';
 
     uAppNotesQuill = new Quill('#uAppNotesQuillEditor', {
       theme: 'snow',
@@ -376,6 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+  }
+
+  if (window.lucide) {
+    lucide.createIcons();
   }
 });
 </script>

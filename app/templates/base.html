@@ -7,8 +7,10 @@
   <meta name="description" content="Interview preparation progress tracker for Senior AI / Python Backend Engineer roles">
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="stylesheet" href="/static/css/style.css?v=2">
+  <link rel="stylesheet" href="/static/css/style.css?v=3">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <!-- Lucide Modern Icons (Open Source - ISC License) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -18,7 +20,9 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <div class="logo-icon">🎯</div>
+        <div class="logo-icon">
+          <i data-lucide="target" class="icon-lg"></i>
+        </div>
         <div>
           <div class="logo-text">PrepTracker</div>
           <div class="logo-sub">Interview Prep 2026→27</div>
@@ -34,14 +38,14 @@
       <!-- Mini XP Bar -->
       {% set g = user_gamification() %}
       {% if g %}
-      <div class="sidebar-xp-panel" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 6px 8px; margin-top: 4px;">
+      <div class="sidebar-xp-panel">
         <div style="display: flex; align-items: center; font-size: 11px; margin-bottom: 2px;">
-          <span style="color: #A5B4FC; font-weight: 700;">Lvl {{ g.level_details.level }}</span>
-          <span style="color: #9CA3AF; text-align: right; margin-left: auto;">{{ g.level_details.total_xp }} XP</span>
+          <span style="color: #60A5FA; font-weight: 700;">Level {{ g.level_details.level }}</span>
+          <span style="color: #94A3B8; text-align: right; margin-left: auto;">{{ g.level_details.total_xp }} XP</span>
         </div>
-        <div style="font-size: 10px; color: #6B7280; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.level_details.title }}</div>
-        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden;">
-          <div style="height: 100%; background: linear-gradient(90deg, #6366F1, #A5B4FC); width: {{ g.level_details.pct_progress }}%; border-radius: 99px;"></div>
+        <div style="font-size: 10px; color: #94A3B8; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.level_details.title }}</div>
+        <div class="progress-bar" style="height: 4px;">
+          <div class="progress-fill" style="width: {{ g.level_details.pct_progress }}%;"></div>
         </div>
       </div>
       {% endif %}
@@ -52,22 +56,22 @@
       <div class="nav-section-label">Overview</div>
 
       <a href="/" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
-        <span class="nav-icon">📊</span>
+        <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i>
         <span>Dashboard</span>
       </a>
 
       <a href="/achievements" class="nav-item {% if active_page == 'achievements' %}active{% endif %}">
-        <span class="nav-icon">🏆</span>
+        <i data-lucide="trophy" class="sidebar-nav-icon"></i>
         <span>Achievements</span>
       </a>
 
       <a href="/daily" class="nav-item {% if active_page == 'daily' %}active{% endif %}">
-        <span class="nav-icon">📝</span>
+        <i data-lucide="calendar-check" class="sidebar-nav-icon"></i>
         <span>Daily Log</span>
       </a>
 
       <a href="/weekly" class="nav-item {% if active_page == 'weekly' %}active{% endif %}">
-        <span class="nav-icon">📅</span>
+        <i data-lucide="calendar-range" class="sidebar-nav-icon"></i>
         <span>Weekly View</span>
       </a>
 
@@ -75,43 +79,43 @@
       <div class="nav-section-label">Preparation</div>
 
       <a href="/dsa" class="nav-item {% if active_page == 'dsa' %}active{% endif %}">
-        <span class="nav-icon">💻</span>
+        <i data-lucide="code-2" class="sidebar-nav-icon"></i>
         <span>DSA</span>
       </a>
 
       <a href="/system-design" class="nav-item {% if active_page == 'system_design' %}active{% endif %}">
-        <span class="nav-icon">🏗️</span>
+        <i data-lucide="network" class="sidebar-nav-icon"></i>
         <span>System Design</span>
       </a>
 
       <a href="/ai-llm" class="nav-item {% if active_page == 'ai_llm' %}active{% endif %}">
-        <span class="nav-icon">🤖</span>
+        <i data-lucide="cpu" class="sidebar-nav-icon"></i>
         <span>AI / LLM</span>
       </a>
 
       <div class="nav-section-label">Portfolio & Jobs</div>
 
       <a href="/github" class="nav-item {% if active_page == 'github' %}active{% endif %}">
-        <span class="nav-icon">🐙</span>
+        <i data-lucide="folder-git-2" class="sidebar-nav-icon"></i>
         <span>GitHub Projects</span>
       </a>
 
       <a href="/applications" class="nav-item {% if active_page == 'applications' %}active{% endif %}">
-        <span class="nav-icon">📤</span>
+        <i data-lucide="briefcase" class="sidebar-nav-icon"></i>
         <span>Applications</span>
       </a>
 
       <div class="nav-section-label">Personal</div>
 
       <a href="/personal-hub" class="nav-item {% if active_page == 'personal_hub' %}active{% endif %}">
-        <span class="nav-icon">💡</span>
+        <i data-lucide="sparkles" class="sidebar-nav-icon"></i>
         <span>Notes & Reminders</span>
       </a>
 
       <div class="nav-section-label">Account</div>
 
       <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
-        <span class="nav-icon">⚙️</span>
+        <i data-lucide="settings" class="sidebar-nav-icon"></i>
         <span>Settings</span>
       </a>
     </nav>
@@ -132,15 +136,19 @@
       
       <!-- Universal Search Bar -->
       <div class="header-search" id="headerSearch">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="universalSearchInput" placeholder="Search everything (press '/' to focus)..." autocomplete="off">
+        <span class="search-icon"><i data-lucide="search" class="icon-sm"></i></span>
+        <input type="text" id="universalSearchInput" placeholder="Search problems, topics, notes (press '/' to focus)..." autocomplete="off">
+        <span class="search-shortcut-badge">/</span>
         <div class="search-results-dropdown" id="searchResultsDropdown"></div>
       </div>
 
       <div class="header-right">
         <span class="header-date" id="current-date"></span>
         {% if user %}
-        <a href="/daily" class="btn btn-primary btn-sm">+ Log Today</a>
+        <a href="/daily" class="btn btn-primary btn-sm">
+          <i data-lucide="plus" class="icon-sm"></i>
+          <span>Log Today</span>
+        </a>
         {% endif %}
       </div>
     </header>
@@ -156,6 +164,12 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script src="/static/js/app.js"></script>
+<script>
+  // Initialize Lucide icons on load
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

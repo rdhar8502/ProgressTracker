@@ -39,8 +39,8 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": p.clean_title,
             "snippet": f"Pattern: {p.pattern}" if p.pattern else f"Difficulty: {p.difficulty} ({p.status})",
             "url": f"/dsa?search={p.clean_title}",
-            "icon": "💻",
-            "badge_class": "badge-purple" if p.difficulty == "Hard" else ("badge-amber" if p.difficulty == "Medium" else "badge-green")
+            "lucide_icon": "code-2",
+            "badge_class": "diff-hard" if p.difficulty == "Hard" else ("diff-medium" if p.difficulty == "Medium" else "diff-easy")
         })
 
     # 2. DSA Topics
@@ -51,7 +51,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": t.name,
             "snippet": t.description or "Topic in Data Structures & Algorithms",
             "url": f"/dsa?topic_id={t.id}",
-            "icon": "📁",
+            "lucide_icon": "folder",
             "badge_class": "badge-gray"
         })
 
@@ -68,7 +68,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": sc.subconcept_name,
             "snippet": sc.notes[:100] + "..." if len(sc.notes) > 100 else sc.notes,
             "url": f"/system-design?search={sc.subconcept_name}",
-            "icon": "🏗️",
+            "lucide_icon": "network",
             "badge_class": "badge-blue"
         })
 
@@ -86,8 +86,8 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": c.system_name,
             "snippet": f"Components: {c.key_components[:80]}..." if c.key_components else "Case study details",
             "url": f"/system-design?search={c.system_name}",
-            "icon": "📦",
-            "badge_class": "badge-blue"
+            "lucide_icon": "layers",
+            "badge_class": "badge-purple"
         })
 
     # 5. AI / LLM Topics
@@ -103,7 +103,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": t.topic_name,
             "snippet": t.notes[:100] + "..." if len(t.notes) > 100 else t.notes,
             "url": f"/ai-llm?search={t.topic_name}",
-            "icon": "🤖",
+            "lucide_icon": "cpu",
             "badge_class": "badge-amber"
         })
 
@@ -120,7 +120,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": f"Log for {log.date.strftime('%b %d, %Y')}",
             "snippet": f"{log.category}: {log.sub_topic or log.notes[:80]}",
             "url": f"/daily?log_date={log.date.isoformat()}",
-            "icon": "📝",
+            "lucide_icon": "calendar",
             "badge_class": "badge-gray"
         })
 
@@ -138,7 +138,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": f"{a.company} — {a.role}",
             "snippet": f"Stage: {a.stage} | Location: {a.location or 'Remote'}",
             "url": f"/applications?search={a.company}",
-            "icon": "📤",
+            "lucide_icon": "briefcase",
             "badge_class": "badge-green"
         })
 
@@ -151,20 +151,19 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
         )
     ).limit(8).all()
     for item in hub_items:
-        # Determine icon and badge based on category
-        item_icon = "💡"
+        item_icon = "file-text"
         item_badge = "badge-gray"
         if item.category == "Reminder":
-            item_icon = "⏰"
+            item_icon = "bell"
             item_badge = "badge-amber"
         elif item.category == "Need to Ask":
-            item_icon = "❓"
+            item_icon = "help-circle"
             item_badge = "badge-blue"
         elif item.category == "Visa & Immigration":
-            item_icon = "✈️"
+            item_icon = "globe"
             item_badge = "badge-purple"
         elif item.category == "Note":
-            item_icon = "💡"
+            item_icon = "file-text"
             item_badge = "badge-green"
 
         results.append({
@@ -172,7 +171,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "title": item.title,
             "snippet": item.content[:100] + "..." if len(item.content) > 100 else item.content,
             "url": f"/personal-hub?search={item.title}",
-            "icon": item_icon,
+            "lucide_icon": item_icon,
             "badge_class": item_badge
         })
 

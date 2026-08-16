@@ -1,7 +1,8 @@
 // ── Progress Tracker Global JS ──────────────────────────────
 
-// Current date in header
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Current date in header
   const dateEl = document.getElementById('current-date');
   if (dateEl) {
     const now = new Date();
@@ -11,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Animate progress bars on load
-
   document.querySelectorAll('.progress-fill').forEach(bar => {
     const w = bar.style.width;
     bar.style.width = '0%';
@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ring.style.strokeDashoffset = total;
     setTimeout(() => { ring.style.strokeDashoffset = offset; }, 200);
   });
+
+  // Lucide Icons init
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 });
 
 // ── Modal helpers ────────────────────────────────────────────
@@ -33,6 +38,9 @@ function openModal(id) {
   if (overlay) {
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    if (window.lucide) {
+      setTimeout(() => lucide.createIcons(), 20);
+    }
   }
 }
 
@@ -94,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard shortcut '/' or 'cmd+k' or 'ctrl+k' to focus search
   document.addEventListener('keydown', (e) => {
-    // Focus search on '/' key press if no input has focus
     const active = document.activeElement;
     const isInput = active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isInputPending || active.isContentEditable;
     
@@ -104,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
       searchInput.select();
     }
     
-    // Support Cmd+K / Ctrl+K
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       searchInput.focus();
@@ -130,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
           renderSearchResults(data.results);
         })
         .catch(err => console.error("Search error:", err));
-    }, 200); // 200ms debounce
+    }, 180);
   });
 
   // Handle keyboard navigation inside search results
@@ -215,20 +221,26 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Clean display category tag
         const displayTag = category.includes('(') ? category.match(/\(([^)]+)\)/)[1] : category;
+        const iconName = item.lucide_icon || 'file-text';
 
         a.innerHTML = `
-          <div class="item-icon">${item.icon}</div>
+          <div class="item-icon">
+            <i data-lucide="${iconName}" class="icon-sm"></i>
+          </div>
           <div class="item-details">
             <div class="item-title">${escapeHTML(item.title)}</div>
             <div class="item-snippet">${escapeHTML(item.snippet || '')}</div>
           </div>
-          <span class="badge ${item.badge_class} item-badge">${escapeHTML(displayTag)}</span>
+          <span class="badge ${item.badge_class || 'badge-gray'} item-badge">${escapeHTML(displayTag)}</span>
         `;
         dropdown.appendChild(a);
       });
     }
 
     dropdown.classList.add('open');
+    if (window.lucide) {
+      lucide.createIcons();
+    }
   }
 
   function escapeHTML(str) {
