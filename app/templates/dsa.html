@@ -20,48 +20,59 @@
     <i data-lucide="code-2" class="stat-icon icon-xl"></i>
     <div class="stat-label">Total Solved</div>
     <div class="stat-value">{{ solved }}</div>
-    <div class="stat-sub">of 250 target ({{ [(solved / 250 * 100), 100] | min | int }}%)</div>
+    <div class="stat-sub">{{ solved }} of {{ total }} problems ({{ ((solved / total * 100) if total > 0 else 0) | round | int }}%)</div>
   </div>
   <div class="stat-card green">
     <div class="stat-label">Easy</div>
     <div class="stat-value">{{ easy_solved }}</div>
-    <div class="stat-sub">of 60 target ({{ easy_total }} total)</div>
+    <div class="stat-sub">{{ easy_solved }} of {{ easy_total }} problems ({{ ((easy_solved / easy_total * 100) if easy_total > 0 else 0) | round | int }}%)</div>
   </div>
   <div class="stat-card amber">
     <div class="stat-label">Medium</div>
     <div class="stat-value">{{ medium_solved }}</div>
-    <div class="stat-sub">of 150 target ({{ medium_total }} total)</div>
+    <div class="stat-sub">{{ medium_solved }} of {{ medium_total }} problems ({{ ((medium_solved / medium_total * 100) if medium_total > 0 else 0) | round | int }}%)</div>
   </div>
   <div class="stat-card rose">
     <div class="stat-label">Hard</div>
     <div class="stat-value">{{ hard_solved }}</div>
-    <div class="stat-sub">of 40 target ({{ hard_total }} total)</div>
+    <div class="stat-sub">{{ hard_solved }} of {{ hard_total }} problems ({{ ((hard_solved / hard_total * 100) if hard_total > 0 else 0) | round | int }}%)</div>
   </div>
 </div>
 
-<!-- Primary Toolbar & Filter Bar -->
+<!-- Primary Toolbar & Filter Bar (Single Line Component) -->
 <div class="dsa-toolbar-card">
-  <!-- Left: Search & Filters -->
-  <form method="get" action="/dsa" class="flex gap-2 items-center" style="flex-wrap: wrap;" id="dsaFilterForm">
-    <!-- Search Input -->
-    <div style="position: relative; display: inline-flex; align-items: center;">
-      <span style="position: absolute; left: 10px; color: var(--text-muted); pointer-events: none; display: flex; align-items: center;">
+  <!-- Left: Search & Filters in 1 Line -->
+  <form method="get" action="/dsa" class="dsa-toolbar-form" id="dsaFilterForm">
+    <!-- Search Input with Instant Clear -->
+    <div class="dsa-search-wrap">
+      <span class="dsa-search-icon">
         <i data-lucide="search" class="icon-xs"></i>
       </span>
-      <input type="text" name="search" class="dsa-search-input" placeholder="Search problems, patterns..."
-             value="{{ selected_search }}" onkeydown="if(event.key==='Enter') this.form.submit();">
+      <input type="text" name="search" class="dsa-search-input" placeholder="Instant search problems, algorithms, companies..."
+             value="{{ selected_search }}" autocomplete="off">
+      <button type="button" id="dsaSearchClearBtn" class="dsa-search-clear" title="Clear search">
+        <i data-lucide="x" class="icon-xs"></i>
+      </button>
     </div>
 
-    <!-- Category (Primary Topic) Filter -->
-    <select name="category" class="form-select" style="width: 170px;" onchange="this.form.submit()">
+    <!-- Category (Primary Roadmap Section) Filter -->
+    <select name="category" class="form-select dsa-toolbar-select dsa-select-category" onchange="this.form.submit()" title="Filter by Category">
       <option value="">All Categories</option>
       {% for cat in all_categories %}
       <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
       {% endfor %}
     </select>
 
+    <!-- Secondary Topic / Algorithm Filter -->
+    <select name="topic" class="form-select dsa-toolbar-select dsa-select-topic" onchange="this.form.submit()" title="Filter by Topic / Algorithm">
+      <option value="">All Topics</option>
+      {% for t in all_topics %}
+      <option value="{{ t.name }}" {% if selected_topic == t.name %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+
     <!-- Difficulty Filter -->
-    <select name="difficulty" class="form-select" style="width: 110px;" onchange="this.form.submit()">
+    <select name="difficulty" class="form-select dsa-toolbar-select dsa-select-difficulty" onchange="this.form.submit()" title="Filter by Difficulty">
       <option value="">All Levels</option>
       {% for d in difficulties %}
       <option value="{{ d }}" {% if selected_difficulty == d %}selected{% endif %}>{{ d }}</option>
@@ -69,7 +80,7 @@
     </select>
 
     <!-- Company Filter -->
-    <select name="company" class="form-select" style="width: 140px;" onchange="this.form.submit()">
+    <select name="company" class="form-select dsa-toolbar-select dsa-select-company" onchange="this.form.submit()" title="Filter by Company">
       <option value="">All Companies</option>
       {% for c in all_companies %}
       <option value="{{ c.name }}" {% if selected_company == c.name %}selected{% endif %}>{{ c.name }}</option>
@@ -77,27 +88,23 @@
     </select>
 
     <!-- Status Filter -->
-    <select name="status" class="form-select" style="width: 130px;" onchange="this.form.submit()">
+    <select name="status" class="form-select dsa-toolbar-select dsa-select-status" onchange="this.form.submit()" title="Filter by Status">
       <option value="">All Status</option>
       {% for s in statuses %}
       <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
       {% endfor %}
     </select>
 
-    {% if selected_category or selected_difficulty or selected_company or selected_status or selected_search %}
-    <a href="/dsa" class="btn btn-ghost btn-sm" style="color: var(--text-secondary);">Clear</a>
+    {% if selected_category or selected_topic or selected_difficulty or selected_company or selected_status or selected_search %}
+    <a href="/dsa" class="btn btn-ghost btn-sm dsa-clear-filters-btn" title="Clear all filters">Clear</a>
     {% endif %}
   </form>
 
-  <!-- Right: Controls & Primary Action -->
-  <div class="flex gap-2 items-center">
-    <button type="button" class="btn btn-secondary btn-sm" onclick="expandAllCategories()">
-      <i data-lucide="chevrons-up-down" class="icon-xs"></i>
-      <span>Expand All</span>
-    </button>
-    <button type="button" class="btn btn-secondary btn-sm" onclick="collapseAllCategories()">
-      <i data-lucide="chevrons-down-up" class="icon-xs"></i>
-      <span>Collapse All</span>
+  <!-- Right: Single Expand/Collapse Toggle & Primary Action -->
+  <div class="dsa-toolbar-actions">
+    <button type="button" id="dsaExpandToggleBtn" class="btn btn-secondary btn-sm" onclick="toggleAllCategories()" title="Toggle Expand / Collapse All">
+      <i data-lucide="chevrons-up-down" class="icon-xs" id="dsaExpandToggleIcon"></i>
+      <span id="dsaExpandToggleText">Expand All</span>
     </button>
     <button type="button" class="btn btn-primary btn-sm" onclick="openAddProblemModal()" style="display: inline-flex; align-items: center; gap: 6px;">
       <i data-lucide="plus" class="icon-xs"></i>
@@ -191,16 +198,16 @@
             <table class="dsa-problems-table">
               <thead>
                 <tr>
-                  <th style="width: 40px;">#</th>
-                  <th style="min-width: 260px;">Problem Title & Platform</th>
-                  <th style="min-width: 140px;">Secondary Tags</th>
-                  <th style="min-width: 140px;">Companies</th>
-                  <th style="width: 110px;">Status</th>
-                  <th style="min-width: 140px;">Pattern</th>
-                  <th style="width: 100px;">Complexity</th>
-                  <th style="width: 100px;">Confidence</th>
-                  <th style="width: 80px;">Date</th>
-                  <th style="width: 100px; text-align: right;">Actions</th>
+                  <th style="width: 32px;">#</th>
+                  <th style="min-width: 180px;">Problem Title & Platform</th>
+                  <th style="min-width: 100px; max-width: 140px;">Secondary Tags</th>
+                  <th style="min-width: 100px; max-width: 130px;">Companies</th>
+                  <th style="width: 90px;">Status</th>
+                  <th style="min-width: 100px; max-width: 130px;">Pattern</th>
+                  <th style="width: 75px;">Complexity</th>
+                  <th style="width: 80px;">Confidence</th>
+                  <th style="width: 65px;">Date</th>
+                  <th style="width: 70px; text-align: right;">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -734,15 +741,48 @@
     const card = document.getElementById(cardId);
     if (card) {
       card.classList.toggle('expanded');
+      syncExpandCollapseButtonState();
+    }
+  }
+
+  function toggleAllCategories() {
+    const cards = document.querySelectorAll('.dsa-category-card');
+    if (!cards.length) return;
+    const allExpanded = Array.from(cards).every(card => card.classList.contains('expanded'));
+    if (allExpanded) {
+      collapseAllCategories();
+    } else {
+      expandAllCategories();
     }
   }
 
   function expandAllCategories() {
     document.querySelectorAll('.dsa-category-card').forEach(card => card.classList.add('expanded'));
+    updateExpandToggleButton(true);
   }
 
   function collapseAllCategories() {
     document.querySelectorAll('.dsa-category-card').forEach(card => card.classList.remove('expanded'));
+    updateExpandToggleButton(false);
+  }
+
+  function updateExpandToggleButton(isExpanded) {
+    const btn = document.getElementById('dsaExpandToggleBtn');
+    if (!btn) return;
+    const iconName = isExpanded ? 'chevrons-down-up' : 'chevrons-up-down';
+    const textLabel = isExpanded ? 'Collapse All' : 'Expand All';
+    btn.innerHTML = `<i data-lucide="${iconName}" class="icon-xs"></i><span>${textLabel}</span>`;
+    btn.setAttribute('title', isExpanded ? 'Collapse all categories' : 'Expand all categories');
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+
+  function syncExpandCollapseButtonState() {
+    const cards = document.querySelectorAll('.dsa-category-card');
+    if (!cards.length) return;
+    const allExpanded = Array.from(cards).every(card => card.classList.contains('expanded'));
+    updateExpandToggleButton(allExpanded);
   }
 
   function openAddProblemModal(defaultCategory = '') {
@@ -951,6 +991,89 @@
     if (window.lucide) {
       lucide.createIcons();
     }
+
+    // Initialize Expand/Collapse Button state based on loaded categories
+    syncExpandCollapseButtonState();
+
+    // Instant Live Search Handler
+    setupInstantSearch();
   });
+
+  function setupInstantSearch() {
+    const searchInput = document.querySelector('.dsa-search-input');
+    const clearBtn = document.getElementById('dsaSearchClearBtn');
+    if (!searchInput) return;
+
+    function performSearch(query) {
+      const q = (query || '').toLowerCase().trim();
+      const categoryCards = document.querySelectorAll('.dsa-category-card');
+      
+      if (clearBtn) {
+        clearBtn.style.display = q ? 'flex' : 'none';
+      }
+
+      if (!q) {
+        categoryCards.forEach(card => {
+          card.style.display = '';
+          const diffGroups = card.querySelectorAll('.dsa-difficulty-group');
+          diffGroups.forEach(dg => dg.style.display = '');
+          const rows = card.querySelectorAll('.dsa-problems-table tbody tr');
+          rows.forEach(r => r.style.display = '');
+        });
+        return;
+      }
+
+      categoryCards.forEach(card => {
+        let cardHasMatch = false;
+        const diffGroups = card.querySelectorAll('.dsa-difficulty-group');
+
+        diffGroups.forEach(dg => {
+          let diffHasMatch = false;
+          const rows = dg.querySelectorAll('.dsa-problems-table tbody tr');
+
+          rows.forEach(row => {
+            const textContent = row.textContent.toLowerCase();
+            const isMatch = textContent.includes(q);
+            if (isMatch) {
+              row.style.display = '';
+              diffHasMatch = true;
+              cardHasMatch = true;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+
+          dg.style.display = diffHasMatch ? '' : 'none';
+        });
+
+        if (cardHasMatch) {
+          card.style.display = '';
+          card.classList.add('expanded');
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      syncExpandCollapseButtonState();
+    }
+
+    searchInput.addEventListener('input', function() {
+      performSearch(this.value);
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        searchInput.value = '';
+        performSearch('');
+        searchInput.focus();
+      });
+    }
+
+    // Trigger initial search if present
+    if (searchInput.value.trim()) {
+      performSearch(searchInput.value);
+    }
+  }
 </script>
 {% endblock %}

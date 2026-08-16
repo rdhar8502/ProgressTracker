@@ -21,6 +21,7 @@ STATUSES = ["Not Started", "In Progress", "Solved", "Needs Review"]
 def dsa_page(
     request: Request,
     category: Optional[str] = None,
+    topic: Optional[str] = None,
     difficulty: Optional[str] = None,
     company: Optional[str] = None,
     status: Optional[str] = None,
@@ -29,10 +30,12 @@ def dsa_page(
 ):
     user = db.query(UserProfile).first()
     topics = db.query(DSATopic).order_by(DSATopic.order_index).all()
+    all_topics = db.query(DSATopic).order_by(DSATopic.name).all()
     all_companies = db.query(DSACompany).order_by(DSACompany.name).all()
 
     # Normalize empty strings to None
     category = category.strip() if (category and category.strip()) else None
+    topic = topic.strip() if (topic and topic.strip()) else None
     difficulty = difficulty.strip() if (difficulty and difficulty.strip()) else None
     company = company.strip() if (company and company.strip()) else None
     status = status.strip() if (status and status.strip()) else None
@@ -65,6 +68,8 @@ def dsa_page(
     query = db.query(DSAProblem)
     if category:
         query = query.filter(DSAProblem.category == category)
+    if topic:
+        query = query.filter(DSAProblem.topics.any(DSATopic.name == topic))
     if difficulty:
         query = query.filter(DSAProblem.difficulty == difficulty)
     if company:
@@ -118,7 +123,7 @@ def dsa_page(
 
     # Prepare structured list for UI
     categories_view = []
-    has_active_filters = bool(category or difficulty or company or status or search_term)
+    has_active_filters = bool(category or topic or difficulty or company or status or search_term)
 
     # If filters are active, show only categories that have matching problems.
     # Otherwise, show all categories that either have problems or belong to the roadmap.
@@ -174,6 +179,7 @@ def dsa_page(
         "user": user,
         "today": date.today(),
         "topics": topics,
+        "all_topics": all_topics,
         "all_companies": all_companies,
         "all_categories": ordered_categories,
         "categories_view": categories_view,
@@ -181,6 +187,7 @@ def dsa_page(
         "difficulties": DIFFICULTIES,
         "statuses": STATUSES,
         "selected_category": category,
+        "selected_topic": topic,
         "selected_difficulty": difficulty,
         "selected_company": company,
         "selected_status": status,

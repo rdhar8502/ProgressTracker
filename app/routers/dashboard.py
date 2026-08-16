@@ -58,7 +58,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 
     # Progress for category rings
     category_progress = [
-        {"name": "DSA", "pct": dsa_stats["pct"], "solved": dsa_stats["solved"], "target": 250, "color": "#7C3AED"},
+        {"name": "DSA", "pct": dsa_stats["pct"], "solved": dsa_stats["solved"], "target": dsa_stats["total"], "color": "#7C3AED"},
         {"name": "System Design", "pct": sd_stats["pct"], "done": sd_stats["topics_done"] + sd_stats["cases_done"],
          "target": sd_stats["topics_total"] + sd_stats["cases_total"], "color": "#0EA5E9"},
         {"name": "AI/LLM", "pct": ai_stats["pct"], "done": ai_stats["done"], "target": ai_stats["total"], "color": "#F59E0B"},

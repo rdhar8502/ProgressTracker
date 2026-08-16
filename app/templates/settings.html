@@ -1,113 +1,285 @@
 {% extends "base.html" %}
-{% block title %}Settings{% endblock %}
-{% block page_title %}Settings{% endblock %}
+{% block title %}Profile & Settings{% endblock %}
+{% block page_title %}Profile & Career Blueprint{% endblock %}
 
 {% block content %}
 {% if request.query_params.get('saved') %}
-<div class="alert alert-success mb-4" style="display: flex; align-items: center; gap: 8px;">
+<div class="alert alert-success mb-4" style="display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--success);">
   <i data-lucide="check-circle" class="icon-sm"></i>
-  <span>Settings saved successfully!</span>
+  <span><strong>Settings saved successfully!</strong> Your profile and study schedules have been updated.</span>
 </div>
 {% endif %}
 
 {% if user %}
-<div class="grid-2">
-  <!-- Profile Settings -->
-  <div class="card">
-    <div class="card-header">
-      <div class="flex items-center gap-2">
-        <i data-lucide="user" class="icon-sm" style="color: var(--accent);"></i>
-        <span class="card-title">Profile Settings</span>
+<!-- Executive Hero Banner -->
+<div class="card mb-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.2);">
+  <div class="card-body" style="padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 22px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+          RD
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <h2 style="font-size: 20px; font-weight: 800; margin: 0; color: var(--text-primary);">{{ user.name }}</h2>
+            <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent); font-weight: 700; border: 1px solid rgba(99, 102, 241, 0.3);">
+              {{ user.years_experience }} YOE Lead Engineer
+            </span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">
+              Target: US / H-1B Placement (Mar 2027)
+            </span>
+          </div>
+          <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">
+            {{ user.target_role }} · <strong>{{ user.current_company or 'Denali Software Solutions (US: AllianceTek Inc)' }}</strong>
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        {% if user.linkedin_url %}
+        <a href="{{ user.linkedin_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A66C2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>LinkedIn</span>
+        </a>
+        {% endif %}
+        {% if user.github_url %}
+        <a href="{{ user.github_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+          <span>GitHub</span>
+        </a>
+        {% endif %}
       </div>
     </div>
-    <div class="card-body no-top">
-      <form method="post" action="/settings/profile">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input type="text" name="name" class="form-input" value="{{ user.name }}" required>
+  </div>
+</div>
+
+<!-- Main Grid Layout -->
+<div class="grid-2" style="align-items: start; gap: 24px;">
+  
+  <!-- LEFT COLUMN: Profile Form & Daily Study Targets -->
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+    
+    <!-- Profile & Schedule Settings Form -->
+    <div class="card">
+      <div class="card-header">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user-cog" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">Profile & Target Configuration</span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Target Role</label>
-          <input type="text" name="target_role" class="form-input" value="{{ user.target_role }}">
-        </div>
-        <div class="form-row">
+      </div>
+      <div class="card-body no-top">
+        <form method="post" action="/settings/profile">
           <div class="form-group">
-            <label class="form-label">Current Company</label>
-            <input type="text" name="current_company" class="form-input" value="{{ user.current_company or '' }}">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="name" class="form-input" value="{{ user.name }}" required>
           </div>
+          
           <div class="form-group">
-            <label class="form-label">Years of Experience</label>
-            <input type="number" name="years_experience" class="form-input" value="{{ user.years_experience }}" min="0" max="40">
+            <label class="form-label">Target Role</label>
+            <input type="text" name="target_role" class="form-input" value="{{ user.target_role }}">
           </div>
-        </div>
-        <div class="form-row">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Current Company / Placement Partner</label>
+              <input type="text" name="current_company" class="form-input" value="{{ user.current_company or '' }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Experience (Years)</label>
+              <input type="number" name="years_experience" class="form-input" value="{{ user.years_experience }}" min="0" max="40">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prep Start Date</label>
+              <input type="date" name="start_date" class="form-input" value="{{ user.start_date }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target End Date</label>
+              <input type="date" name="end_date" class="form-input" value="{{ user.end_date }}">
+            </div>
+          </div>
+
           <div class="form-group">
-            <label class="form-label">Prep Start Date</label>
-            <input type="date" name="start_date" class="form-input" value="{{ user.start_date }}">
+            <label class="form-label">LinkedIn Profile URL</label>
+            <input type="url" name="linkedin_url" class="form-input" value="{{ user.linkedin_url or '' }}" placeholder="https://www.linkedin.com/in/rdhar8502/">
           </div>
+
           <div class="form-group">
-            <label class="form-label">Target End Date</label>
-            <input type="date" name="end_date" class="form-input" value="{{ user.end_date }}">
+            <label class="form-label">GitHub Profile URL</label>
+            <input type="url" name="github_url" class="form-input" value="{{ user.github_url or '' }}" placeholder="https://github.com/rdhar8502">
           </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">LinkedIn URL</label>
-          <input type="url" name="linkedin_url" class="form-input" value="{{ user.linkedin_url or '' }}" placeholder="https://linkedin.com/in/...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">GitHub URL</label>
-          <input type="url" name="github_url" class="form-input" value="{{ user.github_url or '' }}" placeholder="https://github.com/...">
-        </div>
-        <hr class="divider">
-        <div class="section-title" style="font-size: 13px; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
-          <i data-lucide="clock" class="icon-xs" style="color: var(--accent);"></i>
-          <span>Daily Study Targets</span>
-        </div>
-        <div class="form-row-3">
-          <div class="form-group">
-            <label class="form-label">Weekday (hrs/day)</label>
-            <input type="number" name="weekday_target_hours" class="form-input" value="{{ user.weekday_target_hours }}" step="0.25" min="0.5" max="8">
+
+          <hr class="divider">
+
+          <div class="section-title" style="font-size: 13px; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+            <i data-lucide="clock" class="icon-xs" style="color: var(--accent);"></i>
+            <span>Weekly Study Schedule (15h / Week Commitment)</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Saturday (hrs)</label>
-            <input type="number" name="saturday_target_hours" class="form-input" value="{{ user.saturday_target_hours }}" step="0.5" min="0" max="12">
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Mon–Fri (hrs/day)</label>
+              <input type="number" name="weekday_target_hours" class="form-input" value="{{ user.weekday_target_hours }}" step="0.25" min="0.5" max="8">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Saturday (hrs)</label>
+              <input type="number" name="saturday_target_hours" class="form-input" value="{{ user.saturday_target_hours }}" step="0.5" min="0" max="12">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sunday (hrs)</label>
+              <input type="number" name="sunday_target_hours" class="form-input" value="{{ user.sunday_target_hours }}" step="0.5" min="0" max="12">
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Sunday (hrs)</label>
-            <input type="number" name="sunday_target_hours" class="form-input" value="{{ user.sunday_target_hours }}" step="0.5" min="0" max="12">
+
+          <div class="alert alert-info" style="font-size: 12px; display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <i data-lucide="info" class="icon-xs" style="flex-shrink: 0;"></i>
+            <div>
+              Aggregated weekly target: <strong>{{ (user.weekday_target_hours * 5 + user.saturday_target_hours + user.sunday_target_hours) | round(1) }} hours</strong>
+              ({{ user.weekday_target_hours }}h × 5 weekdays + {{ user.saturday_target_hours }}h Sat + {{ user.sunday_target_hours }}h Sun).
+            </div>
           </div>
-        </div>
-        <div class="alert alert-info" style="font-size: 12px; display: flex; align-items: center; gap: 8px;">
-          <i data-lucide="info" class="icon-xs" style="flex-shrink: 0;"></i>
-          <div>
-            Weekly target: <strong>{{ (user.weekday_target_hours * 5 + user.saturday_target_hours + user.sunday_target_hours) | round(1) }}h</strong>
-            ({{ user.weekday_target_hours }}h × 5 weekdays + {{ user.saturday_target_hours }}h Sat + {{ user.sunday_target_hours }}h Sun)
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary w-full">Save Profile</button>
-      </form>
+
+          <button type="submit" class="btn btn-primary w-full" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i data-lucide="save" class="icon-xs"></i>
+            <span>Save Profile & Schedule</span>
+          </button>
+        </form>
+      </div>
     </div>
+
+    <!-- Ready-to-Use Bio & Profile Snippets -->
+    <div class="card">
+      <div class="card-header">
+        <div class="flex items-center gap-2">
+          <i data-lucide="copy" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">Optimized Profiles (Copy & Paste)</span>
+        </div>
+      </div>
+      <div class="card-body no-top" style="display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- LinkedIn Headline -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin: 0; font-weight: 700; color: var(--text-primary);">LinkedIn Headline</label>
+            <button class="btn btn-xs btn-outline" onclick="copySnippet('li-headline', this)" style="display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="clipboard" class="icon-xs"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div id="li-headline" style="background: var(--bg-card-alt, rgba(0,0,0,0.03)); border: 1px solid var(--border-light); padding: 10px 12px; border-radius: 8px; font-size: 12px; font-family: monospace; color: var(--text-secondary); line-height: 1.4;">
+Lead Software Engineer | AI & Scalable Backend Systems | Python, FastAPI, LangGraph, Distributed Systems | 8 YOE
+          </div>
+        </div>
+
+        <!-- LinkedIn About -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin: 0; font-weight: 700; color: var(--text-primary);">LinkedIn About Section</label>
+            <button class="btn btn-xs btn-outline" onclick="copySnippet('li-about', this)" style="display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="clipboard" class="icon-xs"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div id="li-about" style="background: var(--bg-card-alt, rgba(0,0,0,0.03)); border: 1px solid var(--border-light); padding: 10px 12px; border-radius: 8px; font-size: 11px; font-family: monospace; color: var(--text-secondary); line-height: 1.4; max-height: 140px; overflow-y: auto;">
+Hands-on Technical Lead and Backend/AI Engineer with 8 years of experience architecting high-throughput distributed systems and enterprise LLM applications.
+
+Specialized in high-performance Python (FastAPI, AsyncIO), multi-tenant backend architectures, and production-grade AI orchestration using LangGraph, Advanced RAG, and Vector Databases. Experienced in leading engineering teams from requirements discovery through zero-downtime production deployment.
+
+Core Technical Competencies:
+• Backend & Distributed Systems: Python (FastAPI, Django), PostgreSQL, Redis, Celery, AsyncIO, Microservices, System Design (HLD/LLD), Docker, CI/CD.
+• AI & LLM Engineering: LangGraph, LangChain, Hybrid RAG (Dense + BM25), Vector Databases (pgvector, Qdrant), Semantic Caching, Tool Calling, RAGAS Evaluation.
+• Leadership: Technical Architecture, Mentorship, Sprint Delivery, Code Reviews, Client Stakeholder Management.
+          </div>
+        </div>
+
+        <!-- GitHub Bio -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin: 0; font-weight: 700; color: var(--text-primary);">GitHub Profile Bio</label>
+            <button class="btn btn-xs btn-outline" onclick="copySnippet('gh-bio', this)" style="display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="clipboard" class="icon-xs"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div id="gh-bio" style="background: var(--bg-card-alt, rgba(0,0,0,0.03)); border: 1px solid var(--border-light); padding: 10px 12px; border-radius: 8px; font-size: 12px; font-family: monospace; color: var(--text-secondary); line-height: 1.4;">
+Lead Backend & AI Systems Engineer (8 YOE) | High-throughput Async Python (FastAPI), Distributed Systems & Stateful Multi-Agent LLMs (LangGraph)
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
-  <!-- Salary Targets + Info -->
-  <div>
-    <div class="card mb-4">
+  <!-- RIGHT COLUMN: Seniority Strategy, Salary Economics, & Company Typology -->
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+
+    <!-- 8 YOE Seniority & Strict Filter Guide -->
+    <div class="card" style="border-left: 4px solid var(--accent);">
+      <div class="card-header">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-alert" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">8 YOE Seniority Matrix & What to SKIP</span>
+        </div>
+      </div>
+      <div class="card-body no-top">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 12px; font-weight: 800; color: var(--danger); display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+              <i data-lucide="x-circle" class="icon-xs"></i>
+              <span>❌ SKIP (Low ROI)</span>
+            </div>
+            <ul style="margin: 0; padding-left: 16px; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+              <li>Hard DP (Bitmask / Digit DP)</li>
+              <li>Segment Trees & Max-Flow</li>
+              <li>Legacy Django/Flask Templates</li>
+              <li>Training LLMs from scratch / CUDA</li>
+              <li>Generic CRUD boilerplate</li>
+            </ul>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 12px; font-weight: 800; color: var(--success); display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+              <i data-lucide="check-circle-2" class="icon-xs"></i>
+              <span>✅ MASTER (High ROI)</span>
+            </div>
+            <ul style="margin: 0; padding-left: 16px; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+              <li>Top 75 Patterns (Hash, 2-Ptr, Graph, Heap)</li>
+              <li>Async FastAPI + Pydantic v2 + Postgres</li>
+              <li>LangGraph Multi-Agent Workflows</li>
+              <li>Hybrid RAG (BM25 + Dense + Reranking)</li>
+              <li>HLD Distributed Systems & Trade-offs</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alert alert-warning" style="font-size: 11px; display: flex; align-items: flex-start; gap: 8px;">
+          <i data-lucide="alert-triangle" class="icon-xs" style="flex-shrink: 0; margin-top: 2px;"></i>
+          <div>
+            <strong>Seniority Expectation:</strong> At 8 YOE, interviewers expect you to solve DSA problems in <strong>20–25 mins</strong> while communicating trade-offs, and deeply lead <strong>System Design</strong> conversations.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salary Targets & Middleman Economics -->
+    <div class="card">
       <div class="card-header">
         <div class="flex items-center gap-2">
           <i data-lucide="dollar-sign" class="icon-sm" style="color: var(--accent);"></i>
-          <span class="card-title">Salary Targets by Region</span>
+          <span class="card-title">Salary Targets & Middleman Economics</span>
         </div>
       </div>
       <div class="card-body no-top">
         {% for st in salary_targets %}
-        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-light);">
+        <div style="padding: 9px 0; border-bottom: 1px solid var(--border-light);">
           <div class="flex justify-between items-center">
             <div>
-              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">{{ st.region }}</div>
-              <div class="text-sm text-muted">{{ st.currency }}</div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ st.region }}</div>
+              <div class="text-xs text-muted">{{ st.currency }}</div>
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 14px; font-weight: 700; color: var(--accent);">
+              <div style="font-size: 13px; font-weight: 800; color: var(--accent);">
                 {{ st.currency }} {{ (st.salary_min / 1000) | int }}k — {{ (st.salary_max / 1000) | int }}k
               </div>
               <div class="text-xs text-muted">per {{ st.salary_unit }}</div>
@@ -115,42 +287,139 @@
           </div>
         </div>
         {% endfor %}
-        <div class="alert alert-warning mt-3" style="font-size: 12px; display: flex; align-items: center; gap: 8px;">
-          <i data-lucide="alert-triangle" class="icon-xs" style="flex-shrink: 0;"></i>
-          <div>Below these ranges, you are likely being under-sold. Target the higher end as Senior / Lead AI Engineer.</div>
+
+        <div style="background: rgba(99, 102, 241, 0.05); border: 1px dashed var(--accent); border-radius: 8px; padding: 12px; margin-top: 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="arrow-right-left" class="icon-xs"></i>
+            <span>Contractor Bridge Strategy (Denali / AllianceTek)</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+            End-client pays <strong>$180k–$260k ($90–$130/hr)</strong>. Middleman takes <strong>~45% margin</strong>; your take-home is <strong>$90k–$120k</strong>. Use this as your landing bridge to enter the US on H-1B, then transfer after 12–18 months to a direct product company for <strong>$160k–$220k+</strong> total comp.
+          </p>
         </div>
       </div>
     </div>
 
+    <!-- Company Typology & Strategy Matrix -->
     <div class="card">
       <div class="card-header">
         <div class="flex items-center gap-2">
-          <i data-lucide="calendar" class="icon-sm" style="color: var(--accent);"></i>
-          <span class="card-title">Prep Plan Timeline</span>
+          <i data-lucide="building-2" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">Company Typology & Interview Tactics</span>
+        </div>
+      </div>
+      <div class="card-body no-top" style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <div style="border: 1px solid var(--border-light); border-radius: 8px; padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Tier 1: Direct US Product Tech</span>
+            <span class="badge badge-sm" style="background: rgba(99, 102, 241, 0.1); color: var(--accent);">$150k–$210k+</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
+            <strong>Loop:</strong> 1 Screen + 2 DSA + 2 System Design + 1 Behavioral.<br>
+            <strong>Tactic:</strong> Flawless pattern execution (20 mins), deep distributed systems & latency trade-offs.
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border-light); border-radius: 8px; padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Tier 2: US High-Growth AI Startups</span>
+            <span class="badge badge-sm" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">$140k–$190k+</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
+            <strong>Loop:</strong> Founder/CTO chat + 1 Live Coding/Take-Home + 1 AI Arch.<br>
+            <strong>Tactic:</strong> Showcase live GitHub projects (LangGraph, FastAPI, RAGAS metrics, Docker).
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border-light); border-radius: 8px; padding: 10px 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Tier 3: Contractor Placement (AllianceTek)</span>
+            <span class="badge badge-sm" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">$90k–$120k Take-Home</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
+            <strong>Loop:</strong> Internal Filter + Direct Client Technical Interview.<br>
+            <strong>Tactic:</strong> Master your resume projects, articulate leadership, and demonstrate immediate billability.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4-Phase Roadmap Milestones -->
+    <div class="card">
+      <div class="card-header">
+        <div class="flex items-center gap-2">
+          <i data-lucide="milestone" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">4-Phase Roadmap Milestones</span>
         </div>
       </div>
       <div class="card-body no-top">
-        <div style="display: flex; flex-direction: column; gap: 12px; padding-top: 6px;">
-          {% set timeline = [
-            ("Aug–Nov 2026", "Preparation only", "DSA, System Design, AI/LLM, GitHub", "blue"),
-            ("Nov–Dec 2026", "Start applying slowly", "10–15 high-fit roles/week", "purple"),
-            ("Jan 2027", "Serious applications", "Mock interviews ramp up", "amber"),
-            ("Mar 2027", "Target date", "AllianceTek H-1B + external backup", "green"),
+        <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px;">
+          {% set roadmap_phases = [
+            ("Aug–Oct 2026", "Phase 1: DSA Foundations & Modern FastAPI", "Top 75 DSA Patterns + AsyncIO + Pydantic v2 + SQLAlchemy 2.0", "blue"),
+            ("Oct–Dec 2026", "Phase 2: System Design & Modern AI/LLM", "HLD/LLD Case Studies + LangGraph Agents + Hybrid RAG + Vector DBs", "purple"),
+            ("Dec 2026–Jan 2027", "Phase 3: Portfolio Capstones & Observability", "Production Multi-Agent RAG + Multi-Tenant API + OpenTelemetry Tracing", "amber"),
+            ("Feb–Mar 2027", "Phase 4: Mock Interviews & US Placement Blitz", "10+ Timed Mocks + Client Placement Assessment + H-1B Onboarding", "green"),
           ] %}
-          {% for period, phase, desc, color in timeline %}
-          <div style="display: flex; gap: 12px; align-items: flex-start;">
-            <div style="width: 3px; background: var(--{% if color == 'blue' %}accent-2{% elif color == 'purple' %}accent{% elif color == 'amber' %}warning{% else %}success{% endif %}); border-radius: 99px; margin-top: 4px; align-self: stretch; min-height: 36px; flex-shrink: 0;"></div>
+          {% for period, phase, desc, color in roadmap_phases %}
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <div style="width: 3px; background: var(--{% if color == 'blue' %}accent-2{% elif color == 'purple' %}accent{% elif color == 'amber' %}warning{% else %}success{% endif %}); border-radius: 99px; margin-top: 4px; align-self: stretch; min-height: 34px; flex-shrink: 0;"></div>
             <div>
-              <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ period }}</div>
-              <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">{{ phase }}</div>
-              <div class="text-sm text-muted">{{ desc }}</div>
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-primary);">{{ period }} · {{ phase }}</div>
+              <div class="text-xs text-muted" style="line-height: 1.3;">{{ desc }}</div>
             </div>
           </div>
           {% endfor %}
         </div>
       </div>
     </div>
+
   </div>
 </div>
 {% endif %}
+
+<script>
+function copySnippet(elementId, btn) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const text = el.innerText.trim();
+
+  const showSuccess = () => {
+    const origHTML = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="check" class="icon-xs" style="color: var(--success);"></i><span style="color: var(--success); font-weight: 600;">Copied!</span>`;
+    if (window.lucide) lucide.createIcons();
+    if (typeof showToast === 'function') {
+      showToast('Copied to clipboard!');
+    }
+    setTimeout(() => {
+      btn.innerHTML = origHTML;
+      if (window.lucide) lucide.createIcons();
+    }, 2000);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(showSuccess).catch(() => fallbackCopy(text, showSuccess));
+  } else {
+    fallbackCopy(text, showSuccess);
+  }
+}
+
+function fallbackCopy(text, cb) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    if (cb) cb();
+  } catch (err) {
+    console.error('Fallback copy failed', err);
+  }
+  document.body.removeChild(textarea);
+}
+</script>
 {% endblock %}

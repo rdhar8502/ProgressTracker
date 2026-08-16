@@ -23,9 +23,10 @@ DSA_TOPICS = [
     "HashMap / HashSet",
     "Two Pointers",
     "Sliding Window",
+    "Sorting Algorithms",
+    "Binary Search",
     "Stack / Monotonic Stack",
     "Queue / Deque",
-    "Binary Search",
     "Linked List",
     "Recursion and Backtracking",
     "Trees / BST",
@@ -469,12 +470,14 @@ GITHUB_PROJECTS = [
 ]
 
 SALARY_TARGETS = [
-    ("United States", "USD", 120000, 160000, "year"),
-    ("United States (Strong AI)", "USD", 160000, 190000, "year"),
-    ("Canada", "CAD", 110000, 150000, "year"),
-    ("United Kingdom", "GBP", 70000, 100000, "year"),
-    ("Germany / Netherlands", "EUR", 75000, 110000, "year"),
-    ("UAE", "AED", 300000, 540000, "year"),  # 25k-45k/month × 12
+    ("United States (Direct Product / Tech)", "USD", 150000, 210000, "year"),
+    ("United States (AI Startup Direct)", "USD", 140000, 190000, "year"),
+    ("United States (Contractor Placement Take-Home)", "USD", 90000, 120000, "year"),
+    ("United States (Contractor Gross Client Billing)", "USD", 180000, 260000, "year"),
+    ("Canada", "CAD", 120000, 160000, "year"),
+    ("United Kingdom", "GBP", 75000, 110000, "year"),
+    ("Germany / Netherlands", "EUR", 80000, 115000, "year"),
+    ("UAE (Tax-Free)", "AED", 360000, 540000, "year"),
 ]
 
 
@@ -482,27 +485,42 @@ def seed_database(db: Session):
     """Seed all initial data. Safe to call multiple times."""
 
     # --- User Profile ---
-    if not db.query(UserProfile).first():
+    user = db.query(UserProfile).first()
+    if not user:
         user = UserProfile(
             name="Rahul Dhar",
             target_role="Lead AI Engineer / Senior Python Backend Engineer",
             start_date=START_DATE,
             end_date=END_DATE,
-            current_company="AllianceTek",
-            years_experience=7,
+            current_company="Denali Software Solutions (US: AllianceTek Inc, PA)",
+            years_experience=8,
+            linkedin_url="https://www.linkedin.com/in/rdhar8502/",
+            github_url="https://github.com/rdhar8502",
             weekday_target_hours=1.5,
             saturday_target_hours=4.0,
             sunday_target_hours=3.5,
         )
         db.add(user)
+    else:
+        # Keep profile updated if default exists
+        if not user.linkedin_url:
+            user.linkedin_url = "https://www.linkedin.com/in/rdhar8502/"
+        if not user.github_url:
+            user.github_url = "https://github.com/rdhar8502"
+        if user.years_experience < 8:
+            user.years_experience = 8
+        if "Denali" not in (user.current_company or ""):
+            user.current_company = "Denali Software Solutions (US: AllianceTek Inc, PA)"
+        if user.target_role != "Lead AI Engineer / Senior Python Backend Engineer":
+            user.target_role = "Lead AI Engineer / Senior Python Backend Engineer"
 
     # --- Salary Targets ---
-    if not db.query(SalaryTarget).first():
-        for region, currency, s_min, s_max, unit in SALARY_TARGETS:
-            db.add(SalaryTarget(
-                region=region, currency=currency,
-                salary_min=s_min, salary_max=s_max, salary_unit=unit
-            ))
+    db.query(SalaryTarget).delete()
+    for region, currency, s_min, s_max, unit in SALARY_TARGETS:
+        db.add(SalaryTarget(
+            region=region, currency=currency,
+            salary_min=s_min, salary_max=s_max, salary_unit=unit
+        ))
 
     # --- Weekly Schedule ---
     weeks = generate_weeks(START_DATE, END_DATE)
@@ -615,9 +633,14 @@ def seed_database(db: Session):
         if norm_t in existing_by_norm_title:
             matched_prob = existing_by_norm_title[norm_t]
         elif p_url and p_url.lower().rstrip("/") in existing_by_url:
-            matched_prob = existing_by_url[p_url.lower().rstrip("/")]
+            candidate = existing_by_url[p_url.lower().rstrip("/")]
+            # Only match if candidates have matching or empty titles
+            if not candidate.title or normalize_title(candidate.title) == norm_t:
+                matched_prob = candidate
         elif alt_url and alt_url.lower().rstrip("/") in existing_by_alt_url:
-            matched_prob = existing_by_alt_url[alt_url.lower().rstrip("/")]
+            candidate = existing_by_alt_url[alt_url.lower().rstrip("/")]
+            if not candidate.title or normalize_title(candidate.title) == norm_t:
+                matched_prob = candidate
 
         # Determine topic objects to associate
         topics_to_associate = []

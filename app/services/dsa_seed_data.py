@@ -1,5 +1,5 @@
 """
-Comprehensive DSA Seed Dataset with LeetCode & GFG Company Tags
+Comprehensive DSA Seed Dataset with Complete Searching & Sorting, Algorithms, and Company Tags
 """
 
 DSA_COMPANIES = [
@@ -55,7 +55,10 @@ DSA_ALGORITHM_TOPICS = [
     "Prefix Sum & Hash Table",
     "Sliding Window (Dynamic)",
     "Backtracking & Pruning",
-    "Bitmasking & Kernighan"
+    "Bitmasking & Kernighan",
+    "Sorting Algorithms",
+    "Quickselect & Partition",
+    "Merge Sort & Inversion Counting"
 ]
 
 DSA_PROBLEMS_DATA = [
@@ -149,7 +152,7 @@ DSA_PROBLEMS_DATA = [
         ]
     },
     {
-        "category": "Arrays and Strings",
+        "category": "Sorting Algorithms",
         "title": "Sort Colors",
         "difficulty": "Medium",
         "problem_url": "https://leetcode.com/problems/sort-colors/",
@@ -160,7 +163,8 @@ DSA_PROBLEMS_DATA = [
         "space_complexity": "O(1)",
         "secondary_topics": [
             "Dutch National Flag",
-            "Two Pointers"
+            "Two Pointers",
+            "Sorting Algorithms"
         ],
         "companies": [
             "Microsoft",
@@ -489,7 +493,7 @@ DSA_PROBLEMS_DATA = [
         ]
     },
     {
-        "category": "Arrays and Strings",
+        "category": "Sorting Algorithms",
         "title": "Count Inversions",
         "difficulty": "Medium",
         "problem_url": "https://leetcode.com/problems/global-and-local-inversions/",
@@ -498,7 +502,9 @@ DSA_PROBLEMS_DATA = [
         "pattern": "Merge Sort Modification (Divide & Conquer)",
         "time_complexity": "O(N log N)",
         "space_complexity": "O(N)",
-        "secondary_topics": [],
+        "secondary_topics": [
+            "Sorting Algorithms"
+        ],
         "companies": [
             "Amazon",
             "Google",
@@ -506,7 +512,7 @@ DSA_PROBLEMS_DATA = [
         ]
     },
     {
-        "category": "Arrays and Strings",
+        "category": "Sorting Algorithms",
         "title": "Reverse Pairs",
         "difficulty": "Hard",
         "problem_url": "https://leetcode.com/problems/reverse-pairs/",
@@ -515,7 +521,9 @@ DSA_PROBLEMS_DATA = [
         "pattern": "Merge Sort Inversion Counting / Fenwick Tree",
         "time_complexity": "O(N log N)",
         "space_complexity": "O(N)",
-        "secondary_topics": [],
+        "secondary_topics": [
+            "Sorting Algorithms"
+        ],
         "companies": [
             "Google",
             "Amazon",
@@ -5703,6 +5711,499 @@ DSA_PROBLEMS_DATA = [
             "Amazon",
             "Microsoft",
             "Google"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Selection Sort",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/sort-an-array/",
+        "alternate_title": "Selection Sort Algorithm",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/selection-sort/1",
+        "pattern": "Selection Sort (Find Minimum in Unsorted Subarray & Swap)",
+        "time_complexity": "O(N^2)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Arrays and Strings"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Google"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Bubble Sort",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/sort-an-array/",
+        "alternate_title": "Bubble Sort Algorithm",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/bubble-sort/1",
+        "pattern": "Bubble Sort (Adjacent Elements Comparison with Early Exit Flag)",
+        "time_complexity": "O(N^2) / Best O(N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Arrays and Strings"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Insertion Sort",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/insertion-sort-list/",
+        "alternate_title": "Insertion Sort Algorithm",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/insertion-sort/1",
+        "pattern": "Insertion Sort (Incremental Sorted Prefix Expansion)",
+        "time_complexity": "O(N^2) / Best O(N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Arrays and Strings"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Adobe"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Merge Sort",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/sort-an-array/",
+        "alternate_title": "Merge Sort Algorithm",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/merge-sort/1",
+        "pattern": "Divide and Conquer (Recursive Halving + Linear Two-Pointer Merge)",
+        "time_complexity": "O(N log N)",
+        "space_complexity": "O(N)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Recursion and Backtracking"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Microsoft",
+            "Meta",
+            "Apple"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Quick Sort",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/sort-an-array/",
+        "alternate_title": "Quick Sort Algorithm",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/quick-sort/1",
+        "pattern": "Divide and Conquer (Lomuto / Hoare Pivot Partitioning)",
+        "time_complexity": "O(N log N) / Worst O(N^2)",
+        "space_complexity": "O(log N)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Recursion and Backtracking"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Microsoft",
+            "Meta",
+            "Uber"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Sort an Array",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/sort-an-array/",
+        "alternate_title": "Sort an Array",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/sort-an-array7033/1",
+        "pattern": "Merge Sort / Heap Sort Implementation (Avoid O(N^2) Worst Case)",
+        "time_complexity": "O(N log N)",
+        "space_complexity": "O(N)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Divide and Conquer"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Apple",
+            "Google"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Counting Sort",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/relative-sort-array/",
+        "alternate_title": "Counting Sort Algorithm",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/counting-sort/1",
+        "pattern": "Non-Comparison Sort (Direct Indexing via Frequency Accumulator)",
+        "time_complexity": "O(N + K)",
+        "space_complexity": "O(K)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "HashMap / HashSet"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Google"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Largest Number",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/largest-number/",
+        "alternate_title": "Largest Number formed from an Array",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/largest-number-formed-from-an-array1117/1",
+        "pattern": "Custom String Sorting Comparator (a + b vs b + a)",
+        "time_complexity": "O(N log N * K)",
+        "space_complexity": "O(N * K)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Arrays and Strings"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Google",
+            "Meta",
+            "Goldman Sachs"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Custom Sort String",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/custom-sort-string/",
+        "alternate_title": "Custom Sort String",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/custom-sort-a-string/1",
+        "pattern": "Frequency Counting Map + Target Order Linear Traversal",
+        "time_complexity": "O(N + M)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "HashMap / HashSet"
+        ],
+        "companies": [
+            "Meta",
+            "Amazon",
+            "Google",
+            "Bloomberg"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Floor and Ceil in Sorted Array",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/search-insert-position/",
+        "alternate_title": "Floor in a Sorted Array",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/floor-in-a-sorted-array-1587115620/1",
+        "pattern": "Lower Bound and Upper Bound Binary Search (Floor <= X, Ceil >= X)",
+        "time_complexity": "O(log N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "Searching & Sorting"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Paypal"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Find Rotation Count in Rotated Sorted Array",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+        "alternate_title": "Rotation Count in Rotated Sorted Array",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/rotation4723/1",
+        "pattern": "Binary Search on Pivot / Inflection Point (Index of Minimum Element equals Rotation Count)",
+        "time_complexity": "O(log N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "Searching & Sorting"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Google"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Minimum Number of Days to Make m Bouquets",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+        "alternate_title": "Minimum Days to Make M Bouquets",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/minimum-days-to-make-m-bouquets/1",
+        "pattern": "Binary Search on Day Range [min, max] (Adjacent Flower Feasibility Count)",
+        "time_complexity": "O(N log(max - min))",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "Binary Search on Answer Range"
+        ],
+        "companies": [
+            "Google",
+            "Amazon",
+            "Meta",
+            "Bloomberg"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Find the Smallest Divisor Given a Threshold",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
+        "alternate_title": "Smallest Divisor Given a Threshold",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/smallest-divisor/1",
+        "pattern": "Binary Search on Divisor Range [1, max(nums)] with Monotonic Division Sum Check",
+        "time_complexity": "O(N log(max))",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "Binary Search on Answer Range"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Microsoft"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Split Array Largest Sum",
+        "difficulty": "Hard",
+        "problem_url": "https://leetcode.com/problems/split-array-largest-sum/",
+        "alternate_title": "The Painter's Partition Problem",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/the-painters-partition-problem1535/1",
+        "pattern": "Binary Search on Answer Range [max_elem, sum_all] (Subarray Allocation Feasibility)",
+        "time_complexity": "O(N log(sum - max))",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "Binary Search on Answer Range"
+        ],
+        "companies": [
+            "Google",
+            "Amazon",
+            "Meta",
+            "Microsoft",
+            "Uber"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Kth Missing Positive Number",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/kth-missing-positive-number/",
+        "alternate_title": "Kth Missing Positive Number",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/kth-missing-element/1",
+        "pattern": "Binary Search on Missing Count (arr[mid] - (mid + 1) < K)",
+        "time_complexity": "O(log N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search"
+        ],
+        "companies": [
+            "Meta",
+            "Amazon",
+            "Google"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Matrix Median",
+        "difficulty": "Hard",
+        "problem_url": "https://leetcode.com/problems/median-of-a-row-wise-sorted-matrix/",
+        "alternate_title": "Median in a row-wise sorted Matrix",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/median-in-a-row-wise-sorted-matrix1527/1",
+        "pattern": "Binary Search on Value Range [1, 10^9] + Row-wise Upper Bound Count <= (R*C)/2",
+        "time_complexity": "O(32 * R * log C)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "2D Matrix Binary Search"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Flipkart",
+            "Samsung"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Row with Maximum 1s",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/row-with-maximum-ones/",
+        "alternate_title": "Row with Max 1s",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/row-with-max-1s0023/1",
+        "pattern": "Top-Right Pointer Step Search O(R+C) or Row Binary Search O(R log C)",
+        "time_complexity": "O(R + C)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "Arrays and Strings"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Google"
+        ]
+    },
+    {
+        "category": "Binary Search",
+        "title": "Find Peak Element II (2D Peak)",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/find-a-peak-element-ii/",
+        "alternate_title": "Find Peak Element in 2D Matrix",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/peak-element-in-2d-matrix/1",
+        "pattern": "Binary Search on Columns (Find Row Max in Mid Column & Compare Left/Right Neighbors)",
+        "time_complexity": "O(R log C)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Binary Search",
+            "2D Matrix Binary Search"
+        ],
+        "companies": [
+            "Google",
+            "Amazon",
+            "Meta",
+            "Microsoft"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Sort Characters By Frequency",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/sort-characters-by-frequency/",
+        "alternate_title": "Sort Characters By Frequency",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/frequency-sorting/1",
+        "pattern": "Frequency Hash Map + Bucket Sort Array [N+1] or Max Heap",
+        "time_complexity": "O(N)",
+        "space_complexity": "O(N)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "HashMap / HashSet"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Bloomberg",
+            "Meta"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Maximum Gap",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/maximum-gap/",
+        "alternate_title": "Maximum Gap in Sorted Array",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/maximum-gap-in-array/1",
+        "pattern": "Bucket Sort / Pigeonhole Principle (Bucket Min & Max Tracking in Linear Time)",
+        "time_complexity": "O(N)",
+        "space_complexity": "O(N)",
+        "secondary_topics": [
+            "Sorting Algorithms"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Microsoft"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Minimum Swaps to Sort",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/minimum-number-of-swaps-to-make-the-string-balanced/",
+        "alternate_title": "Minimum Swaps to Sort",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/minimum-swaps-to-sort/1",
+        "pattern": "Array Element-Index Pairing + Graph Cycle Decomposition (Swaps = sum(cycle_size - 1))",
+        "time_complexity": "O(N log N)",
+        "space_complexity": "O(N)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Graph BFS/DFS"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Goldman Sachs"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Wiggle Sort II",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/wiggle-sort-ii/",
+        "alternate_title": "Wiggle Sort II",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/wiggle-sort-ii/1",
+        "pattern": "Quickselect Median Partition O(N) + Virtual 3-Way Index Rewiring",
+        "time_complexity": "O(N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Two Pointers"
+        ],
+        "companies": [
+            "Google",
+            "Meta",
+            "Amazon"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Find All Duplicates in an Array",
+        "difficulty": "Medium",
+        "problem_url": "https://leetcode.com/problems/find-all-duplicates-in-an-array/",
+        "alternate_title": "Find All Duplicates in an Array",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/find-duplicates-in-an-array/1",
+        "pattern": "Cyclic Sort / In-Place Value Negation as Visited Flag",
+        "time_complexity": "O(N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Cyclic Sort",
+            "Arrays and Strings"
+        ],
+        "companies": [
+            "Amazon",
+            "Microsoft",
+            "Meta",
+            "Google"
+        ]
+    },
+    {
+        "category": "Sorting Algorithms",
+        "title": "Set Mismatch",
+        "difficulty": "Easy",
+        "problem_url": "https://leetcode.com/problems/set-mismatch/",
+        "alternate_title": "Set Mismatch (Find Duplicate and Missing)",
+        "alternate_url": "https://www.geeksforgeeks.org/problems/set-mismatch/1",
+        "pattern": "Cyclic Sort In-Place Swapping (nums[i] placed at nums[nums[i]-1])",
+        "time_complexity": "O(N)",
+        "space_complexity": "O(1)",
+        "secondary_topics": [
+            "Sorting Algorithms",
+            "Cyclic Sort"
+        ],
+        "companies": [
+            "Amazon",
+            "Google",
+            "Microsoft"
         ]
     }
 ]

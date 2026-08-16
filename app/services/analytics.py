@@ -93,6 +93,10 @@ def get_dsa_stats(db: Session) -> Dict:
     medium = db.query(DSAProblem).filter(DSAProblem.status == "Solved", DSAProblem.difficulty == "Medium").count()
     hard = db.query(DSAProblem).filter(DSAProblem.status == "Solved", DSAProblem.difficulty == "Hard").count()
     
+    easy_total = db.query(DSAProblem).filter(DSAProblem.difficulty == "Easy").count()
+    medium_total = db.query(DSAProblem).filter(DSAProblem.difficulty == "Medium").count()
+    hard_total = db.query(DSAProblem).filter(DSAProblem.difficulty == "Hard").count()
+
     topics = db.query(DSATopic).order_by(DSATopic.order_index).all()
     topic_stats = []
     for t in topics:
@@ -111,11 +115,10 @@ def get_dsa_stats(db: Session) -> Dict:
         "easy": easy,
         "medium": medium,
         "hard": hard,
-        "easy_target": 60,
-        "medium_target": 150,
-        "hard_target": 40,
-        "total_target": 250,
-        "pct": round((solved / 250) * 100) if solved else 0,
+        "easy_total": easy_total,
+        "medium_total": medium_total,
+        "hard_total": hard_total,
+        "pct": round((solved / total * 100) if total > 0 else 0),
         "topic_stats": topic_stats,
     }
 
