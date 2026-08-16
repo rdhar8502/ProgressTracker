@@ -194,11 +194,14 @@
     <div class="flex items-center gap-2" style="flex: 1; min-width: 260px;">
       <div style="position: relative; width: 100%;">
         <i data-lucide="search" class="icon-sm" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-        <input type="text" name="search" id="sdSearchInput" class="form-input" value="{{ selected_search }}" placeholder="Search concept, pattern, subconcept, case study, or notes (e.g. Kafka, Redis, Strategy, Parking Lot)..." style="padding-left: 32px;">
+        <input type="text" name="search" id="sdSearchInput" class="form-input" value="{{ selected_search }}" placeholder="Search concept, pattern, subconcept, case study... (e.g. Kafka, HIPAA, Strategy, Parking Lot)" style="padding-left: 32px; padding-right: 36px;" autocomplete="off">
+        <!-- Inline clear × button — shown/hidden by JS -->
+        <button type="button" id="sdClearSearchBtn"
+                onclick="document.getElementById('sdSearchInput').value=''; document.getElementById('sdSearchInput').dispatchEvent(new Event('input'));"
+                style="display: {% if selected_search %}inline-flex{% else %}none{% endif %}; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 2px; border-radius: 4px; align-items: center; justify-content: center;" title="Clear search">
+          <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+        </button>
       </div>
-      {% if selected_search %}
-        <a href="/system-design?track={{ selected_track }}" class="btn btn-ghost btn-sm" title="Clear search">Clear</a>
-      {% endif %}
     </div>
 
     <!-- Quick Status Filter Pills -->
@@ -358,7 +361,7 @@
 
           <div class="category-accordion-content">
             {% for concept in cat_concepts %}
-              <div style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
+              <div class="sd-concept-inner" data-name="{{ concept.concept_name | lower }}" style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
                 <!-- Concept Header -->
                 <div class="sd-concept-header" style="padding: 10px 14px; background: rgba(14,165,233,0.025);">
                   <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
@@ -440,7 +443,7 @@
 
           <div class="category-accordion-content">
             {% for concept in cat_concepts %}
-              <div style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
+              <div class="sd-concept-inner" data-name="{{ concept.concept_name | lower }}" style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
                 <!-- Concept Header -->
                 <div class="sd-concept-header" style="padding: 10px 14px; background: rgba(245,158,11,0.025);">
                   <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
@@ -1322,6 +1325,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (window.lucide) {
     lucide.createIcons();
+  }
+
+  // ── Real-time Keystroke Search ────────────────────────────────────────
+  const searchInput = document.getElementById('sdSearchInput');
+  let searchDebounce = null;
+
+  if (searchInput) {
+    // Prevent form submission on Enter — search is already live
+    searchInput.closest('form') && searchInput.closest('form').addEventListener('submit', e => e.preventDefault());
+
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        const q = searchInput.value.trim().toLowerCase();
+        runClientSearch(q);
+      }, 180); // 180ms debounce — snappy but avoids every single keypress
+    });
+  }
+
+  function runClientSearch(q) {
+    const clearBtn = document.getElementById('sdClearSearchBtn');
+    if (clearBtn) clearBtn.style.display = q ? 'inline-flex' : 'none';
+
+    if (!q) {
+      // Reset — show everything
+      document.querySelectorAll('.sd-category-card').forEach(card => card.style.display = '');
+      document.querySelectorAll('.sd-concept-inner').forEach(el => el.style.display = '');
+      document.querySelectorAll('.sd-subconcept-row').forEach(row => row.style.display = 'flex');
+      document.querySelectorAll('.sd-case-list-item').forEach(item => item.style.display = '');
+      return;
+    }
+
+    // ── 1. Filter Concept Cards & Subconcept Rows ────────────────────────
+    document.querySelectorAll('.sd-category-card').forEach(card => {
+      let cardHasMatch = false;
+
+      // Check each concept block inside this category card
+      card.querySelectorAll('.sd-concept-inner').forEach(conceptEl => {
+        const conceptName = (conceptEl.getAttribute('data-name') || '').toLowerCase();
+        let conceptHasMatch = conceptName.includes(q);
+
+        // Check subconcept rows inside this concept
+        conceptEl.querySelectorAll('.sd-subconcept-row').forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const match = text.includes(q);
+          row.style.display = match ? 'flex' : 'none';
+          if (match) conceptHasMatch = true;
+        });
+
+        conceptEl.style.display = conceptHasMatch ? '' : 'none';
+        if (conceptHasMatch) cardHasMatch = true;
+      });
+
+      // If there are no .sd-concept-inner wrappers, fall back to full card text search
+      const hasConceptInners = card.querySelectorAll('.sd-concept-inner').length > 0;
+      if (!hasConceptInners) {
+        const cardText = card.textContent.toLowerCase();
+        cardHasMatch = cardText.includes(q);
+      }
+
+      card.style.display = cardHasMatch ? '' : 'none';
+      // Auto-expand matched cards so results are visible
+      if (cardHasMatch) {
+        const content = card.querySelector('.category-accordion-content');
+        const icon = card.querySelector('.category-accordion-icon');
+        if (content) content.style.display = 'block';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    // ── 2. Filter Inline / Full Case Study Items ─────────────────────────
+    document.querySelectorAll('.sd-case-list-item').forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(q) ? '' : 'none';
+    });
   }
 });
 </script>
