@@ -6,6 +6,7 @@ from typing import List, Dict, Any
 from app.database import get_db
 from app.models.dsa import DSAProblem, DSATopic
 from app.models.system_design import SystemDesignSubConcept, SystemDesignCase
+from app.models.database_track import DatabaseConcept, DatabaseItem, DatabaseChallenge
 from app.models.ai_llm import AILLMTopic
 from app.models.daily_log import DailyLog
 from app.models.application import Application
@@ -91,7 +92,45 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             "badge_class": "badge-purple"
         })
 
-    # 5. AI / LLM Topics
+    # 5. Database Topics & Queries
+    db_items = db.query(DatabaseItem).filter(
+        or_(
+            DatabaseItem.title.ilike(like_query),
+            DatabaseItem.syntax_example.ilike(like_query),
+            DatabaseItem.notes.ilike(like_query)
+        )
+    ).limit(8).all()
+    for item in db_items:
+        concept_title = item.concept.title if item.concept else "Database"
+        track = item.concept.track.lower() if item.concept else "all"
+        results.append({
+            "category": f"Database ({item.concept.track if item.concept else 'SQL'})",
+            "title": item.title,
+            "snippet": f"{concept_title}: {item.notes[:80] + '...' if item.notes and len(item.notes) > 80 else (item.notes or item.syntax_example or '')}",
+            "url": f"/database?track={track}&search={item.title}",
+            "lucide_icon": "database",
+            "badge_class": "badge-cyan"
+        })
+
+    # 6. Database Challenges
+    db_challenges = db.query(DatabaseChallenge).filter(
+        or_(
+            DatabaseChallenge.title.ilike(like_query),
+            DatabaseChallenge.scenario.ilike(like_query),
+            DatabaseChallenge.solution_query.ilike(like_query)
+        )
+    ).limit(4).all()
+    for ch in db_challenges:
+        results.append({
+            "category": "Database Challenge",
+            "title": ch.title,
+            "snippet": f"Scenario: {ch.scenario[:80]}...",
+            "url": f"/database?track=challenges&search={ch.title}",
+            "lucide_icon": "terminal",
+            "badge_class": "badge-purple"
+        })
+
+    # 7. AI / LLM Topics
     ai_topics = db.query(AILLMTopic).filter(
         or_(
             AILLMTopic.topic_name.ilike(like_query),

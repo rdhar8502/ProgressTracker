@@ -57,7 +57,10 @@ def run_migrations():
     except Exception as e:
         logger.error(f"❌ Error running migrations: {e}")
         logger.info("Falling back to Base.metadata.create_all...")
-        Base.metadata.create_all(bind=engine)
+    
+    # Always ensure any newly defined models/tables in Base are created
+    Base.metadata.create_all(bind=engine)
+    logger.info("✅ Base metadata tables verified/created.")
 
 
 def init():

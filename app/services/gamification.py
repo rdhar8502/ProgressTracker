@@ -4,6 +4,7 @@ from sqlalchemy import func
 from app.models.daily_log import DailyLog
 from app.models.dsa import DSAProblem
 from app.models.system_design import SystemDesignSubConcept, SystemDesignCase
+from app.models.database_track import DatabaseItem, DatabaseChallenge
 from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubTask
 from app.models.application import Application
@@ -573,6 +574,10 @@ def get_gamification_state(db: Session) -> dict:
     # AI/LLM Done Topics
     total_ai_llm = db.query(AILLMTopic).filter(AILLMTopic.status == "Done").count()
     
+    # Database Track Items & Challenges Done
+    db_items_done = db.query(DatabaseItem).filter(DatabaseItem.status == "Done").count()
+    db_challenges_done = db.query(DatabaseChallenge).filter(DatabaseChallenge.status == "Done").count()
+    
     # GitHub Done Tasks
     total_github = db.query(GithubTask).filter(GithubTask.done == True).count()
     
@@ -593,13 +598,15 @@ def get_gamification_state(db: Session) -> dict:
     xp_sd_concepts = sd_concepts_done * 20.0
     xp_sd_cases = sd_cases_done * 40.0
     xp_sys_design_total = xp_sd_concepts + xp_sd_cases
+
+    xp_database = (db_items_done * 20.0) + (db_challenges_done * 40.0)
     
     xp_ai_llm = total_ai_llm * 20.0
     xp_github = total_github * 15.0
     xp_apps = total_apps * 10.0
     xp_streak = streak * 10.0
     
-    base_xp = xp_hours + xp_dsa_total + xp_sys_design_total + xp_ai_llm + xp_github + xp_apps + xp_streak
+    base_xp = xp_hours + xp_dsa_total + xp_sys_design_total + xp_database + xp_ai_llm + xp_github + xp_apps + xp_streak
     
     # Map key metric types to actual calculated values
     metrics_map = {
@@ -745,6 +752,7 @@ def get_gamification_state(db: Session) -> dict:
     xp_breakdown = [
         {"source": "DSA Problems",     "xp": int(xp_dsa_total),        "color": "#7C3AED", "icon": "code-2"},
         {"source": "System Design",    "xp": int(xp_sys_design_total), "color": "#0EA5E9", "icon": "network"},
+        {"source": "Database Mastery", "xp": int(xp_database),         "color": "#06B6D4", "icon": "database"},
         {"source": "AI & LLM Topics",  "xp": int(xp_ai_llm),           "color": "#F59E0B", "icon": "cpu"},
         {"source": "Study Hours",      "xp": int(xp_hours),            "color": "#10B981", "icon": "clock"},
         {"source": "GitHub Tasks",     "xp": int(xp_github),           "color": "#3B82F6", "icon": "git-branch"},

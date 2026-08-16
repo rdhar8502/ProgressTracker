@@ -5,6 +5,7 @@ from typing import Dict, List
 from app.models.daily_log import DailyLog
 from app.models.dsa import DSAProblem, DSATopic
 from app.models.system_design import SystemDesignConcept, SystemDesignSubConcept, SystemDesignCase
+from app.models.database_track import DatabaseConcept, DatabaseItem, DatabaseChallenge
 from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubProject
 from app.models.user import UserProfile, WeeklySchedule
@@ -13,6 +14,7 @@ from app.models.user import UserProfile, WeeklySchedule
 CATEGORY_COLORS = {
     "DSA": "#7C3AED",
     "System Design": "#0EA5E9",
+    "Database": "#06B6D4",
     "AI/LLM": "#F59E0B",
     "GitHub": "#10B981",
     "LinkedIn/Resume": "#EF4444",
@@ -135,6 +137,27 @@ def get_system_design_stats(db: Session) -> Dict:
         "topics_done": topics_done,
         "cases_total": cases_total,
         "cases_done": cases_done,
+        "pct": round((done / total * 100) if total > 0 else 0),
+    }
+
+
+def get_database_stats(db: Session) -> Dict:
+    items_total = db.query(DatabaseItem).count()
+    items_done = db.query(DatabaseItem).filter(DatabaseItem.status == "Done").count()
+    items_in_progress = db.query(DatabaseItem).filter(DatabaseItem.status == "In Progress").count()
+    challenges_total = db.query(DatabaseChallenge).count()
+    challenges_done = db.query(DatabaseChallenge).filter(DatabaseChallenge.status == "Done").count()
+    
+    total = items_total + challenges_total
+    done = items_done + challenges_done
+    return {
+        "items_total": items_total,
+        "items_done": items_done,
+        "items_in_progress": items_in_progress,
+        "challenges_total": challenges_total,
+        "challenges_done": challenges_done,
+        "total": total,
+        "done": done,
         "pct": round((done / total * 100) if total > 0 else 0),
     }
 

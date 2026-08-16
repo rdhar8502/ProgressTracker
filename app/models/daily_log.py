@@ -7,6 +7,7 @@ from app.database import Base
 class CategoryEnum(str, enum.Enum):
     DSA = "DSA"
     SYSTEM_DESIGN = "System Design"
+    DATABASE = "Database"
     AI_LLM = "AI/LLM"
     GITHUB = "GitHub"
     LINKEDIN_RESUME = "LinkedIn/Resume"

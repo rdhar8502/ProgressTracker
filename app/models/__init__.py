@@ -6,6 +6,7 @@ from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubProject, GithubTask
 from app.models.application import Application
 from app.models.personal_hub import PersonalHubItem
+from app.models.database_track import DatabaseConcept, DatabaseItem, DatabaseChallenge
 
 __all__ = [
     "UserProfile", "SalaryTarget", "WeeklySchedule",
@@ -16,4 +17,6 @@ __all__ = [
     "GithubProject", "GithubTask",
     "Application",
     "PersonalHubItem",
+    "DatabaseConcept", "DatabaseItem", "DatabaseChallenge",
 ]
+

@@ -46,6 +46,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     streak = analytics.get_streak(db)
     dsa_stats = analytics.get_dsa_stats(db)
     sd_stats = analytics.get_system_design_stats(db)
+    db_stats = analytics.get_database_stats(db)
     ai_stats = analytics.get_ai_llm_stats(db)
     gh_stats = analytics.get_github_stats(db)
     hours_by_cat = analytics.get_hours_by_category(db)
@@ -61,6 +62,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         {"name": "DSA", "pct": dsa_stats["pct"], "solved": dsa_stats["solved"], "target": dsa_stats["total"], "color": "#7C3AED"},
         {"name": "System Design", "pct": sd_stats["pct"], "done": sd_stats["topics_done"] + sd_stats["cases_done"],
          "target": sd_stats["topics_total"] + sd_stats["cases_total"], "color": "#0EA5E9"},
+        {"name": "Database", "pct": db_stats["pct"], "done": db_stats["done"], "target": db_stats["total"], "color": "#06B6D4"},
         {"name": "AI/LLM", "pct": ai_stats["pct"], "done": ai_stats["done"], "target": ai_stats["total"], "color": "#F59E0B"},
         {"name": "GitHub", "pct": gh_stats["pct"], "done": gh_stats["done_tasks"], "target": gh_stats["total_tasks"], "color": "#10B981"},
     ]
@@ -81,6 +83,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         "days_remaining": days_remaining(user.end_date),
         "dsa_stats": dsa_stats,
         "sd_stats": sd_stats,
+        "db_stats": db_stats,
         "ai_stats": ai_stats,
         "gh_stats": gh_stats,
         "hours_by_cat": hours_by_cat,

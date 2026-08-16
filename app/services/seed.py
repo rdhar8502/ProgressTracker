@@ -11,8 +11,10 @@ from app.models.dsa import DSATopic, DSAProblem, DSACompany
 from app.models.system_design import SystemDesignConcept, SystemDesignSubConcept, SystemDesignCase
 from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubProject, GithubTask
+from app.models.database_track import DatabaseConcept, DatabaseItem, DatabaseChallenge
 from app.services.week_utils import generate_weeks, week_target_hours
 from app.services.dsa_seed_data import DSA_PROBLEMS_DATA, DSA_ALGORITHM_TOPICS, DSA_COMPANIES
+from app.services.database_seed_data import DATABASE_TOPICS, DATABASE_CHALLENGES
 
 
 START_DATE = date(2026, 8, 12)
@@ -1269,4 +1271,48 @@ def seed_database(db: Session):
             db.add(GithubTask(project_id=p.id, task_name=task_name, category=cat))
 
     db.commit()
+
+    # --- Database Mastery Track Topics & Challenges ---
+    if not db.query(DatabaseConcept).first():
+        print("🌱 Seeding Database Mastery track concepts and items...")
+        for c_idx, (track, cat, title, diff, desc, items_list) in enumerate(DATABASE_TOPICS):
+            concept = DatabaseConcept(
+                track=track,
+                category=cat,
+                title=title,
+                difficulty=diff,
+                description=desc,
+                order_index=c_idx + 1,
+            )
+            db.add(concept)
+            db.flush()
+
+            for item_idx, (it_title, it_syntax, it_notes) in enumerate(items_list):
+                db.add(DatabaseItem(
+                    concept_id=concept.id,
+                    title=it_title,
+                    syntax_example=it_syntax,
+                    notes=it_notes,
+                    status="Not Started",
+                    reading_done=False,
+                    practical_done=False,
+                    depth=2 if diff == "Medium" else (3 if diff == "Hard" else 1),
+                    order_index=item_idx + 1,
+                ))
+
+        for ch_idx, ch in enumerate(DATABASE_CHALLENGES):
+            db.add(DatabaseChallenge(
+                track=ch.get("track", "SQL"),
+                title=ch["title"],
+                category=ch["category"],
+                difficulty=ch["difficulty"],
+                scenario=ch["scenario"],
+                schema_definition=ch.get("schema_definition", ""),
+                solution_query=ch.get("solution_query", ""),
+                explanation=ch.get("explanation", ""),
+                status="Not Started",
+                order_index=ch_idx + 1,
+            ))
+        db.commit()
+
     print("✅ Database seeded successfully.")

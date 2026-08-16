@@ -1,0 +1,1283 @@
+{% extends "base.html" %}
+{% block title %}Database Mastery (SQL, NoSQL, Joins & Internals){% endblock %}
+{% block page_title %}Database Mastery & Architecture{% endblock %}
+
+{% block head %}
+<!-- Quill Rich Text Editor -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- ══ Modern Hero Card & Track Switcher ══ -->
+<div class="db-hero-card">
+  <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #22D3EE; border: 1px solid rgba(34, 211, 238, 0.3); font-size: 11px; font-weight: 700;">
+          <i data-lucide="database" class="icon-xs"></i> Full-Stack Database Mastery
+        </span>
+        <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(192, 132, 252, 0.3); font-size: 11px; font-weight: 700;">
+          SQL &bull; NoSQL &bull; Joins &bull; Internals
+        </span>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 6px;">
+        Database Architecture, SQL Mastery & NoSQL Engines
+      </h2>
+      <p style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 720px; line-height: 1.5;">
+        Master relational schemas, complex <strong>Joins</strong>, <strong>Window & Analytical Functions</strong>, <strong>ACID & CTEs</strong> alongside distributed <strong>NoSQL</strong> stores (Redis, DynamoDB, MongoDB, Cassandra, ClickHouse, Vector DBs), <strong>B-Tree indexing</strong>, and real-world query interview challenges.
+      </p>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="flex gap-2" style="align-items: center; flex-wrap: wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="openDbCheatModal()" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #FFFFFF;">
+        <i data-lucide="book-marked" class="icon-xs"></i>
+        <span>Joins & SQL Cheatsheet</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="openAddChallengeModal()" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #FFFFFF;">
+        <i data-lucide="terminal" class="icon-xs"></i>
+        <span>Add Challenge</span>
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="openAddConceptModal()">
+        <i data-lucide="plus" class="icon-xs"></i>
+        <span>Add Concept</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Track Navigation Tabs -->
+  <div class="db-track-nav" style="position: relative; z-index: 2;">
+    <a href="/database?track=all" class="db-track-tab {% if selected_track == 'all' or not selected_track %}active{% endif %}">
+      <i data-lucide="layout-grid" class="icon-sm"></i>
+      <span>All Topics & Challenges</span>
+      <span class="badge badge-tab-count">{{ overall_total }}</span>
+    </a>
+
+    <a href="/database?track=sql" class="db-track-tab tab-sql {% if selected_track == 'sql' %}active{% endif %}">
+      <i data-lucide="database" class="icon-sm"></i>
+      <span>SQL Track</span>
+      <span class="badge badge-cyan" style="font-size: 10px; padding: 1px 6px;">{{ sql_done }}/{{ sql_total }}</span>
+    </a>
+
+    <a href="/database?track=joins_functions" class="db-track-tab tab-joins {% if selected_track == 'joins_functions' %}active{% endif %}">
+      <i data-lucide="git-merge" class="icon-sm"></i>
+      <span>Joins & Functions</span>
+      <span class="badge badge-purple" style="font-size: 10px; padding: 1px 6px;">{{ joins_done }}/{{ joins_total }}</span>
+    </a>
+
+    <a href="/database?track=nosql" class="db-track-tab tab-nosql {% if selected_track == 'nosql' %}active{% endif %}">
+      <i data-lucide="layers" class="icon-sm"></i>
+      <span>NoSQL & Modern Storage</span>
+      <span class="badge badge-emerald" style="font-size: 10px; padding: 1px 6px;">{{ nosql_done }}/{{ nosql_total }}</span>
+    </a>
+
+    <a href="/database?track=internals" class="db-track-tab tab-internals {% if selected_track == 'internals' %}active{% endif %}">
+      <i data-lucide="cpu" class="icon-sm"></i>
+      <span>Performance & Internals</span>
+      <span class="badge badge-amber" style="font-size: 10px; padding: 1px 6px;">{{ internals_done }}/{{ internals_total }}</span>
+    </a>
+
+    <a href="/database?track=challenges" class="db-track-tab tab-challenges {% if selected_track == 'challenges' %}active{% endif %}">
+      <i data-lucide="award" class="icon-sm"></i>
+      <span>Query Challenges</span>
+      <span class="badge badge-indigo" style="font-size: 10px; padding: 1px 6px;">{{ challenges_done }}/{{ challenges_total }}</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ Track Progress KPI Grid ══ -->
+<div class="db-stats-grid">
+  <!-- SQL Track Card -->
+  <div class="db-stat-card card-sql">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #0284C7; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="database" class="icon-xs"></i> SQL Fundamentals
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ sql_pct }}%
+        </div>
+      </div>
+      <div class="badge badge-cyan" style="padding: 3px 8px;">
+        {{ sql_done }} / {{ sql_total }} Done
+      </div>
+    </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ sql_pct }}%; background: linear-gradient(90deg, #0284C7, #38BDF8);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>DDL, DML & Aggregations</span>
+      <span>{{ sql_in_progress }} in progress</span>
+    </div>
+  </div>
+
+  <!-- Joins & Functions Card -->
+  <div class="db-stat-card card-joins">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #7C3AED; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="git-merge" class="icon-xs"></i> Joins & Window Ops
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ joins_pct }}%
+        </div>
+      </div>
+      <div class="badge badge-purple" style="padding: 3px 8px;">
+        {{ joins_done }} / {{ joins_total }} Done
+      </div>
+    </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ joins_pct }}%; background: linear-gradient(90deg, #7C3AED, #A855F7);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>All Joins, ROW_NUMBER, LAG</span>
+      <span>{{ joins_in_progress }} in progress</span>
+    </div>
+  </div>
+
+  <!-- NoSQL Card -->
+  <div class="db-stat-card card-nosql">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #059669; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="layers" class="icon-xs"></i> NoSQL & Modern Storage
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ nosql_pct }}%
+        </div>
+      </div>
+      <div class="badge badge-emerald" style="padding: 3px 8px;">
+        {{ nosql_done }} / {{ nosql_total }} Done
+      </div>
+    </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ nosql_pct }}%; background: linear-gradient(90deg, #059669, #34D399);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>Redis, Mongo, Cassandra, Vector</span>
+      <span>{{ nosql_in_progress }} in progress</span>
+    </div>
+  </div>
+
+  <!-- Study Actions & Challenges Card -->
+  <div class="db-stat-card">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="check-check" class="icon-xs"></i> Practice & Reading
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+          {{ reading_done_count + practical_done_count }}
+        </div>
+      </div>
+      <div class="badge badge-indigo" style="padding: 3px 8px;">
+        {{ challenges_done }}/{{ challenges_total }} Challenges
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 6px;">
+      <div style="flex: 1; background: var(--surface-alt); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="book-open" class="icon-xs" style="color: #10B981;"></i> Theory
+        </div>
+        <div style="font-weight: 700; font-size: 13px; color: var(--text-primary);">{{ reading_done_count }}/{{ total_items }}</div>
+      </div>
+      <div style="flex: 1; background: var(--surface-alt); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="terminal" class="icon-xs" style="color: #06B6D4;"></i> Queries
+        </div>
+        <div style="font-weight: 700; font-size: 13px; color: var(--text-primary);">{{ practical_done_count }}/{{ total_items }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Interactive Filter & Search Bar ══ -->
+<div class="card p-3 mb-4" style="border-radius: var(--radius-md); background: var(--surface-card); border: 1px solid var(--border-color);">
+  <form method="GET" action="/database" id="dbFilterForm" class="flex gap-3 items-center" style="flex-wrap: wrap;">
+    <input type="hidden" name="track" id="trackInput" value="{{ selected_track }}">
+
+    <!-- Search Input -->
+    <div style="position: relative; flex: 1; min-width: 220px;">
+      <i data-lucide="search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted);"></i>
+      <input type="text" name="search" value="{{ selected_search }}" placeholder="Search queries, joins, syntax, concepts, notes..." class="form-input" style="padding-left: 32px; height: 36px; font-size: 13px;">
+      {% if selected_search %}
+      <a href="/database?track={{ selected_track }}" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 12px;">✕</a>
+      {% endif %}
+    </div>
+
+    <!-- Status Filter -->
+    <div style="min-width: 140px;">
+      <select name="status_filter" class="form-select" style="height: 36px; font-size: 13px;" onchange="this.form.submit()">
+        <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All Statuses</option>
+        <option value="Not Started" {% if selected_status == 'Not Started' %}selected{% endif %}>Not Started</option>
+        <option value="In Progress" {% if selected_status == 'In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Done" {% if selected_status == 'Done' %}selected{% endif %}>Done</option>
+      </select>
+    </div>
+
+    <!-- Difficulty Filter -->
+    <div style="min-width: 140px;">
+      <select name="difficulty_filter" class="form-select" style="height: 36px; font-size: 13px;" onchange="this.form.submit()">
+        <option value="all" {% if selected_difficulty == 'all' %}selected{% endif %}>All Difficulties</option>
+        <option value="Easy" {% if selected_difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+        <option value="Medium" {% if selected_difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+        <option value="Hard" {% if selected_difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-secondary btn-sm" style="height: 36px;">
+      <i data-lucide="filter" class="icon-xs"></i> Filter
+    </button>
+  </form>
+</div>
+
+<!-- ══ Main Content Tracks ══ -->
+
+{% if selected_track == 'challenges' %}
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       CHALLENGES TRACK ONLY
+       ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-4">
+    <div class="flex justify-between items-center mb-3">
+      <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="award" class="icon-sm" style="color: #6366F1;"></i>
+        Real-World SQL & NoSQL Query Challenges ({{ challenges|length }})
+      </h3>
+      <button class="btn btn-primary btn-sm" onclick="openAddChallengeModal()">
+        <i data-lucide="plus" class="icon-xs"></i> Add Challenge
+      </button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      {% for ch in challenges %}
+      <div class="card p-4 db-challenge-card" id="challenge-{{ ch.id }}">
+        <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <span class="badge badge-indigo" style="font-size: 10px; font-weight: 700;">{{ ch.track }}</span>
+              <span class="badge badge-gray" style="font-size: 10px;">{{ ch.category }}</span>
+              <span class="badge {% if ch.difficulty == 'Hard' %}diff-hard{% elif ch.difficulty == 'Medium' %}diff-medium{% else %}diff-easy{% endif %}" style="font-size: 10px;">
+                {{ ch.difficulty }}
+              </span>
+            </div>
+            <h4 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0;">
+              {{ ch.title }}
+            </h4>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select class="form-select form-select-sm" style="font-size: 12px; width: 130px; font-weight: 600;" onchange="updateChallengeStatus({{ ch.id }}, this.value)">
+              <option value="Not Started" {% if ch.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+              <option value="In Progress" {% if ch.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+              <option value="Done" {% if ch.status == 'Done' %}selected{% endif %}>Done</option>
+            </select>
+            <button class="btn btn-icon btn-sm btn-ghost text-muted" onclick="openEditChallengeModal({{ ch.id }}, '{{ ch.title|escape }}', '{{ ch.notes|escape if ch.notes else '' }}', `{{ ch.solution_query|escape if ch.solution_query else '' }}`)" title="Edit Challenge">
+              <i data-lucide="edit-3" class="icon-xs"></i>
+            </button>
+            <form method="POST" action="/database/challenge/{{ ch.id }}/delete" onsubmit="return confirm('Delete this challenge?');" style="display:inline;">
+              <button type="submit" class="btn btn-icon btn-sm btn-ghost text-danger" title="Delete">
+                <i data-lucide="trash-2" class="icon-xs"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div style="color: var(--text-secondary); font-size: 13px; line-height: 1.6; margin-bottom: 12px; background: var(--surface-alt); padding: 10px 14px; border-radius: var(--radius-sm); border-left: 3px solid #6366F1;">
+          <strong>Problem Scenario:</strong> {{ ch.scenario }}
+        </div>
+
+        {% if ch.schema_definition %}
+        <details style="margin-bottom: 10px;">
+          <summary style="font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none;">
+            <i data-lucide="database" class="icon-xs" style="vertical-align: middle;"></i> View Schema / DDL
+          </summary>
+          <div class="db-code-block" style="margin-top: 6px;">
+            <pre><code>{{ ch.schema_definition }}</code></pre>
+          </div>
+        </details>
+        {% endif %}
+
+        {% if ch.solution_query %}
+        <details open style="margin-bottom: 10px;">
+          <summary style="font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none;">
+            <i data-lucide="code" class="icon-xs" style="vertical-align: middle;"></i> Reference Solution Query
+          </summary>
+          <div class="db-code-block" style="margin-top: 6px; position: relative;">
+            <button class="copy-query-btn" onclick="copyQuery(this, `{{ ch.solution_query|escape }}`)" title="Copy SQL">
+              <i data-lucide="copy" class="icon-xs"></i>
+            </button>
+            <pre><code>{{ ch.solution_query }}</code></pre>
+          </div>
+        </details>
+        {% endif %}
+
+        {% if ch.explanation %}
+        <div style="font-size: 12px; color: var(--text-muted); background: var(--surface-card); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+          <strong style="color: var(--text-secondary);">Key Takeaway:</strong> {{ ch.explanation }}
+        </div>
+        {% endif %}
+
+        {% if ch.notes %}
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); font-size: 12px; color: var(--text-secondary);">
+          <strong>Your Personal Notes:</strong>
+          <div class="quill-rendered" style="margin-top: 4px;">{{ ch.notes|safe }}</div>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% else %}
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       CONCEPT TOPICS VIEW (Grouped by Track & Category)
+       ══════════════════════════════════════════════════════════════════════════ -->
+
+  {% for track_key, categories in by_track_and_cat.items() %}
+  <div class="db-track-section mb-5" id="track-section-{{ track_key|lower }}">
+    <div class="flex justify-between items-center mb-3 pb-2" style="border-bottom: 1px solid var(--border-color);">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="track-pill track-pill-{{ track_key|lower }}">
+          {% if track_key == 'SQL' %}
+            <i data-lucide="database" class="icon-xs"></i> SQL Mastery
+          {% elif track_key == 'JOINS_FUNCTIONS' %}
+            <i data-lucide="git-merge" class="icon-xs"></i> Joins & Analytical Functions
+          {% elif track_key == 'NOSQL' %}
+            <i data-lucide="layers" class="icon-xs"></i> NoSQL & Modern Distributed Storage
+          {% elif track_key == 'INTERNALS' %}
+            <i data-lucide="cpu" class="icon-xs"></i> Performance, Indexing & Internals
+          {% else %}
+            {{ track_key }}
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- Category Groups -->
+    {% for cat_name, concept_tuples in categories.items() %}
+    <div class="mb-4">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+        <i data-lucide="folder" class="icon-xs" style="color: var(--text-muted);"></i>
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
+          {{ cat_name }}
+        </h3>
+        <span class="badge badge-gray" style="font-size: 10px;">{{ concept_tuples|length }} modules</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        {% for concept, items in concept_tuples %}
+        <div class="card db-concept-card" id="concept-{{ concept.id }}">
+          <!-- Concept Header -->
+          <div class="db-concept-header flex justify-between items-start" onclick="toggleConceptAccordion({{ concept.id }})" style="cursor: pointer; padding: 14px 18px; user-select: none;">
+            <div style="flex: 1; padding-right: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <span class="badge {% if concept.difficulty == 'Hard' %}diff-hard{% elif concept.difficulty == 'Medium' %}diff-medium{% else %}diff-easy{% endif %}" style="font-size: 10px;">
+                  {{ concept.difficulty }}
+                </span>
+                <span style="font-size: 11px; color: var(--text-muted);">{{ items|length }} query patterns & topics</span>
+              </div>
+              <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                {{ concept.title }}
+              </h4>
+              {% if concept.description %}
+              <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                {{ concept.description }}
+              </p>
+              {% endif %}
+            </div>
+
+            <div class="flex items-center gap-3" onclick="event.stopPropagation()">
+              <button class="btn btn-secondary btn-xs" onclick="openAddItemModal({{ concept.id }}, '{{ concept.title|escape }}')">
+                <i data-lucide="plus" class="icon-xs"></i> Add Topic
+              </button>
+              <form method="POST" action="/database/concept/{{ concept.id }}/delete" onsubmit="return confirm('Delete concept and all its topics?');" style="display:inline;">
+                <button type="submit" class="btn btn-icon btn-xs btn-ghost text-danger" title="Delete Concept">
+                  <i data-lucide="trash-2" class="icon-xs"></i>
+                </button>
+              </form>
+              <i data-lucide="chevron-down" class="concept-chevron-icon" id="chevron-{{ concept.id }}" style="transition: transform 0.2s;"></i>
+            </div>
+          </div>
+
+          <!-- Concept Items List -->
+          <div class="db-concept-body" id="body-{{ concept.id }}" style="border-top: 1px solid var(--border-color); padding: 12px 18px; background: var(--surface-card);">
+            {% if items %}
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for item in items %}
+                <div class="db-item-row" id="item-{{ item.id }}">
+                  <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 10px;">
+                    <!-- Left: Title & Checkboxes -->
+                    <div style="flex: 1; min-width: 260px;">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="db-depth-indicator depth-{{ item.depth }}" title="Mastery Depth: {{ depth_labels.get(item.depth, 'Standard') }}"></span>
+                        <strong style="font-size: 13.5px; color: var(--text-primary);">{{ item.title }}</strong>
+                      </div>
+
+                      <!-- Reading & Practical Toggles -->
+                      <div class="flex gap-3 items-center" style="margin-top: 6px;">
+                        <label class="db-checkbox-label" title="Mark Reading Theory Done">
+                          <input type="checkbox" {% if item.reading_done %}checked{% endif %} onchange="toggleReading({{ item.id }}, this)">
+                          <span style="font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+                            <i data-lucide="book-open" class="icon-xs" style="color: #10B981;"></i> Theory
+                          </span>
+                        </label>
+
+                        <label class="db-checkbox-label" title="Mark Practical Query Code Done">
+                          <input type="checkbox" {% if item.practical_done %}checked{% endif %} onchange="togglePractical({{ item.id }}, this)">
+                          <span style="font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+                            <i data-lucide="terminal" class="icon-xs" style="color: #06B6D4;"></i> Query Tested
+                          </span>
+                        </label>
+
+                        <button class="btn btn-ghost btn-xs text-muted" onclick="openEditItemModal({{ item.id }}, '{{ item.title|escape }}', '{{ item.notes|escape if item.notes else '' }}', `{{ item.syntax_example|escape if item.syntax_example else '' }}`, {{ item.depth }}, '{{ item.sources|escape if item.sources else '' }}')" style="font-size: 11px; padding: 1px 6px;">
+                          <i data-lucide="file-text" class="icon-xs"></i> Notes {% if item.notes %}&bull;{% endif %}
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Right: Status Dropdown & Actions -->
+                    <div class="flex items-center gap-2">
+                      <select class="form-select form-select-sm db-status-select status-{{ item.status|lower|replace(' ', '-') }}" style="font-size: 12px; width: 120px;" onchange="updateItemStatus({{ item.id }}, this.value)">
+                        <option value="Not Started" {% if item.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+                        <option value="In Progress" {% if item.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Done" {% if item.status == 'Done' %}selected{% endif %}>Done</option>
+                      </select>
+
+                      <form method="POST" action="/database/item/{{ item.id }}/delete" onsubmit="return confirm('Delete this topic item?');" style="display:inline;">
+                        <button type="submit" class="btn btn-icon btn-xs btn-ghost text-danger" title="Delete Topic">
+                          <i data-lucide="trash-2" class="icon-xs"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Syntax Code Block -->
+                  {% if item.syntax_example %}
+                  <div class="db-code-block" style="margin-top: 10px; position: relative;">
+                    <button class="copy-query-btn" onclick="copyQuery(this, `{{ item.syntax_example|escape }}`)" title="Copy SQL">
+                      <i data-lucide="copy" class="icon-xs"></i>
+                    </button>
+                    <pre><code>{{ item.syntax_example }}</code></pre>
+                  </div>
+                  {% endif %}
+
+                  <!-- Notes Preview if present -->
+                  {% if item.notes %}
+                  <div style="margin-top: 8px; font-size: 12px; color: var(--text-muted); background: var(--surface-alt); padding: 8px 12px; border-radius: var(--radius-sm); border-left: 2px solid var(--accent-primary);">
+                    <div class="quill-rendered">{{ item.notes|safe }}</div>
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                No items matching your filter in this concept.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     MODALS
+     ══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- 1. Joins & SQL Cheat Sheet Modal -->
+<div id="dbCheatModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeDbCheatModal()">
+  <div class="modal-dialog" style="max-width: 850px; max-height: 90vh; overflow-y: auto; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
+    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="book-marked" class="icon-sm" style="color: #06B6D4;"></i>
+        <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text-primary);">
+          Database Mastery & SQL Cheatsheet Reference
+        </h3>
+      </div>
+      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeDbCheatModal()">&times;</button>
+    </div>
+
+    <!-- Modal Navigation Tabs -->
+    <div style="display: flex; gap: 8px; padding: 12px 20px 0 20px; border-bottom: 1px solid var(--border-color); background: var(--surface-alt);">
+      <button class="btn btn-ghost btn-sm cheat-tab active" onclick="switchCheatTab('joins', this)">SQL Joins Visualizer</button>
+      <button class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('window', this)">Window Functions Guide</button>
+      <button class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('nosql', this)">SQL vs NoSQL Matrix</button>
+      <button class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('indexing', this)">Indexing & EXPLAIN</button>
+    </div>
+
+    <div class="modal-body" style="padding: 20px;">
+      <!-- Tab 1: Joins Visualizer -->
+      <div id="cheat-tab-joins" class="cheat-content">
+        <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">SQL Join Types Visual Breakdown</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
+          <div class="card p-3" style="background: var(--surface-alt);">
+            <strong style="color: #38BDF8; font-size: 13px;">INNER JOIN (A ∩ B)</strong>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 6px 0;">Returns only rows where the join predicate matches in BOTH tables.</p>
+            <pre class="cheat-sql"><code>SELECT * FROM A JOIN B ON A.id = B.a_id;</code></pre>
+          </div>
+          <div class="card p-3" style="background: var(--surface-alt);">
+            <strong style="color: #A855F7; font-size: 13px;">LEFT OUTER JOIN (A + (A ∩ B))</strong>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 6px 0;">Returns all rows from Left table (A), with NULLs for unmatched Right rows.</p>
+            <pre class="cheat-sql"><code>SELECT * FROM A LEFT JOIN B ON A.id = B.a_id;</code></pre>
+          </div>
+          <div class="card p-3" style="background: var(--surface-alt);">
+            <strong style="color: #EF4444; font-size: 13px;">ANTI-JOIN (A - B)</strong>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 6px 0;">Finds rows in A that have NO corresponding match in B.</p>
+            <pre class="cheat-sql"><code>SELECT * FROM A LEFT JOIN B ON A.id = B.a_id WHERE B.id IS NULL;</code></pre>
+          </div>
+          <div class="card p-3" style="background: var(--surface-alt);">
+            <strong style="color: #10B981; font-size: 13px;">FULL OUTER JOIN (A ∪ B)</strong>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 6px 0;">Returns all rows from both tables, filling NULLs on sides where unmatched.</p>
+            <pre class="cheat-sql"><code>SELECT * FROM A FULL OUTER JOIN B ON A.id = B.a_id;</code></pre>
+          </div>
+        </div>
+
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px 0;">Physical Join Algorithm Selection</h4>
+        <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+          <ul style="padding-left: 20px; margin: 0;">
+            <li><strong>Nested Loop Join:</strong> Optimal when the outer relation is small and the inner relation has a B-Tree index on join keys. Time: <code>O(N * log M)</code>.</li>
+            <li><strong>Hash Join:</strong> Optimal for large, unsorted equijoins (<code>A.id = B.a_id</code>). Hashes smaller table in RAM (<code>work_mem</code>) and probes with larger table. Time: <code>O(N + M)</code>.</li>
+            <li><strong>Sort-Merge Join:</strong> Optimal when both relations are already sorted on join keys or for inequality/range joins. Time: <code>O(N + M)</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab 2: Window Functions -->
+      <div id="cheat-tab-window" class="cheat-content" style="display:none;">
+        <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Window Function Anatomy</h4>
+        <pre class="cheat-sql"><code>FUNCTION() OVER (
+  PARTITION BY column_a, column_b    -- Divides rows into independent groups
+  ORDER BY sort_column DESC          -- Specifies order within each group
+  ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  -- Frame specification
+)</code></pre>
+
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px 0;">Key Functions Cheat Sheet</h4>
+        <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+          <ul style="padding-left: 20px; margin: 0;">
+            <li><code>ROW_NUMBER()</code>: Generates strictly unique sequential integers (1, 2, 3, 4). Ideal for pagination & deduplication.</li>
+            <li><code>RANK()</code>: Generates rank with gaps on ties (1, 2, 2, 4).</li>
+            <li><code>DENSE_RANK()</code>: Generates rank without gaps on ties (1, 2, 2, 3). Required for "Find Nth Highest" queries.</li>
+            <li><code>LAG(col, offset)</code>: Reads value from preceding row. Ideal for day-over-day delta comparisons.</li>
+            <li><code>LEAD(col, offset)</code>: Reads value from next row.</li>
+            <li><code>NTILE(n)</code>: Divides rows into N quantiles (e.g. 4 quartiles, 10 deciles).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab 3: SQL vs NoSQL Matrix -->
+      <div id="cheat-tab-nosql" class="cheat-content" style="display:none;">
+        <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Storage Paradigm Decision Matrix</h4>
+        <table class="table" style="font-size: 12px; width: 100%;">
+          <thead>
+            <tr>
+              <th>Storage Type</th>
+              <th>Example Engines</th>
+              <th>Best Use Cases</th>
+              <th>Trade-offs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Relational (RDBMS)</strong></td>
+              <td>PostgreSQL, MySQL</td>
+              <td>ACID transactions, financial ledgers, complex joins, strict schema</td>
+              <td>Horizontal sharding complexity, fixed schemas</td>
+            </tr>
+            <tr>
+              <td><strong>Key-Value Store</strong></td>
+              <td>Redis, DynamoDB</td>
+              <td>Low-latency cache, session store, rate limiters, leaderboards</td>
+              <td>No complex joins, memory footprint cost (Redis)</td>
+            </tr>
+            <tr>
+              <td><strong>Document Store</strong></td>
+              <td>MongoDB, Couchbase</td>
+              <td>Catalogs, dynamic user profiles, semi-structured JSON</td>
+              <td>Multi-document transactions have overhead; 16MB doc limit</td>
+            </tr>
+            <tr>
+              <td><strong>Wide-Column / OLAP</strong></td>
+              <td>Cassandra, ClickHouse</td>
+              <td>High write throughput, sensor telemetry, analytical aggregations</td>
+              <td>No ad-hoc queries on non-partition keys; eventual consistency</td>
+            </tr>
+            <tr>
+              <td><strong>Vector Store</strong></td>
+              <td>pgvector, Pinecone</td>
+              <td>LLM RAG embeddings, semantic search, recommendation similarity</td>
+              <td>High dimensionality index build time (HNSW/IVFFlat)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tab 4: Indexing & EXPLAIN -->
+      <div id="cheat-tab-indexing" class="cheat-content" style="display:none;">
+        <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Indexing & Leftmost Prefix Rules</h4>
+        <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+          <strong>Composite Index on (A, B, C):</strong>
+          <ul style="padding-left: 20px; margin: 4px 0;">
+            <li><code>WHERE A = 1 AND B = 2 AND C = 3</code> -> Full Index Scan</li>
+            <li><code>WHERE A = 1 AND B = 2</code> -> Index Scan (Matches prefix A + B)</li>
+            <li><code>WHERE A = 1</code> -> Index Scan (Matches prefix A)</li>
+            <li><code>WHERE B = 2 AND C = 3</code> -> <span style="color: #EF4444;">Cannot use index!</span> Missing leading column A.</li>
+          </ul>
+        </div>
+
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px 0;">EXPLAIN ANALYZE Plan Scan Types</h4>
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+          <ul style="padding-left: 20px; margin: 0;">
+            <li><strong>Seq Scan:</strong> Reads full table heap sequentially. Fast for small tables, slow for massive tables without selective predicates.</li>
+            <li><strong>Index Scan:</strong> Traverses B-Tree index to find row pointers (TIDs), then fetches pages from heap table.</li>
+            <li><strong>Index Only Scan:</strong> Entire query payload satisfied directly by index pages without touching heap! (Fastest).</li>
+            <li><strong>Bitmap Heap Scan:</strong> Gathers matching TIDs into in-memory bitmap, then reads heap pages in sequential physical disk order.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Add Concept Modal -->
+<div id="addConceptModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeAddConceptModal()">
+  <div class="modal-dialog" style="max-width: 500px; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+      <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Add Database Concept Module</h3>
+      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeAddConceptModal()">&times;</button>
+    </div>
+    <form method="POST" action="/database/concept/add" style="padding: 20px;">
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Track</label>
+        <select name="track" class="form-select" required>
+          <option value="SQL">SQL Track</option>
+          <option value="JOINS_FUNCTIONS">Joins & Advanced Functions</option>
+          <option value="NOSQL">NoSQL & Modern Storage</option>
+          <option value="INTERNALS">Performance, Indexing & Internals</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Category</label>
+        <input type="text" name="category" class="form-input" placeholder="e.g. Relational Foundations & DDL" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Concept Title</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Common Table Expressions & Recursion" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Difficulty</label>
+        <select name="difficulty" class="form-select">
+          <option value="Easy">Easy</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Description (Optional)</label>
+        <textarea name="description" class="form-input" rows="2" placeholder="Brief summary of this module..."></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddConceptModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Add Concept</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 3. Add Item Modal -->
+<div id="addItemModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeAddItemModal()">
+  <div class="modal-dialog" style="max-width: 550px; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+      <div>
+        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Add Topic / Query Item</h3>
+        <span id="addItemConceptTitle" style="font-size: 12px; color: var(--text-muted);"></span>
+      </div>
+      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeAddItemModal()">&times;</button>
+    </div>
+    <form method="POST" action="/database/item/add" style="padding: 20px;">
+      <input type="hidden" name="concept_id" id="addItemConceptId">
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Topic / Syntax Title</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Recursive CTEs for Org Charts" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">SQL / NoSQL Syntax Example</label>
+        <textarea name="syntax_example" class="form-input font-mono" rows="4" placeholder="SELECT ... WITH RECURSIVE ..."></textarea>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Notes & Takeaway</label>
+        <textarea name="notes" class="form-input" rows="2" placeholder="Key concepts, edge cases, performance tips..."></textarea>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Mastery Depth</label>
+        <select name="depth" class="form-select">
+          <option value="1">1: Surface</option>
+          <option value="2" selected>2: Comfortable</option>
+          <option value="3">3: Deep Mastery</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddItemModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Add Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 4. Add Challenge Modal -->
+<div id="addChallengeModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeAddChallengeModal()">
+  <div class="modal-dialog" style="max-width: 600px; max-height: 90vh; overflow-y: auto; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+      <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Add Real-World Query Challenge</h3>
+      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeAddChallengeModal()">&times;</button>
+    </div>
+    <form method="POST" action="/database/challenge/add" style="padding: 20px;">
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Track</label>
+        <select name="track" class="form-select">
+          <option value="SQL">SQL</option>
+          <option value="NOSQL">NoSQL</option>
+          <option value="SYSTEM">System Architecture</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Challenge Title</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Top N Products per Category" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Category & Difficulty</label>
+        <div class="flex gap-2">
+          <input type="text" name="category" class="form-input" placeholder="e.g. Window Functions" required style="flex:2;">
+          <select name="difficulty" class="form-select" style="flex:1;">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Problem Scenario</label>
+        <textarea name="scenario" class="form-input" rows="3" placeholder="Describe the interview question scenario and requirements..." required></textarea>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Schema Definition / DDL</label>
+        <textarea name="schema_definition" class="form-input font-mono" rows="3" placeholder="CREATE TABLE ..."></textarea>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Reference Solution Query</label>
+        <textarea name="solution_query" class="form-input font-mono" rows="4" placeholder="SELECT ... WITH ..."></textarea>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Explanation & Key Takeaway</label>
+        <textarea name="explanation" class="form-input" rows="2" placeholder="Why this solution works..."></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddChallengeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Add Challenge</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 5. Edit Item Notes & Query Modal with Quill -->
+<div id="editItemModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeEditItemModal()">
+  <div class="modal-dialog" style="max-width: 680px; max-height: 90vh; overflow-y: auto; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
+    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+      <div>
+        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Edit Topic & Notes</h3>
+        <span id="editItemTitle" style="font-size: 12px; color: var(--text-muted);"></span>
+      </div>
+      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeEditItemModal()">&times;</button>
+    </div>
+
+    <div style="padding: 20px;">
+      <input type="hidden" id="editItemId">
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">SQL / NoSQL Syntax Example</label>
+        <textarea id="editItemSyntax" class="form-input font-mono" rows="4" style="font-size: 12px;"></textarea>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Mastery Depth</label>
+        <select id="editItemDepth" class="form-select" style="font-size: 12px;">
+          <option value="1">1: Surface</option>
+          <option value="2">2: Comfortable</option>
+          <option value="3">3: Deep Mastery</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Notes (Rich Text)</label>
+        <div id="itemQuillEditor" style="height: 180px; background: var(--surface-alt); border-radius: 0 0 var(--radius-sm) var(--radius-sm);"></div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Sources / Links</label>
+        <input type="text" id="editItemSources" class="form-input" style="font-size: 12px;" placeholder="https://...">
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeEditItemModal()">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveItemNotes()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Edit Challenge Notes Modal -->
+<div id="editChallengeModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeEditChallengeModal()">
+  <div class="modal-dialog" style="max-width: 650px; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
+    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+      <div>
+        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Edit Challenge Solution & Notes</h3>
+        <span id="editChallengeTitle" style="font-size: 12px; color: var(--text-muted);"></span>
+      </div>
+      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeEditChallengeModal()">&times;</button>
+    </div>
+
+    <div style="padding: 20px;">
+      <input type="hidden" id="editChallengeId">
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Reference Solution Query</label>
+        <textarea id="editChallengeSolution" class="form-input font-mono" rows="4" style="font-size: 12px;"></textarea>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" style="font-size: 12px; font-weight: 600;">Your Notes</label>
+        <div id="challengeQuillEditor" style="height: 160px; background: var(--surface-alt);"></div>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeEditChallengeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveChallengeNotes()">Save Notes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Styling & Scoped CSS ══ -->
+<style>
+.db-hero-card {
+  position: relative;
+  background: linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #0891B2 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.db-track-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.db-track-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: #E2E8F0;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.2s ease;
+}
+
+.db-track-tab:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.db-track-tab.active {
+  background: #FFFFFF;
+  color: #0F172A;
+  font-weight: 700;
+  border-color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.badge-tab-count {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+}
+
+.db-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.db-stat-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.db-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.card-sql::before { background: #0284C7; }
+.card-joins::before { background: #7C3AED; }
+.card-nosql::before { background: #059669; }
+
+.track-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.track-pill-sql { background: rgba(2, 132, 199, 0.15); color: #0284C7; border: 1px solid rgba(2, 132, 199, 0.3); }
+.track-pill-joins_functions { background: rgba(124, 58, 237, 0.15); color: #7C3AED; border: 1px solid rgba(124, 58, 237, 0.3); }
+.track-pill-nosql { background: rgba(5, 150, 105, 0.15); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); }
+.track-pill-internals { background: rgba(217, 119, 6, 0.15); color: #D97706; border: 1px solid rgba(217, 119, 6, 0.3); }
+
+.db-concept-card {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s;
+}
+
+.db-concept-card:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.db-item-row {
+  padding: 12px 14px;
+  background: var(--surface-alt);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  transition: all 0.15s ease;
+}
+
+.db-item-row:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  background: var(--surface-hover);
+}
+
+.db-depth-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.depth-1 { background: #94A3B8; }
+.depth-2 { background: #38BDF8; }
+.depth-3 { background: #A855F7; box-shadow: 0 0 6px #A855F7; }
+
+.db-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.db-code-block {
+  background: #090D16;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+.db-code-block pre {
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #38BDF8;
+}
+
+.copy-query-btn {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94A3B8;
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.copy-query-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.cheat-sql {
+  background: #090D16;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #22D3EE;
+  margin: 0;
+  overflow-x: auto;
+}
+
+.badge-cyan { background: rgba(6, 182, 212, 0.15); color: #0891B2; border: 1px solid rgba(6, 182, 212, 0.3); }
+.badge-emerald { background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-indigo { background: rgba(99, 102, 241, 0.15); color: #6366F1; border: 1px solid rgba(99, 102, 241, 0.3); }
+
+.status-done { color: #059669; font-weight: 700; }
+.status-in-progress { color: #0284C7; font-weight: 700; }
+.status-not-started { color: var(--text-muted); }
+</style>
+
+<!-- ══ JavaScript Logic ══ -->
+<script>
+let itemQuill = null;
+let challengeQuill = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize Quill editors
+  itemQuill = new Quill('#itemQuillEditor', {
+    theme: 'snow',
+    placeholder: 'Write your notes, edge cases, and query insights...',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline', 'code'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['code-block', 'clean']
+      ]
+    }
+  });
+
+  challengeQuill = new Quill('#challengeQuillEditor', {
+    theme: 'snow',
+    placeholder: 'Write your solution analysis and takeaways...',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline', 'code'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['code-block', 'clean']
+      ]
+    }
+  });
+});
+
+function toggleConceptAccordion(conceptId) {
+  const body = document.getElementById(`body-${conceptId}`);
+  const icon = document.getElementById(`chevron-${conceptId}`);
+  if (body.style.display === "none") {
+    body.style.display = "block";
+    if (icon) icon.style.transform = "rotate(0deg)";
+  } else {
+    body.style.display = "none";
+    if (icon) icon.style.transform = "rotate(-90deg)";
+  }
+}
+
+async function updateItemStatus(itemId, newStatus) {
+  try {
+    const formData = new FormData();
+    formData.append("status", newStatus);
+    const resp = await fetch(`/database/item/${itemId}/update-status`, {
+      method: "POST",
+      body: formData
+    });
+    if (resp.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    console.error("Failed to update status:", err);
+  }
+}
+
+async function toggleReading(itemId, checkbox) {
+  try {
+    const resp = await fetch(`/database/item/${itemId}/toggle-reading`, { method: "POST" });
+    if (resp.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    console.error("Failed to toggle reading:", err);
+  }
+}
+
+async function togglePractical(itemId, checkbox) {
+  try {
+    const resp = await fetch(`/database/item/${itemId}/toggle-practical`, { method: "POST" });
+    if (resp.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    console.error("Failed to toggle practical:", err);
+  }
+}
+
+async function updateChallengeStatus(chId, newStatus) {
+  try {
+    const formData = new FormData();
+    formData.append("status", newStatus);
+    const resp = await fetch(`/database/challenge/${chId}/update-status`, {
+      method: "POST",
+      body: formData
+    });
+    if (resp.ok) {
+      window.location.reload();
+    }
+  } catch (err) {
+    console.error("Failed to update challenge status:", err);
+  }
+}
+
+function copyQuery(btn, queryText) {
+  navigator.clipboard.writeText(queryText).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="check" class="icon-xs" style="color: #10B981;"></i>`;
+    lucide.createIcons();
+    setTimeout(() => {
+      btn.innerHTML = original;
+      lucide.createIcons();
+    }, 1500);
+  });
+}
+
+// Modal Handlers
+function openDbCheatModal() { document.getElementById("dbCheatModal").style.display = "flex"; }
+function closeDbCheatModal() { document.getElementById("dbCheatModal").style.display = "none"; }
+
+function switchCheatTab(tabName, btn) {
+  document.querySelectorAll(".cheat-content").forEach(el => el.style.display = "none");
+  document.querySelectorAll(".cheat-tab").forEach(el => el.classList.remove("active"));
+  document.getElementById(`cheat-tab-${tabName}`).style.display = "block";
+  btn.classList.add("active");
+}
+
+function openAddConceptModal() { document.getElementById("addConceptModal").style.display = "flex"; }
+function closeAddConceptModal() { document.getElementById("addConceptModal").style.display = "none"; }
+
+function openAddItemModal(conceptId, conceptTitle) {
+  document.getElementById("addItemConceptId").value = conceptId;
+  document.getElementById("addItemConceptTitle").innerText = `Concept: ${conceptTitle}`;
+  document.getElementById("addItemModal").style.display = "flex";
+}
+function closeAddItemModal() { document.getElementById("addItemModal").style.display = "none"; }
+
+function openAddChallengeModal() { document.getElementById("addChallengeModal").style.display = "flex"; }
+function closeAddChallengeModal() { document.getElementById("addChallengeModal").style.display = "none"; }
+
+function openEditItemModal(id, title, notes, syntax, depth, sources) {
+  document.getElementById("editItemId").value = id;
+  document.getElementById("editItemTitle").innerText = title;
+  document.getElementById("editItemSyntax").value = syntax || "";
+  document.getElementById("editItemDepth").value = depth || 1;
+  document.getElementById("editItemSources").value = sources || "";
+  if (itemQuill) {
+    itemQuill.root.innerHTML = notes || "";
+  }
+  document.getElementById("editItemModal").style.display = "flex";
+}
+function closeEditItemModal() { document.getElementById("editItemModal").style.display = "none"; }
+
+async function saveItemNotes() {
+  const itemId = document.getElementById("editItemId").value;
+  const syntax = document.getElementById("editItemSyntax").value;
+  const depth = document.getElementById("editItemDepth").value;
+  const sources = document.getElementById("editItemSources").value;
+  const notesHtml = itemQuill ? itemQuill.root.innerHTML : "";
+
+  const formData = new FormData();
+  formData.append("notes", notesHtml);
+  formData.append("syntax_example", syntax);
+  formData.append("depth", depth);
+  formData.append("sources", sources);
+
+  const resp = await fetch(`/database/item/${itemId}/edit-notes`, {
+    method: "POST",
+    body: formData
+  });
+  if (resp.ok) {
+    closeEditItemModal();
+    window.location.reload();
+  }
+}
+
+function openEditChallengeModal(id, title, notes, solution) {
+  document.getElementById("editChallengeId").value = id;
+  document.getElementById("editChallengeTitle").innerText = title;
+  document.getElementById("editChallengeSolution").value = solution || "";
+  if (challengeQuill) {
+    challengeQuill.root.innerHTML = notes || "";
+  }
+  document.getElementById("editChallengeModal").style.display = "flex";
+}
+function closeEditChallengeModal() { document.getElementById("editChallengeModal").style.display = "none"; }
+
+async function saveChallengeNotes() {
+  const chId = document.getElementById("editChallengeId").value;
+  const solution = document.getElementById("editChallengeSolution").value;
+  const notesHtml = challengeQuill ? challengeQuill.root.innerHTML : "";
+
+  const formData = new FormData();
+  formData.append("notes", notesHtml);
+  formData.append("solution_query", solution);
+
+  const resp = await fetch(`/database/challenge/${chId}/edit-notes`, {
+    method: "POST",
+    body: formData
+  });
+  if (resp.ok) {
+    closeEditChallengeModal();
+    window.location.reload();
+  }
+}
+</script>
+{% endblock %}
