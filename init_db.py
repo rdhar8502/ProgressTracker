@@ -131,6 +131,21 @@ def init():
                     "UPDATE dsa_problems SET category = 'Arrays and Strings' WHERE category IS NULL OR category = '';"
                 ))
                 logger.info("✅ Added category column to dsa_problems.")
+
+            # Create dsa_companies and dsa_problem_companies if they don't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS dsa_companies (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL UNIQUE,
+                    order_index INTEGER DEFAULT 0
+                );
+                CREATE TABLE IF NOT EXISTS dsa_problem_companies (
+                    problem_id INTEGER NOT NULL REFERENCES dsa_problems(id) ON DELETE CASCADE,
+                    company_id INTEGER NOT NULL REFERENCES dsa_companies(id) ON DELETE CASCADE,
+                    PRIMARY KEY (problem_id, company_id)
+                );
+            """))
+            logger.info("✅ Verified dsa_companies and dsa_problem_companies tables.")
     except Exception as e:
         logger.error(f"Error migrating database schema: {e}")
 

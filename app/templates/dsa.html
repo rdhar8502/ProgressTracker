@@ -68,6 +68,14 @@
       {% endfor %}
     </select>
 
+    <!-- Company Filter -->
+    <select name="company" class="form-select" style="width: 140px;" onchange="this.form.submit()">
+      <option value="">All Companies</option>
+      {% for c in all_companies %}
+      <option value="{{ c.name }}" {% if selected_company == c.name %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+
     <!-- Status Filter -->
     <select name="status" class="form-select" style="width: 130px;" onchange="this.form.submit()">
       <option value="">All Status</option>
@@ -76,7 +84,7 @@
       {% endfor %}
     </select>
 
-    {% if selected_category or selected_difficulty or selected_status or selected_search %}
+    {% if selected_category or selected_difficulty or selected_company or selected_status or selected_search %}
     <a href="/dsa" class="btn btn-ghost btn-sm" style="color: var(--text-secondary);">Clear</a>
     {% endif %}
   </form>
@@ -186,6 +194,7 @@
                   <th style="width: 40px;">#</th>
                   <th style="min-width: 260px;">Problem Title & Platform</th>
                   <th style="min-width: 140px;">Secondary Tags</th>
+                  <th style="min-width: 140px;">Companies</th>
                   <th style="width: 110px;">Status</th>
                   <th style="min-width: 140px;">Pattern</th>
                   <th style="width: 100px;">Complexity</th>
@@ -253,6 +262,24 @@
                     </div>
                   </td>
 
+                  <!-- Companies -->
+                  <td class="text-sm">
+                    <div style="display: flex; flex-wrap: wrap; gap: 3px;">
+                      {% for comp in p.companies[:5] %}
+                        <a href="/dsa?company={{ comp.name | urlencode }}"
+                           class="badge"
+                           style="font-size: 9px; padding: 1px 5px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); color: var(--accent); text-decoration: none; white-space: nowrap;"
+                           title="Filter by {{ comp.name }}">{{ comp.name }}</a>
+                      {% endfor %}
+                      {% if p.companies | length > 5 %}
+                        <span class="text-muted" style="font-size: 10px;">+{{ p.companies | length - 5 }}</span>
+                      {% endif %}
+                      {% if not p.companies %}
+                        <span class="text-muted" style="font-size: 11px;">—</span>
+                      {% endif %}
+                    </div>
+                  </td>
+
                   <!-- Status -->
                   <td>
                     <span class="badge status-{{ p.status.lower().replace(' ', '-') }}">{{ p.status }}</span>
@@ -311,6 +338,7 @@
                         data-confidence="{{ p.confidence or 3 }}"
                         data-solution="{{ p.solution_snippet or '' }}"
                         data-topic-ids="{{ p.topics | map(attribute='id') | join(',') }}"
+                        data-company-ids="{{ p.companies | map(attribute='id') | join(',') }}"
                         title="Edit Problem">
                         <i data-lucide="pencil" class="icon-sm"></i>
                       </button>
@@ -422,6 +450,21 @@
             </label>
             {% endfor %}
           </div>
+        </div>
+
+        <!-- Companies Chips + New Company Input -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Companies (Which companies ask this?) <span style="font-weight: 400; color: var(--text-muted); font-size: 11px;">— select existing or type new below</span></label>
+          <div class="topics-chips-container" style="max-height: 100px; overflow-y: auto;" id="addCompanyChips">
+            {% for c in all_companies %}
+            <label class="topic-chip">
+              <input type="checkbox" name="company_ids" value="{{ c.id }}">
+              <span>{{ c.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <input type="text" name="new_companies" class="form-input" style="margin-top: 6px; font-size: 12px;"
+                 placeholder="Add new companies (comma-separated, e.g. Stripe, Shopify)">
         </div>
 
         <!-- Status & Confidence -->
@@ -556,6 +599,21 @@
             </label>
             {% endfor %}
           </div>
+        </div>
+
+        <!-- Companies Chips + New Company Input -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Companies <span style="font-weight: 400; color: var(--text-muted); font-size: 11px;">— select or add new below</span></label>
+          <div class="topics-chips-container" style="max-height: 100px; overflow-y: auto;" id="updateCompanyChips">
+            {% for c in all_companies %}
+            <label class="topic-chip">
+              <input type="checkbox" name="company_ids" value="{{ c.id }}" id="uCompany-{{ c.id }}">
+              <span>{{ c.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <input type="text" name="new_companies" id="uNewCompanies" class="form-input" style="margin-top: 6px; font-size: 12px;"
+                 placeholder="Add new companies (comma-separated, e.g. Stripe, Shopify)">
         </div>
 
         <!-- Status & Confidence -->
@@ -695,7 +753,7 @@
     openModal('addProblemModal');
   }
 
-  function openUpdateModal(id, category, title, difficulty, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds) {
+  function openUpdateModal(id, category, title, difficulty, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds, companyIds) {
     document.getElementById('updateForm').action = '/dsa/update/' + id;
     
     const uCat = document.getElementById('uCategory');
@@ -726,10 +784,21 @@
     const uSolution = document.getElementById('uSolution');
     uSolution.value = cleanVal(solution);
 
+    // Restore topic checkboxes
     const checkboxes = document.querySelectorAll('#updateModal input[name="topic_ids"]');
     checkboxes.forEach(cb => {
       cb.checked = topicIds && topicIds.includes(parseInt(cb.value));
     });
+
+    // Restore company checkboxes
+    const compCheckboxes = document.querySelectorAll('#updateModal input[name="company_ids"]');
+    compCheckboxes.forEach(cb => {
+      cb.checked = companyIds && companyIds.includes(parseInt(cb.value));
+    });
+
+    // Clear the new-companies free-text
+    const uNewComps = document.getElementById('uNewCompanies');
+    if (uNewComps) uNewComps.value = '';
 
     openModal('updateModal');
 
@@ -823,7 +892,10 @@
         const topicIdsStr = this.getAttribute('data-topic-ids');
         const topicIds = topicIdsStr ? topicIdsStr.split(',').map(x => parseInt(x)).filter(x => !isNaN(x)) : [];
 
-        openUpdateModal(id, category, title, difficulty, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds);
+        const companyIdsStr = this.getAttribute('data-company-ids');
+        const companyIds = companyIdsStr ? companyIdsStr.split(',').map(x => parseInt(x)).filter(x => !isNaN(x)) : [];
+
+        openUpdateModal(id, category, title, difficulty, url, altTitle, altUrl, status, pattern, mistake, timeC, spaceC, confidence, solution, topicIds, companyIds);
       });
     });
 

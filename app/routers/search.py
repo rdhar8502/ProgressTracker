@@ -30,7 +30,8 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
             DSAProblem.alternate_title.ilike(like_query),
             DSAProblem.category.ilike(like_query),
             DSAProblem.pattern.ilike(like_query),
-            DSAProblem.mistake.ilike(like_query)
+            DSAProblem.mistake.ilike(like_query),
+            DSAProblem.topics.any(DSATopic.name.ilike(like_query))
         )
     ).limit(8).all()
     for p in dsa_problems:

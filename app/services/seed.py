@@ -2,15 +2,17 @@
 Seed script — populates the database with initial prep plan data.
 Safe to run multiple times (checks for existing data first).
 """
+import re
 from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.user import UserProfile, SalaryTarget, WeeklySchedule
-from app.models.dsa import DSATopic
+from app.models.dsa import DSATopic, DSAProblem, DSACompany
 from app.models.system_design import SystemDesignConcept, SystemDesignSubConcept, SystemDesignCase
 from app.models.ai_llm import AILLMTopic
 from app.models.github import GithubProject, GithubTask
 from app.services.week_utils import generate_weeks, week_target_hours
+from app.services.dsa_seed_data import DSA_PROBLEMS_DATA, DSA_ALGORITHM_TOPICS, DSA_COMPANIES
 
 
 START_DATE = date(2026, 8, 12)
@@ -527,10 +529,172 @@ def seed_database(db: Session):
                 theme=theme,
             ))
 
-    # --- DSA Topics ---
-    if not db.query(DSATopic).first():
-        for i, name in enumerate(DSA_TOPICS):
-            db.add(DSATopic(name=name, order_index=i + 1))
+    # --- DSA Topics & Algorithm Topics ---
+    existing_topic_names = {t.name.lower(): t for t in db.query(DSATopic).all()}
+    max_order = max([t.order_index for t in existing_topic_names.values()], default=0)
+    
+    # 1. Base roadmap topics
+    for i, name in enumerate(DSA_TOPICS):
+        if name.lower() not in existing_topic_names:
+            t = DSATopic(name=name, order_index=i + 1)
+            db.add(t)
+            existing_topic_names[name.lower()] = t
+    
+    # 2. Named algorithm topics
+    for i, name in enumerate(DSA_ALGORITHM_TOPICS):
+        if name.lower() not in existing_topic_names:
+            max_order += 1
+            t = DSATopic(name=name, order_index=max_order)
+            db.add(t)
+            existing_topic_names[name.lower()] = t
+    
+    db.commit()
+
+    # --- DSA Companies ---
+    existing_company_names = {c.name.lower(): c for c in db.query(DSACompany).all()}
+    max_c_order = max([c.order_index for c in existing_company_names.values()], default=0)
+    for i, name in enumerate(DSA_COMPANIES):
+        if name.lower() not in existing_company_names:
+            max_c_order += 1
+            c = DSACompany(name=name, order_index=max_c_order)
+            db.add(c)
+            existing_company_names[name.lower()] = c
+    db.commit()
+
+    # Re-fetch all topics and companies mapping for accurate foreign key associations
+    topic_map = {t.name.lower(): t for t in db.query(DSATopic).all()}
+    company_map = {c.name.lower(): c for c in db.query(DSACompany).all()}
+
+    # --- DSA Problems (280+ Curated Curriculum from Striver, Love Babbar, NeetCode) ---
+    existing_problems = db.query(DSAProblem).all()
+
+    def normalize_title(t: str) -> str:
+        if not t:
+            return ""
+        # Strip leading numbering like "98. ", "41. "
+        cleaned = re.sub(r"^\d+[\.\-\)]\s*", "", t.strip())
+        if cleaned.startswith("http://") or cleaned.startswith("https://"):
+            from app.models.dsa import clean_title_from_url
+            cleaned = clean_title_from_url(cleaned)
+        cleaned = re.sub(r"[^a-zA-Z0-9\s]", "", cleaned.lower())
+        return " ".join(cleaned.split())
+
+    # Build lookup index for existing problems
+    existing_by_norm_title = {}
+    existing_by_url = {}
+    existing_by_alt_url = {}
+
+    for p in existing_problems:
+        norm = normalize_title(p.title)
+        if norm:
+            existing_by_norm_title[norm] = p
+        norm_clean = normalize_title(p.clean_title)
+        if norm_clean:
+            existing_by_norm_title[norm_clean] = p
+        if p.problem_url:
+            existing_by_url[p.problem_url.strip().lower().rstrip("/")] = p
+        if p.alternate_url:
+            existing_by_alt_url[p.alternate_url.strip().lower().rstrip("/")] = p
+
+    for p_data in DSA_PROBLEMS_DATA:
+        title = p_data["title"]
+        category = p_data["category"]
+        difficulty = p_data["difficulty"]
+        p_url = p_data.get("problem_url", "").strip()
+        alt_title = p_data.get("alternate_title", "").strip()
+        alt_url = p_data.get("alternate_url", "").strip()
+        pattern = p_data.get("pattern", "")
+        time_comp = p_data.get("time_complexity", "")
+        space_comp = p_data.get("space_complexity", "")
+        sec_topics = p_data.get("secondary_topics", [])
+        comps = p_data.get("companies", [])
+
+        # Match against existing problems to preserve user status and notes
+        matched_prob = None
+        norm_t = normalize_title(title)
+        if norm_t in existing_by_norm_title:
+            matched_prob = existing_by_norm_title[norm_t]
+        elif p_url and p_url.lower().rstrip("/") in existing_by_url:
+            matched_prob = existing_by_url[p_url.lower().rstrip("/")]
+        elif alt_url and alt_url.lower().rstrip("/") in existing_by_alt_url:
+            matched_prob = existing_by_alt_url[alt_url.lower().rstrip("/")]
+
+        # Determine topic objects to associate
+        topics_to_associate = []
+        if category.lower() in topic_map:
+            topics_to_associate.append(topic_map[category.lower()])
+        for sec in sec_topics:
+            if sec.lower() in topic_map and topic_map[sec.lower()] not in topics_to_associate:
+                topics_to_associate.append(topic_map[sec.lower()])
+
+        # Determine company objects to associate
+        companies_to_associate = []
+        for c_name in comps:
+            c_key = c_name.strip().lower()
+            if c_key in company_map:
+                companies_to_associate.append(company_map[c_key])
+            elif c_name.strip():
+                new_c = DSACompany(name=c_name.strip(), order_index=len(company_map) + 1)
+                db.add(new_c)
+                db.flush()
+                company_map[c_key] = new_c
+                companies_to_associate.append(new_c)
+
+        if matched_prob:
+            # Update/enrich metadata while strictly preserving user progress and notes
+            matched_prob.category = category
+            matched_prob.difficulty = difficulty
+            if not matched_prob.problem_url:
+                matched_prob.problem_url = p_url
+            if not matched_prob.alternate_url:
+                matched_prob.alternate_url = alt_url
+            if not matched_prob.alternate_title:
+                matched_prob.alternate_title = alt_title
+            if not matched_prob.pattern:
+                matched_prob.pattern = pattern
+            if not matched_prob.time_complexity:
+                matched_prob.time_complexity = time_comp
+            if not matched_prob.space_complexity:
+                matched_prob.space_complexity = space_comp
+            
+            # Ensure topic association is up to date
+            for t_obj in topics_to_associate:
+                if t_obj not in matched_prob.topics:
+                    matched_prob.topics.append(t_obj)
+
+            # Ensure company association is up to date
+            for c_obj in companies_to_associate:
+                if c_obj not in matched_prob.companies:
+                    matched_prob.companies.append(c_obj)
+        else:
+            # Create new problem
+            new_p = DSAProblem(
+                category=category,
+                title=title,
+                difficulty=difficulty,
+                status="Not Started",
+                pattern=pattern,
+                mistake="",
+                time_complexity=time_comp,
+                space_complexity=space_comp,
+                solution_snippet="",
+                confidence=3,
+                problem_url=p_url,
+                alternate_title=alt_title,
+                alternate_url=alt_url,
+                topics=topics_to_associate,
+                companies=companies_to_associate,
+            )
+            db.add(new_p)
+            # Register in index
+            if norm_t:
+                existing_by_norm_title[norm_t] = new_p
+            if p_url:
+                existing_by_url[p_url.lower().rstrip("/")] = new_p
+            if alt_url:
+                existing_by_alt_url[alt_url.lower().rstrip("/")] = new_p
+
+    db.commit()
 
     # --- System Design Concepts & Sub-concepts ---
     existing_subs = db.query(SystemDesignSubConcept).all()

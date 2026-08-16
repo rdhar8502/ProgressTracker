@@ -14,6 +14,14 @@ dsa_problem_topics = Table(
     Column("topic_id", Integer, ForeignKey("dsa_topics.id", ondelete="CASCADE"), primary_key=True),
 )
 
+# Association Table for DSAProblem <-> DSACompany many-to-many relationship
+dsa_problem_companies = Table(
+    "dsa_problem_companies",
+    Base.metadata,
+    Column("problem_id", Integer, ForeignKey("dsa_problems.id", ondelete="CASCADE"), primary_key=True),
+    Column("company_id", Integer, ForeignKey("dsa_companies.id", ondelete="CASCADE"), primary_key=True),
+)
+
 
 def clean_title_from_url(url: str) -> str:
     if not url or not (url.startswith("http://") or url.startswith("https://")):
@@ -63,6 +71,15 @@ class DSATopic(Base):
     problems = relationship("DSAProblem", secondary=dsa_problem_topics, back_populates="topics")
 
 
+class DSACompany(Base):
+    __tablename__ = "dsa_companies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False, unique=True)
+    order_index = Column(Integer, default=0)
+    problems = relationship("DSAProblem", secondary=dsa_problem_companies, back_populates="companies")
+
+
 class DSAProblem(Base):
     __tablename__ = "dsa_problems"
 
@@ -71,6 +88,7 @@ class DSAProblem(Base):
     title = Column(String(300), nullable=False)
     difficulty = Column(String(10), nullable=False, default="Medium")  # Easy / Medium / Hard
     topics = relationship("DSATopic", secondary=dsa_problem_topics, back_populates="problems")
+    companies = relationship("DSACompany", secondary=dsa_problem_companies, back_populates="problems")
     status = Column(String(20), default="Not Started")  # Not Started / In Progress / Solved / Needs Review
     pattern = Column(Text, default="")
     mistake = Column(Text, default="")

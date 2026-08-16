@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from app.database import get_db
-from app.models.dsa import DSATopic, DSAProblem
+from app.models.dsa import DSATopic, DSAProblem, DSACompany
 from app.models.user import UserProfile
 
 router = APIRouter(prefix="/dsa", tags=["dsa"])
@@ -22,17 +22,19 @@ def dsa_page(
     request: Request,
     category: Optional[str] = None,
     difficulty: Optional[str] = None,
+    company: Optional[str] = None,
     status: Optional[str] = None,
     search: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     user = db.query(UserProfile).first()
     topics = db.query(DSATopic).order_by(DSATopic.order_index).all()
-    topic_names = [t.name for t in topics]
+    all_companies = db.query(DSACompany).order_by(DSACompany.name).all()
 
     # Normalize empty strings to None
     category = category.strip() if (category and category.strip()) else None
     difficulty = difficulty.strip() if (difficulty and difficulty.strip()) else None
+    company = company.strip() if (company and company.strip()) else None
     status = status.strip() if (status and status.strip()) else None
     search_term = search.strip() if (search and search.strip()) else None
 
@@ -49,13 +51,14 @@ def dsa_page(
     hard_total = sum(1 for p in all_problems if p.difficulty == "Hard")
 
     # Distinct categories in DB plus standard topics
+    from app.services.seed import DSA_TOPICS
     db_categories = [c[0] for c in db.query(DSAProblem.category).distinct().all() if c[0]]
-    all_categories_set = set(topic_names) | set(db_categories)
+    all_categories_set = set(DSA_TOPICS) | set(db_categories)
     
-    # Maintain standard order for known topics, followed by any custom categories
-    ordered_categories = [t for t in topic_names if t in all_categories_set]
+    # Maintain standard order for known roadmap topics, followed by any custom categories that have problems
+    ordered_categories = [t for t in DSA_TOPICS if t in all_categories_set]
     for c in sorted(all_categories_set):
-        if c not in ordered_categories:
+        if c not in ordered_categories and c in db_categories:
             ordered_categories.append(c)
 
     # Build query for filtered problems
@@ -64,6 +67,8 @@ def dsa_page(
         query = query.filter(DSAProblem.category == category)
     if difficulty:
         query = query.filter(DSAProblem.difficulty == difficulty)
+    if company:
+        query = query.filter(DSAProblem.companies.any(DSACompany.name == company))
     if status:
         query = query.filter(DSAProblem.status == status)
     if search_term:
@@ -73,7 +78,9 @@ def dsa_page(
                 DSAProblem.alternate_title.ilike(f"%{search_term}%"),
                 DSAProblem.category.ilike(f"%{search_term}%"),
                 DSAProblem.pattern.ilike(f"%{search_term}%"),
-                DSAProblem.mistake.ilike(f"%{search_term}%")
+                DSAProblem.mistake.ilike(f"%{search_term}%"),
+                DSAProblem.topics.any(DSATopic.name.ilike(f"%{search_term}%")),
+                DSAProblem.companies.any(DSACompany.name.ilike(f"%{search_term}%"))
             )
         )
     filtered_problems = query.order_by(DSAProblem.id.desc()).all()
@@ -111,7 +118,7 @@ def dsa_page(
 
     # Prepare structured list for UI
     categories_view = []
-    has_active_filters = bool(category or difficulty or status or search_term)
+    has_active_filters = bool(category or difficulty or company or status or search_term)
 
     # If filters are active, show only categories that have matching problems.
     # Otherwise, show all categories that either have problems or belong to the roadmap.
@@ -133,9 +140,7 @@ def dsa_page(
         diff_map = grouped_data.get(cat_name, {"Easy": [], "Medium": [], "Hard": []})
         filtered_cat_total = sum(len(plist) for plist in diff_map.values())
         
-        # When no filters are active, we can show categories with 0 problems or with problems
-        # If filters are active and filtered_cat_total == 0, skip
-        if has_active_filters and filtered_cat_total == 0:
+        if (has_active_filters and filtered_cat_total == 0) or meta["total"] == 0:
             continue
 
         categories_view.append({
@@ -169,6 +174,7 @@ def dsa_page(
         "user": user,
         "today": date.today(),
         "topics": topics,
+        "all_companies": all_companies,
         "all_categories": ordered_categories,
         "categories_view": categories_view,
         "filtered_problems_count": len(filtered_problems),
@@ -176,6 +182,7 @@ def dsa_page(
         "statuses": STATUSES,
         "selected_category": category,
         "selected_difficulty": difficulty,
+        "selected_company": company,
         "selected_status": status,
         "selected_search": search_term or "",
         "total": total,
@@ -199,6 +206,50 @@ def sanitize_str(val: Optional[str]) -> str:
     return val_clean
 
 
+def resolve_topics(db: Session, topic_ids: List[int], new_topics_str: Optional[str], default_category: str) -> List[DSATopic]:
+    topics = []
+    if topic_ids:
+        topics.extend(db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all())
+    if new_topics_str and new_topics_str.strip():
+        names = [n.strip() for n in new_topics_str.split(",") if n.strip()]
+        for name in names:
+            existing_t = db.query(DSATopic).filter(DSATopic.name.ilike(name)).first()
+            if existing_t:
+                if existing_t not in topics:
+                    topics.append(existing_t)
+            else:
+                max_o = max([t.order_index for t in db.query(DSATopic).all()], default=0)
+                new_t = DSATopic(name=name, order_index=max_o + 1)
+                db.add(new_t)
+                db.flush()
+                topics.append(new_t)
+    if not topics and default_category:
+        cat_t = db.query(DSATopic).filter(DSATopic.name.ilike(default_category)).first()
+        if cat_t and cat_t not in topics:
+            topics.append(cat_t)
+    return topics
+
+
+def resolve_companies(db: Session, company_ids: List[int], new_companies_str: Optional[str]) -> List[DSACompany]:
+    comps = []
+    if company_ids:
+        comps.extend(db.query(DSACompany).filter(DSACompany.id.in_(company_ids)).all())
+    if new_companies_str and new_companies_str.strip():
+        names = [n.strip() for n in new_companies_str.split(",") if n.strip()]
+        for name in names:
+            existing_c = db.query(DSACompany).filter(DSACompany.name.ilike(name)).first()
+            if existing_c:
+                if existing_c not in comps:
+                    comps.append(existing_c)
+            else:
+                max_o = max([c.order_index for c in db.query(DSACompany).all()], default=0)
+                new_c = DSACompany(name=name, order_index=max_o + 1)
+                db.add(new_c)
+                db.flush()
+                comps.append(new_c)
+    return comps
+
+
 @router.post("/add")
 def add_problem(
     category: str = Form("Arrays and Strings"),
@@ -215,6 +266,9 @@ def add_problem(
     alternate_title: str = Form(""),
     alternate_url: str = Form(""),
     topic_ids: List[int] = Form(default=[]),
+    new_topics: Optional[str] = Form(""),
+    company_ids: List[int] = Form(default=[]),
+    new_companies: Optional[str] = Form(""),
     db: Session = Depends(get_db),
 ):
     category = sanitize_str(category) or "Arrays and Strings"
@@ -243,14 +297,8 @@ def add_problem(
         from app.models.dsa import clean_title_from_url
         alternate_title = clean_title_from_url(alternate_url)
 
-    topics = []
-    if topic_ids:
-        topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
-    else:
-        # Auto-link matching DSATopic by category name if present
-        matching_topic = db.query(DSATopic).filter(DSATopic.name == category).first()
-        if matching_topic:
-            topics = [matching_topic]
+    topics = resolve_topics(db, topic_ids, new_topics, category)
+    companies = resolve_companies(db, company_ids, new_companies)
 
     p = DSAProblem(
         category=category,
@@ -268,6 +316,7 @@ def add_problem(
         alternate_url=alternate_url,
         solved_date=date.today() if status == "Solved" else None,
         topics=topics,
+        companies=companies,
     )
     db.add(p)
     db.commit()
@@ -291,6 +340,9 @@ def update_problem(
     solution_snippet: str = Form(""),
     confidence: int = Form(3),
     topic_ids: List[int] = Form(default=[]),
+    new_topics: Optional[str] = Form(""),
+    company_ids: List[int] = Form(default=[]),
+    new_companies: Optional[str] = Form(""),
     db: Session = Depends(get_db),
 ):
     p = db.query(DSAProblem).filter(DSAProblem.id == problem_id).first()
@@ -323,8 +375,11 @@ def update_problem(
         from app.models.dsa import clean_title_from_url
         alternate_title = clean_title_from_url(alternate_url)
     
-    topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all() if topic_ids else []
+    topics = resolve_topics(db, topic_ids, new_topics, category)
+    companies = resolve_companies(db, company_ids, new_companies)
+
     p.topics = topics
+    p.companies = companies
 
     p.category = category
     p.title = title
@@ -353,3 +408,4 @@ def delete_problem(problem_id: int, db: Session = Depends(get_db)):
     db.delete(p)
     db.commit()
     return RedirectResponse(url="/dsa", status_code=303)
+
