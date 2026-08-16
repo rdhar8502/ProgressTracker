@@ -29,31 +29,32 @@
   </div>
 
   <!-- Level Progress Card -->
-  <div class="card" style="background: linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%); border: 1px solid #A7F3D0; min-height: 140px;">
+  <div class="card" style="background: var(--surface); border: 1px solid var(--border); min-height: 140px; border-left: 4px solid {{ gamification.level_details.tier_color }};">
     <div class="card-body" style="padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between;">
       <div class="flex items-center justify-between" style="margin-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #059669; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">
-          <i data-lucide="trophy" class="icon-sm"></i>
-          <span>Level & XP Status</span>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: {{ gamification.level_details.tier_color }}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">
+          <i data-lucide="{{ gamification.level_details.tier_icon }}" class="icon-sm"></i>
+          <span>{{ gamification.level_details.tier_name }} Tier · Status</span>
         </div>
         <a href="/achievements" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600;">Quest Board →</a>
       </div>
       <div class="flex items-center gap-3">
-        <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #059669, #10B981); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; box-shadow: 0 2px 10px rgba(5, 150, 105, 0.25); flex-shrink: 0;">
+        <div style="width: 46px; height: 46px; border-radius: 50%; background: {{ gamification.level_details.tier_gradient }}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); flex-shrink: 0; position: relative;">
+          <i data-lucide="{{ gamification.level_details.icon }}" class="icon-xs" style="position: absolute; top: -4px; right: -4px; background: var(--surface); color: {{ gamification.level_details.tier_color }}; border-radius: 50%; padding: 2px; border: 1px solid var(--border);"></i>
           {{ gamification.level_details.level }}
         </div>
         <div style="flex-grow: 1;">
-          <div style="font-size: 15px; font-weight: 700; color: var(--text-primary);">{{ gamification.level_details.title }}</div>
-          <div style="font-size: 11px; color: var(--text-muted);">{{ gamification.level_details.total_xp }} Total XP · {{ gamification.total_badges_unlocked }} milestones met</div>
+          <div style="font-size: 15px; font-weight: 800; color: var(--text-primary);">{{ gamification.level_details.title }}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">{{ gamification.level_details.total_xp }} Total XP · {{ gamification.total_tiers_unlocked }} tiers unlocked</div>
         </div>
       </div>
       <div style="margin-top: 10px;">
-        <div class="progress-bar" style="height: 6px; background: #D1FAE5;">
-          <div style="height: 100%; background: linear-gradient(90deg, #059669, #10B981); width: {{ gamification.level_details.pct_progress }}%; border-radius: 99px;"></div>
+        <div class="progress-bar" style="height: 6px; background: var(--surface-alt);">
+          <div style="height: 100%; background: {{ gamification.level_details.tier_gradient }}; width: {{ gamification.level_details.pct_progress }}%; border-radius: 99px;"></div>
         </div>
         <div class="flex justify-between" style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
           <span>{{ gamification.level_details.xp_in_level }} XP</span>
-          <span>Next level in {{ gamification.level_details.xp_needed_for_next }} XP</span>
+          <span>Next: <strong>Lv. {{ gamification.level_details.level + 1 }}</strong> in {{ gamification.level_details.xp_needed_for_next }} XP</span>
         </div>
       </div>
     </div>

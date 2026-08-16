@@ -253,3 +253,133 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   }
 });
+
+// ── Gamification Filter & Celebration Helpers ──────────────────
+window.currentCategoryFilter = 'all';
+window.currentStatusFilter = 'all';
+
+window.setCategoryFilter = function(category, btn) {
+  window.currentCategoryFilter = category;
+  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.filterAchievements();
+};
+
+window.setStatusFilter = function(status, btn) {
+  window.currentStatusFilter = status;
+  document.querySelectorAll('.status-chip').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.filterAchievements();
+};
+
+window.filterAchievements = function() {
+  const searchInput = document.getElementById('questSearchInput');
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  const cards = document.querySelectorAll('#questsContainer .quest-card');
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const cardCategory = card.getAttribute('data-category');
+    const isUnlocked = card.getAttribute('data-unlocked') === 'true';
+    const cardTitle = card.getAttribute('data-title') || '';
+    const cardDesc = card.getAttribute('data-desc') || '';
+
+    // Check category match
+    const categoryMatch = (window.currentCategoryFilter === 'all' || cardCategory === window.currentCategoryFilter);
+
+    // Check status match
+    let statusMatch = true;
+    if (window.currentStatusFilter === 'unlocked') {
+      statusMatch = isUnlocked;
+    } else if (window.currentStatusFilter === 'in-progress') {
+      statusMatch = !isUnlocked;
+    }
+
+    // Check search query match
+    const searchMatch = !query || cardTitle.includes(query) || cardDesc.includes(query);
+
+    if (categoryMatch && statusMatch && searchMatch) {
+      card.style.display = '';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  const countEl = document.getElementById('visibleQuestsCount');
+  if (countEl) {
+    countEl.textContent = visibleCount;
+  }
+};
+
+// ── Lightweight Confetti Celebration Engine ───────────────────
+window.triggerConfetti = function(duration = 2000) {
+  const canvas = document.getElementById('gamification-confetti');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ['#2563EB', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#38BDF8', '#FACC15'];
+  const particleCount = 75;
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+      y: window.innerHeight / 2 + (Math.random() - 0.5) * 100,
+      vx: (Math.random() - 0.5) * 14,
+      vy: (Math.random() - 0.5) * 14 - 6,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 12,
+      opacity: 1,
+      shape: Math.random() > 0.4 ? 'rect' : 'circle',
+    });
+  }
+
+  const startTime = Date.now();
+
+  function render() {
+    const elapsed = Date.now() - startTime;
+    if (elapsed > duration) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.35; // gravity
+      p.vx *= 0.98; // drag
+      p.rotation += p.rotationSpeed;
+      p.opacity = Math.max(0, 1 - (elapsed / duration));
+
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    });
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+};
+
+

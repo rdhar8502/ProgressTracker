@@ -1777,140 +1777,525 @@ tbody tr:hover { background: #F8FAFC; }
 .gamification-container {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
+.gamification-confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── Level Hero Profile Card ────────────────────────────── */
 .level-profile-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%);
-  border: 1px solid #BFDBFE;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease;
+  background: var(--surface);
+  border: 1px solid var(--border);
 }
 
-.level-flex {
+.level-profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10B981, #0EA5E9, #6366F1, #8B5CF6, #EC4899, #F59E0B);
+}
+
+.level-profile-card.rank-tier-apprentice   { border-color: rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%); }
+.level-profile-card.rank-tier-practitioner { border-color: rgba(14, 165, 233, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #F0F9FF 100%); }
+.level-profile-card.rank-tier-engineer     { border-color: rgba(99, 102, 241, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #EEF2FF 100%); }
+.level-profile-card.rank-tier-senior_specialist { border-color: rgba(139, 92, 246, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #F5F3FF 100%); }
+.level-profile-card.rank-tier-staff_architect   { border-color: rgba(236, 72, 153, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #FDF2F8 100%); }
+.level-profile-card.rank-tier-principal_engineer { border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%); }
+.level-profile-card.rank-tier-distinguished_demigod { border-color: rgba(239, 68, 68, 0.35); background: linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%); }
+.level-profile-card.rank-tier-mythic_legend { border-color: rgba(168, 85, 247, 0.45); background: linear-gradient(135deg, #FFFFFF 0%, #FAF5FF 60%, #FEF9C3 100%); }
+
+.level-hero-grid {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
+}
+
+@media (max-width: 850px) {
+  .level-hero-grid {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .level-emblem-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .level-emblem-circle {
-  width: 64px;
-  height: 64px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563EB, #4F46E5);
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 10px 25px -3px rgba(37, 99, 235, 0.35);
+  position: relative;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.level-emblem-circle .level-number {
-  font-size: 22px;
-  font-weight: 800;
+.level-emblem-circle:hover {
+  transform: scale(1.06) rotate(3deg);
+}
+
+.emblem-icon-badge {
   line-height: 1;
+  margin-bottom: 2px;
 }
 
-.level-emblem-circle .level-label {
+.emblem-lucide-icon {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.level-number-display {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.level-label-text {
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.9;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  opacity: 0.95;
+}
+
+.tier-name-pill {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .level-progress-details {
   flex: 1;
+  width: 100%;
+}
+
+.level-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rank-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.rank-apprentice   { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+.rank-practitioner { background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
+.rank-engineer     { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
+.rank-senior       { background: #EDE9FE; color: #5B21B6; border: 1px solid #DDD6FE; }
+.rank-staff        { background: #FCE7F3; color: #9D174D; border: 1px solid #FBCFE8; }
+.rank-principal    { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+.rank-demigod      { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+.rank-mythic       { background: linear-gradient(135deg, #F3E8FF, #FEF08A); color: #6B21A8; border: 1px solid #E9D5FF; }
+
+.tier-tagline-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .level-title-text {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
 }
 
 .user-sub-text {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.level-badges-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .total-xp-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  background: var(--accent-light);
-  border: 1px solid var(--accent-subtle);
-  color: var(--accent);
-  font-weight: 700;
+  gap: 5px;
+  padding: 5px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-weight: 800;
   font-size: 13px;
   border-radius: 20px;
+  box-shadow: var(--shadow-xs);
+}
+
+.streak-multiplier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 20px;
+  animation: pulse-subtle 2s infinite ease-in-out;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.02); }
+}
+
+.roadmap-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
 }
 
 .xp-bar-container {
-  height: 8px;
-  background: var(--border);
+  height: 10px;
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 99px;
   overflow: hidden;
-  margin-top: 8px;
+  position: relative;
 }
 
 .xp-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2563EB, #10B981);
+  background: linear-gradient(90deg, #2563EB, #06B6D4, #10B981);
   border-radius: 99px;
-  transition: width 0.6s ease;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
 }
 
-.level-up-tip {
+.level-perks-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   font-size: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.level-current-perk {
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-next-perk {
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.stat-summary-card {
+/* ─── Daily Quests & Missions ────────────────────────────── */
+.daily-quests-card {
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-xs);
 }
 
-.summary-icon {
-  width: 38px;
-  height: 38px;
+.daily-quests-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .daily-quests-grid { grid-template-columns: 1fr; }
+}
+
+.quest-mission-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.quest-mission-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.quest-mission-card.mission-completed {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+  border-color: #A7F3D0;
+}
+
+.mission-icon-box {
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
   background: var(--surface-alt);
   color: var(--text-primary);
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.stat-summary-card.purple .summary-icon { background: var(--accent-purple-light); color: var(--accent-purple); }
-.stat-summary-card.blue .summary-icon   { background: var(--accent-light); color: var(--accent); }
-.stat-summary-card.green .summary-icon  { background: var(--success-bg); color: var(--success); }
+.mission-completed .mission-icon-box {
+  background: #D1FAE5;
+  color: #059669;
+}
 
-.summary-value {
-  font-size: 22px;
-  font-weight: 800;
+.mission-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.mission-title {
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 2px;
+  margin: 0;
 }
 
-.summary-label {
+.mission-desc {
   font-size: 12px;
+  color: var(--text-muted);
+  margin: 4px 0 8px 0;
+  line-height: 1.4;
+}
+
+.mission-xp-reward {
+  font-size: 11px;
+  font-weight: 800;
+  color: #059669;
+  background: #D1FAE5;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.mission-progress-bar {
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.mission-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563EB, #10B981);
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+.mission-status-chip {
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mission-status-chip.completed { color: #059669; }
+.mission-status-chip.pending   { color: #6366F1; }
+
+/* ─── XP Source Breakdown ────────────────────────────────── */
+.xp-sources-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 1024px) {
+  .xp-sources-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .xp-sources-grid { grid-template-columns: 1fr; }
+}
+
+.xp-source-item {
+  background: var(--surface-alt);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.xp-source-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.xp-source-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.xp-source-name {
   font-weight: 600;
+  color: var(--text-primary);
+}
+
+.xp-source-value {
+  font-weight: 700;
   color: var(--text-secondary);
 }
 
-.summary-desc {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
+/* ─── Milestones Control Bar & Filters ───────────────────── */
+.milestones-control-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
 }
 
+.quest-search-box {
+  position: relative;
+  min-width: 260px;
+}
+
+.quest-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.quest-search-input {
+  width: 100%;
+  padding: 7px 10px 7px 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.quest-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.quest-category-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.category-tab:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.category-tab.active {
+  background: var(--accent);
+  color: #FFFFFF;
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.status-chip {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-chip.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-subtle);
+  font-weight: 700;
+}
+
+/* ─── Quests Grid & Cards ────────────────────────────────── */
 .quests-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1924,51 +2309,77 @@ tbody tr:hover { background: #F8FAFC; }
 .quest-card {
   border: 1px solid var(--border);
   box-shadow: var(--shadow-xs);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .quest-card.unlocked-card {
-  border-color: #BFDBFE;
   background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFF 100%);
 }
+
+.quest-card.tier-border-bronze   { border-left: 4px solid #F59E0B; }
+.quest-card.tier-border-silver   { border-left: 4px solid #94A3B8; }
+.quest-card.tier-border-gold     { border-left: 4px solid #EAB308; }
+.quest-card.tier-border-platinum { border-left: 4px solid #6366F1; }
+.quest-card.tier-border-diamond  { border-left: 4px solid #06B6D4; }
 
 .quest-card-header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 14px;
 }
 
 .quest-icon-wrapper {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   background: var(--surface-alt);
   color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-.unlocked-card .quest-icon-wrapper {
-  background: var(--accent-light);
-  color: var(--accent);
-}
+.quest-icon-wrapper.tier-icon-bronze   { background: #FEF3C7; color: #B45309; }
+.quest-icon-wrapper.tier-icon-silver   { background: #F1F5F9; color: #475569; }
+.quest-icon-wrapper.tier-icon-gold     { background: #FEF9C3; color: #A16207; }
+.quest-icon-wrapper.tier-icon-platinum { background: #EEF2FF; color: #4338CA; }
+.quest-icon-wrapper.tier-icon-diamond  { background: #ECFEFF; color: #0E7490; }
 
 .quest-title-section {
   flex: 1;
 }
 
+.quest-category-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
 .quest-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .quest-desc {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  line-height: 1.4;
 }
 
 .quest-badge-display {
@@ -1977,16 +2388,296 @@ tbody tr:hover { background: #F8FAFC; }
 
 .quest-tier-chip {
   font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.tier-Bronze   { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-.tier-Silver   { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
-.tier-Gold     { background: #FEF9C3; color: #A16207; border: 1px solid #FACC15; }
-.tier-Platinum { background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; }
-.tier-None, .tier-Locked { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
+.tier-Bronze   { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15); }
+.tier-Silver   { background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; box-shadow: 0 2px 6px rgba(100, 116, 139, 0.15); }
+.tier-Gold     { background: #FEF9C3; color: #854D0E; border: 1px solid #FACC15; box-shadow: 0 2px 6px rgba(234, 179, 8, 0.2); }
+.tier-Platinum { background: #EEF2FF; color: #3730A3; border: 1px solid #C7D2FE; box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2); }
+.tier-Diamond  { background: #ECFEFF; color: #0E7490; border: 1px solid #A5F3FC; box-shadow: 0 2px 6px rgba(6, 182, 212, 0.25); }
+.tier-Locked, .tier-None { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
+
+.checkpoint-tier-badge {
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.checkpoint-tier-badge:hover {
+  transform: scale(1.05);
+}
+
+.badge-tier-unlocked {
+  font-weight: 700;
+}
+
+.tier-badge-bronze   { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+.tier-badge-silver   { background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; }
+.tier-badge-gold     { background: #FEF9C3; color: #854D0E; border: 1px solid #FACC15; }
+.tier-badge-platinum { background: #EEF2FF; color: #3730A3; border: 1px solid #C7D2FE; }
+.tier-badge-diamond  { background: #ECFEFF; color: #0E7490; border: 1px solid #A5F3FC; }
+
+/* ─── Legendary Hall of Fame Badges ──────────────────────── */
+.legendary-hall-card {
+  border: 1px solid #FDE68A;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.08);
+}
+
+.legendary-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .legendary-badges-grid { grid-template-columns: 1fr; }
+}
+
+.legendary-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.legendary-card:hover {
+  transform: translateY(-2px);
+}
+
+.legendary-card.legendary-unlocked {
+  background: linear-gradient(135deg, #FFFDF5 0%, #FEF9C3 100%);
+  border-color: #FACC15;
+  box-shadow: 0 4px 15px rgba(234, 179, 8, 0.15);
+}
+
+.legendary-card.legendary-locked {
+  opacity: 0.7;
+  background: var(--surface-alt);
+}
+
+.legendary-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #FEF3C7;
+  color: #D97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.legendary-unlocked .legendary-icon-wrap {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.legendary-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.legendary-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.legendary-tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.legendary-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 4px 0 6px 0;
+  line-height: 1.4;
+}
+
+/* ─── XP Codex List ──────────────────────────────────────── */
+.xp-codex-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.xp-pill {
+  min-width: 58px;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+/* ─── Career Roadmap Modal ───────────────────────────────── */
+.roadmap-modal {
+  max-width: 760px;
+}
+
+.rank-tiers-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 700px) {
+  .rank-tiers-bar { grid-template-columns: repeat(2, 1fr); }
+}
+
+.rank-tier-pill {
+  background: var(--surface-alt);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.rank-tier-pill.active-tier {
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+
+.roadmap-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  padding-left: 28px;
+}
+
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: var(--border);
+}
+
+.roadmap-step {
+  position: relative;
+}
+
+.step-indicator {
+  position: absolute;
+  left: -28px;
+  top: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 2px solid #FFFFFF;
+}
+
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.step-unlocked .step-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+}
+
+.step-current-active .step-card {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, #EFF6FF 0%, #EEF2FF 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15);
+}
+
+.step-locked .step-card {
+  opacity: 0.65;
+  background: var(--surface-alt);
+}
+
+.step-level-tag {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+}
+
+.step-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.step-tier-chip {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.step-xp-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.step-perk-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.current-level-indicator-bar {
+  display: flex;
+  align-items: center;
+}
+
+.current-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1D4ED8;
+  background: #DBEAFE;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
 
 /* ─── Quill WYSIWYG Editor Adjustments ───────────────────── */
 .quill-editor-wrapper {

@@ -7,7 +7,7 @@
   <meta name="description" content="Interview preparation progress tracker for Senior AI / Python Backend Engineer roles">
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="stylesheet" href="/static/css/style.css?v=3">
+  <link rel="stylesheet" href="/static/css/style.css?v=5">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <!-- Lucide Modern Icons (Open Source - ISC License) -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -39,13 +39,14 @@
       {% set g = user_gamification() %}
       {% if g %}
       <div class="sidebar-xp-panel">
-        <div style="display: flex; align-items: center; font-size: 11px; margin-bottom: 2px;">
-          <span style="color: #60A5FA; font-weight: 700;">Level {{ g.level_details.level }}</span>
+        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; margin-bottom: 2px;">
+          <i data-lucide="{{ g.level_details.icon }}" class="icon-xs" style="color: {{ g.level_details.tier_color }};"></i>
+          <span style="color: {{ g.level_details.tier_color }}; font-weight: 700;">Lv. {{ g.level_details.level }}</span>
           <span style="color: #94A3B8; text-align: right; margin-left: auto;">{{ g.level_details.total_xp }} XP</span>
         </div>
-        <div style="font-size: 10px; color: #94A3B8; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.level_details.title }}</div>
+        <div style="font-size: 10px; color: #94A3B8; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ g.level_details.title }} ({{ g.level_details.tier_name }})">{{ g.level_details.title }}</div>
         <div class="progress-bar" style="height: 4px;">
-          <div class="progress-fill" style="width: {{ g.level_details.pct_progress }}%;"></div>
+          <div class="progress-fill" style="width: {{ g.level_details.pct_progress }}%; background: {{ g.level_details.tier_gradient }};"></div>
         </div>
       </div>
       {% endif %}
@@ -163,7 +164,7 @@
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<script src="/static/js/app.js"></script>
+<script src="/static/js/app.js?v=5"></script>
 <script>
   // Initialize Lucide icons on load
   if (window.lucide) {
