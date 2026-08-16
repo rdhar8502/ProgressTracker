@@ -81,7 +81,7 @@ def init():
 
     run_migrations()
     
-    # Run schema migration for many-to-many DSA topics
+    # Run schema migration for many-to-many DSA topics and category column
     try:
         with engine.begin() as conn:
             # Check if topic_id column exists in dsa_problems
@@ -103,6 +103,34 @@ def init():
                     "ALTER TABLE dsa_problems DROP COLUMN IF EXISTS topic_id CASCADE"
                 ))
                 logger.info("✅ Migration of topic_id complete.")
+
+            # Check if category column exists in dsa_problems
+            res_cat = conn.execute(text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='dsa_problems' AND column_name='category'"
+            )).fetchone()
+            if not res_cat:
+                logger.info("Adding category column to dsa_problems...")
+                conn.execute(text(
+                    "ALTER TABLE dsa_problems ADD COLUMN category VARCHAR(100) DEFAULT 'Arrays and Strings'"
+                ))
+                conn.execute(text(
+                    """
+                    UPDATE dsa_problems
+                    SET category = (
+                        SELECT t.name
+                        FROM dsa_problem_topics pt
+                        JOIN dsa_topics t ON pt.topic_id = t.id
+                        WHERE pt.problem_id = dsa_problems.id
+                        LIMIT 1
+                    )
+                    WHERE category IS NULL OR category = '';
+                    """
+                ))
+                conn.execute(text(
+                    "UPDATE dsa_problems SET category = 'Arrays and Strings' WHERE category IS NULL OR category = '';"
+                ))
+                logger.info("✅ Added category column to dsa_problems.")
     except Exception as e:
         logger.error(f"Error migrating database schema: {e}")
 

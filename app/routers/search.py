@@ -28,6 +28,7 @@ def search_api(q: str = "", db: Session = Depends(get_db)):
         or_(
             DSAProblem.title.ilike(like_query),
             DSAProblem.alternate_title.ilike(like_query),
+            DSAProblem.category.ilike(like_query),
             DSAProblem.pattern.ilike(like_query),
             DSAProblem.mistake.ilike(like_query)
         )

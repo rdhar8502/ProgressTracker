@@ -1,9 +1,10 @@
 from datetime import date
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.database import get_db
 from app.models.dsa import DSATopic, DSAProblem
@@ -19,7 +20,7 @@ STATUSES = ["Not Started", "In Progress", "Solved", "Needs Review"]
 @router.get("", response_class=HTMLResponse)
 def dsa_page(
     request: Request,
-    topic_id: Optional[str] = None,
+    category: Optional[str] = None,
     difficulty: Optional[str] = None,
     status: Optional[str] = None,
     search: Optional[str] = None,
@@ -27,52 +28,140 @@ def dsa_page(
 ):
     user = db.query(UserProfile).first()
     topics = db.query(DSATopic).order_by(DSATopic.order_index).all()
-
-    # Safely convert topic_id to int if present and not empty
-    parsed_topic_id = None
-    if topic_id and topic_id.strip():
-        try:
-            parsed_topic_id = int(topic_id)
-        except ValueError:
-            pass
+    topic_names = [t.name for t in topics]
 
     # Normalize empty strings to None
-    difficulty = difficulty if (difficulty and difficulty.strip()) else None
-    status = status if (status and status.strip()) else None
+    category = category.strip() if (category and category.strip()) else None
+    difficulty = difficulty.strip() if (difficulty and difficulty.strip()) else None
+    status = status.strip() if (status and status.strip()) else None
+    search_term = search.strip() if (search and search.strip()) else None
 
+    # Global Stats across all problems
+    all_problems = db.query(DSAProblem).all()
+    total = len(all_problems)
+    solved = sum(1 for p in all_problems if p.status == "Solved")
+    easy_solved = sum(1 for p in all_problems if p.status == "Solved" and p.difficulty == "Easy")
+    medium_solved = sum(1 for p in all_problems if p.status == "Solved" and p.difficulty == "Medium")
+    hard_solved = sum(1 for p in all_problems if p.status == "Solved" and p.difficulty == "Hard")
+
+    easy_total = sum(1 for p in all_problems if p.difficulty == "Easy")
+    medium_total = sum(1 for p in all_problems if p.difficulty == "Medium")
+    hard_total = sum(1 for p in all_problems if p.difficulty == "Hard")
+
+    # Distinct categories in DB plus standard topics
+    db_categories = [c[0] for c in db.query(DSAProblem.category).distinct().all() if c[0]]
+    all_categories_set = set(topic_names) | set(db_categories)
+    
+    # Maintain standard order for known topics, followed by any custom categories
+    ordered_categories = [t for t in topic_names if t in all_categories_set]
+    for c in sorted(all_categories_set):
+        if c not in ordered_categories:
+            ordered_categories.append(c)
+
+    # Build query for filtered problems
     query = db.query(DSAProblem)
-    if parsed_topic_id:
-        query = query.filter(DSAProblem.topics.any(id=parsed_topic_id))
+    if category:
+        query = query.filter(DSAProblem.category == category)
     if difficulty:
         query = query.filter(DSAProblem.difficulty == difficulty)
     if status:
         query = query.filter(DSAProblem.status == status)
-    if search and search.strip():
+    if search_term:
         query = query.filter(
-            DSAProblem.title.ilike(f"%{search.strip()}%") |
-            DSAProblem.alternate_title.ilike(f"%{search.strip()}%") |
-            DSAProblem.pattern.ilike(f"%{search.strip()}%") |
-            DSAProblem.mistake.ilike(f"%{search.strip()}%")
+            or_(
+                DSAProblem.title.ilike(f"%{search_term}%"),
+                DSAProblem.alternate_title.ilike(f"%{search_term}%"),
+                DSAProblem.category.ilike(f"%{search_term}%"),
+                DSAProblem.pattern.ilike(f"%{search_term}%"),
+                DSAProblem.mistake.ilike(f"%{search_term}%")
+            )
         )
-    problems = query.order_by(DSAProblem.id.desc()).all()
+    filtered_problems = query.order_by(DSAProblem.id.desc()).all()
 
-    # Stats
-    total = db.query(DSAProblem).count()
-    solved = db.query(DSAProblem).filter(DSAProblem.status == "Solved").count()
-    easy_solved = db.query(DSAProblem).filter(DSAProblem.status == "Solved", DSAProblem.difficulty == "Easy").count()
-    medium_solved = db.query(DSAProblem).filter(DSAProblem.status == "Solved", DSAProblem.difficulty == "Medium").count()
-    hard_solved = db.query(DSAProblem).filter(DSAProblem.status == "Solved", DSAProblem.difficulty == "Hard").count()
+    # Pre-calculate category-level statistics from all problems (for merged Topic Progress)
+    category_meta: Dict[str, Dict[str, Any]] = {}
+    for cat_name in ordered_categories:
+        cat_probs = [p for p in all_problems if p.category == cat_name]
+        cat_total = len(cat_probs)
+        cat_solved = sum(1 for p in cat_probs if p.status == "Solved")
+        cat_pct = round((cat_solved / cat_total * 100) if cat_total > 0 else 0)
+        
+        category_meta[cat_name] = {
+            "name": cat_name,
+            "total": cat_total,
+            "solved": cat_solved,
+            "pct": cat_pct,
+            "easy_count": sum(1 for p in cat_probs if p.difficulty == "Easy"),
+            "easy_solved": sum(1 for p in cat_probs if p.difficulty == "Easy" and p.status == "Solved"),
+            "medium_count": sum(1 for p in cat_probs if p.difficulty == "Medium"),
+            "medium_solved": sum(1 for p in cat_probs if p.difficulty == "Medium" and p.status == "Solved"),
+            "hard_count": sum(1 for p in cat_probs if p.difficulty == "Hard"),
+            "hard_solved": sum(1 for p in cat_probs if p.difficulty == "Hard" and p.status == "Solved"),
+        }
 
-    topic_stats = []
-    for t in topics:
-        t_solved = sum(1 for p in t.problems if p.status == "Solved")
-        t_total = len(t.problems)
-        topic_stats.append({
-            "id": t.id,
-            "name": t.name,
-            "total": t_total,
-            "solved": t_solved,
-            "pct": round((t_solved / t_total * 100) if t_total else 0),
+    # Build 3-Layer Hierarchical Data: Category -> Difficulty -> Problems
+    # Group filtered problems
+    grouped_data: Dict[str, Dict[str, List[DSAProblem]]] = {}
+    for p in filtered_problems:
+        cat = p.category or "Arrays and Strings"
+        diff = p.difficulty if p.difficulty in DIFFICULTIES else "Medium"
+        if cat not in grouped_data:
+            grouped_data[cat] = {"Easy": [], "Medium": [], "Hard": []}
+        grouped_data[cat][diff].append(p)
+
+    # Prepare structured list for UI
+    categories_view = []
+    has_active_filters = bool(category or difficulty or status or search_term)
+
+    # If filters are active, show only categories that have matching problems.
+    # Otherwise, show all categories that either have problems or belong to the roadmap.
+    target_cats = list(grouped_data.keys()) if has_active_filters else ordered_categories
+
+    for cat_name in target_cats:
+        meta = category_meta.get(cat_name, {
+            "name": cat_name,
+            "total": 0,
+            "solved": 0,
+            "pct": 0,
+            "easy_count": 0,
+            "easy_solved": 0,
+            "medium_count": 0,
+            "medium_solved": 0,
+            "hard_count": 0,
+            "hard_solved": 0,
+        })
+        diff_map = grouped_data.get(cat_name, {"Easy": [], "Medium": [], "Hard": []})
+        filtered_cat_total = sum(len(plist) for plist in diff_map.values())
+        
+        # When no filters are active, we can show categories with 0 problems or with problems
+        # If filters are active and filtered_cat_total == 0, skip
+        if has_active_filters and filtered_cat_total == 0:
+            continue
+
+        categories_view.append({
+            "name": cat_name,
+            "meta": meta,
+            "filtered_total": filtered_cat_total,
+            "difficulties": [
+                {
+                    "difficulty": "Easy",
+                    "problems": diff_map.get("Easy", []),
+                    "count": len(diff_map.get("Easy", [])),
+                    "solved": sum(1 for p in diff_map.get("Easy", []) if p.status == "Solved"),
+                },
+                {
+                    "difficulty": "Medium",
+                    "problems": diff_map.get("Medium", []),
+                    "count": len(diff_map.get("Medium", [])),
+                    "solved": sum(1 for p in diff_map.get("Medium", []) if p.status == "Solved"),
+                },
+                {
+                    "difficulty": "Hard",
+                    "problems": diff_map.get("Hard", []),
+                    "count": len(diff_map.get("Hard", [])),
+                    "solved": sum(1 for p in diff_map.get("Hard", []) if p.status == "Solved"),
+                },
+            ]
         })
 
     return templates.TemplateResponse("dsa.html", {
@@ -80,28 +169,32 @@ def dsa_page(
         "user": user,
         "today": date.today(),
         "topics": topics,
-        "topic_stats": topic_stats,
-        "problems": problems,
+        "all_categories": ordered_categories,
+        "categories_view": categories_view,
+        "filtered_problems_count": len(filtered_problems),
         "difficulties": DIFFICULTIES,
         "statuses": STATUSES,
-        "selected_topic_id": parsed_topic_id,
+        "selected_category": category,
         "selected_difficulty": difficulty,
         "selected_status": status,
-        "selected_search": search or "",
+        "selected_search": search_term or "",
         "total": total,
         "solved": solved,
         "easy_solved": easy_solved,
         "medium_solved": medium_solved,
         "hard_solved": hard_solved,
+        "easy_total": easy_total,
+        "medium_total": medium_total,
+        "hard_total": hard_total,
         "active_page": "dsa",
     })
 
 
 @router.post("/add")
 def add_problem(
-    topic_ids: List[int] = Form(...),
+    category: str = Form("Arrays and Strings"),
     title: str = Form(...),
-    difficulty: str = Form(...),
+    difficulty: str = Form("Medium"),
     status: str = Form("Not Started"),
     pattern: str = Form(""),
     mistake: str = Form(""),
@@ -112,6 +205,7 @@ def add_problem(
     problem_url: str = Form(""),
     alternate_title: str = Form(""),
     alternate_url: str = Form(""),
+    topic_ids: Optional[List[int]] = Form(default=None),
     db: Session = Depends(get_db),
 ):
     if title.startswith("http://") or title.startswith("https://"):
@@ -129,21 +223,29 @@ def add_problem(
         from app.models.dsa import clean_title_from_url
         alternate_title = clean_title_from_url(alternate_url)
 
-    topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
+    topics = []
+    if topic_ids:
+        topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
+    else:
+        # Auto-link matching DSATopic by category name if present
+        matching_topic = db.query(DSATopic).filter(DSATopic.name == category).first()
+        if matching_topic:
+            topics = [matching_topic]
 
     p = DSAProblem(
-        title=title,
+        category=category.strip() if category else "Arrays and Strings",
+        title=title.strip(),
         difficulty=difficulty,
         status=status,
-        pattern=pattern,
-        mistake=mistake,
-        time_complexity=time_complexity,
-        space_complexity=space_complexity,
-        solution_snippet=solution_snippet,
+        pattern=pattern.strip() if pattern else "",
+        mistake=mistake.strip() if mistake else "",
+        time_complexity=time_complexity.strip() if time_complexity else "",
+        space_complexity=space_complexity.strip() if space_complexity else "",
+        solution_snippet=solution_snippet.strip() if solution_snippet else "",
         confidence=confidence,
-        problem_url=problem_url,
-        alternate_title=alternate_title,
-        alternate_url=alternate_url,
+        problem_url=problem_url.strip() if problem_url else "",
+        alternate_title=alternate_title.strip() if alternate_title else "",
+        alternate_url=alternate_url.strip() if alternate_url else "",
         solved_date=date.today() if status == "Solved" else None,
         topics=topics,
     )
@@ -155,7 +257,9 @@ def add_problem(
 @router.post("/update/{problem_id}")
 def update_problem(
     problem_id: int,
+    category: str = Form("Arrays and Strings"),
     title: str = Form(...),
+    difficulty: str = Form("Medium"),
     problem_url: str = Form(""),
     alternate_title: str = Form(""),
     alternate_url: str = Form(""),
@@ -166,7 +270,7 @@ def update_problem(
     space_complexity: str = Form(""),
     solution_snippet: str = Form(""),
     confidence: int = Form(3),
-    topic_ids: List[int] = Form(...),
+    topic_ids: Optional[List[int]] = Form(default=None),
     db: Session = Depends(get_db),
 ):
     p = db.query(DSAProblem).filter(DSAProblem.id == problem_id).first()
@@ -188,19 +292,22 @@ def update_problem(
         from app.models.dsa import clean_title_from_url
         alternate_title = clean_title_from_url(alternate_url)
     
-    topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
-    p.topics = topics
+    if topic_ids is not None:
+        topics = db.query(DSATopic).filter(DSATopic.id.in_(topic_ids)).all()
+        p.topics = topics
 
-    p.title = title
-    p.problem_url = problem_url
-    p.alternate_title = alternate_title
-    p.alternate_url = alternate_url
+    p.category = category.strip() if category else "Arrays and Strings"
+    p.title = title.strip()
+    p.difficulty = difficulty
+    p.problem_url = problem_url.strip() if problem_url else ""
+    p.alternate_title = alternate_title.strip() if alternate_title else ""
+    p.alternate_url = alternate_url.strip() if alternate_url else ""
     p.status = status
-    p.pattern = pattern
-    p.mistake = mistake
-    p.time_complexity = time_complexity
-    p.space_complexity = space_complexity
-    p.solution_snippet = solution_snippet
+    p.pattern = pattern.strip() if pattern else ""
+    p.mistake = mistake.strip() if mistake else ""
+    p.time_complexity = time_complexity.strip() if time_complexity else ""
+    p.space_complexity = space_complexity.strip() if space_complexity else ""
+    p.solution_snippet = solution_snippet.strip() if solution_snippet else ""
     p.confidence = confidence
     if status == "Solved" and not p.solved_date:
         p.solved_date = date.today()

@@ -67,6 +67,7 @@ class DSAProblem(Base):
     __tablename__ = "dsa_problems"
 
     id = Column(Integer, primary_key=True, index=True)
+    category = Column(String(100), nullable=False, default="Arrays and Strings")
     title = Column(String(300), nullable=False)
     difficulty = Column(String(10), nullable=False, default="Medium")  # Easy / Medium / Hard
     topics = relationship("DSATopic", secondary=dsa_problem_topics, back_populates="problems")
@@ -97,6 +98,11 @@ class DSAProblem(Base):
         if self.alternate_title.startswith("http://") or self.alternate_title.startswith("https://"):
             return clean_title_from_url(self.alternate_title)
         return self.alternate_title
+
+    @property
+    def category_js_escaped(self) -> str:
+        cat = self.category or "Arrays and Strings"
+        return cat.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
 
     @property
     def clean_title_js_escaped(self) -> str:

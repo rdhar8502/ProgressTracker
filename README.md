@@ -31,7 +31,7 @@ open http://localhost:15000
 | 📝 Daily Log | Multi-session per day — log any topic mix, track problems solved |
 | 📅 Weekly View | 33 weeks (Aug 2026 → Mar 2027), Sun–Sat, auto-aggregated |
 | 💻 DSA Tracker | 20 topics, problem log with pattern/mistake/complexity notes |
-| 🏗️ System Design | 18 topics + 10 full case studies |
+| 🏗️ System Design | 20 core concepts (96 sub-concepts) + 27 full case studies |
 | 🤖 AI/LLM | 20 concepts with depth rating + interview talking points |
 | 🐙 GitHub | 3 portfolio projects with task checklists |
 | 📤 Applications | Job pipeline tracker with stage/visa/salary tracking |
