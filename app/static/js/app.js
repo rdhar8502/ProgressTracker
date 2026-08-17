@@ -260,14 +260,16 @@ window.currentStatusFilter = 'all';
 
 window.setCategoryFilter = function(category, btn) {
   window.currentCategoryFilter = category;
-  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+  // Support both old and new class names
+  document.querySelectorAll('.category-tab, .gm-cat-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
   window.filterAchievements();
 };
 
 window.setStatusFilter = function(status, btn) {
   window.currentStatusFilter = status;
-  document.querySelectorAll('.status-chip').forEach(c => c.classList.remove('active'));
+  // Support both old and new class names
+  document.querySelectorAll('.status-chip, .gm-status-chip').forEach(c => c.classList.remove('active'));
   if (btn) btn.classList.add('active');
   window.filterAchievements();
 };
@@ -275,7 +277,8 @@ window.setStatusFilter = function(status, btn) {
 window.filterAchievements = function() {
   const searchInput = document.getElementById('questSearchInput');
   const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
-  const cards = document.querySelectorAll('#questsContainer .quest-card');
+  // Support both old .quest-card and new .gm-ach-card class names
+  const cards = document.querySelectorAll('#questsContainer .quest-card, #questsContainer .gm-ach-card');
   let visibleCount = 0;
 
   cards.forEach(card => {

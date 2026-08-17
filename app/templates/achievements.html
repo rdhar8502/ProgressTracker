@@ -3,458 +3,370 @@
 {% block page_title %}Achievements & Gamification{% endblock %}
 
 {% block content %}
-<div class="gamification-container">
+<div class="gm-container">
 
-  <!-- ══ Confetti Canvas for Celebrations ══ -->
+  <!-- Confetti Canvas -->
   <canvas id="gamification-confetti" class="gamification-confetti-canvas"></canvas>
 
-  <!-- ══ Hero XP Level & Profile Card ══ -->
-  <div class="card mb-6 level-profile-card rank-tier-{{ gamification.level_details.tier_id }}">
-    <div class="card-body">
-      <div class="level-hero-grid">
-        
-        <!-- Left: Level Emblem with Dynamic Tier Glow -->
-        <div class="level-emblem-wrapper">
-          <div class="level-emblem-circle" style="background: {{ gamification.level_details.tier_gradient }};">
-            <div class="emblem-icon-badge">
-              <i data-lucide="{{ gamification.level_details.icon }}" class="icon-lg emblem-lucide-icon"></i>
-            </div>
-            <div class="level-number-display">{{ gamification.level_details.level }}</div>
-            <div class="level-label-text">LEVEL</div>
-          </div>
-          <div class="tier-name-pill" style="border-color: {{ gamification.level_details.tier_color }}; color: {{ gamification.level_details.tier_color }};">
+  <!-- ══ HERO LEVEL CARD ══ -->
+  <div class="gm-hero-card rank-tier-{{ gamification.level_details.tier_id }} mb-6">
+    <div class="gm-hero-particles">
+      <div class="gm-particle p1"></div>
+      <div class="gm-particle p2"></div>
+      <div class="gm-particle p3"></div>
+      <div class="gm-particle p4"></div>
+    </div>
+
+    <div class="gm-hero-inner">
+      <div class="gm-level-orb" style="background: {{ gamification.level_details.tier_gradient }};">
+        <div class="gm-orb-icon">
+          <i data-lucide="{{ gamification.level_details.icon }}" class="icon-lg"></i>
+        </div>
+        <div class="gm-orb-level">{{ gamification.level_details.level }}</div>
+        <div class="gm-orb-label">LEVEL</div>
+        <div class="gm-orb-ring"></div>
+      </div>
+
+      <div class="gm-hero-details">
+        <div class="gm-hero-meta">
+          <span class="gm-tier-badge rank-{{ gamification.level_details.tier_badge_class }}">
             <i data-lucide="{{ gamification.level_details.tier_icon }}" class="icon-xs"></i>
-            <span>{{ gamification.level_details.tier_name }}</span>
-          </div>
-        </div>
-        
-        <!-- Center & Right: Progress Details & Quick Actions -->
-        <div class="level-progress-details">
-          <div class="level-header-row mb-2">
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="rank-tag {{ gamification.level_details.tier_badge_class }}">
-                  <i data-lucide="{{ gamification.level_details.tier_icon }}" class="icon-xs"></i>
-                  <span>{{ gamification.level_details.tier_name | upper }} TIER</span>
-                </span>
-                <span class="tier-tagline-text">{{ gamification.level_details.tier_tagline }}</span>
-              </div>
-              <h2 class="level-title-text mt-1">{{ gamification.level_details.title }}</h2>
-              <p class="user-sub-text">Prep journey of <strong>{{ user.name }}</strong> · {{ user.target_role }}</p>
-            </div>
-            
-            <div class="level-badges-cluster">
-              <div class="total-xp-badge" title="Total Lifetime XP Earned">
-                <i data-lucide="award" class="icon-sm" style="color: #F59E0B;"></i>
-                <span>{{ gamification.level_details.total_xp }} Total XP</span>
-              </div>
-              {% if gamification.streak_info.is_active %}
-              <div class="streak-multiplier-badge" title="{{ gamification.streak_info.label }}">
-                <i data-lucide="flame" class="icon-xs"></i>
-                <span>{{ gamification.streak_info.label }}</span>
-              </div>
-              {% endif %}
-              <button type="button" class="btn btn-secondary btn-sm roadmap-trigger-btn" onclick="openModal('careerRoadmapModal')">
-                <i data-lucide="map" class="icon-xs"></i>
-                <span>Career Roadmap (30 Lvls)</span>
-              </button>
-            </div>
-          </div>
-          
-          <!-- XP Progress Bar -->
-          <div class="xp-bar-container mt-3">
-            <div class="xp-bar-fill" style="width: {{ gamification.level_details.pct_progress }}%;"></div>
-          </div>
-          
-          <div class="flex justify-between mt-2 text-xs text-muted">
-            <span><strong>{{ gamification.level_details.current_boundary }} XP</strong> (Level {{ gamification.level_details.level }})</span>
-            <span><strong>{{ gamification.level_details.xp_in_level }} / {{ gamification.level_details.next_boundary - gamification.level_details.current_boundary }} XP</strong> ({{ gamification.level_details.pct_progress }}%)</span>
-            <span><strong>{{ gamification.level_details.next_boundary }} XP</strong> (Level {{ gamification.level_details.level + 1 }})</span>
-          </div>
-          
-          <div class="level-perks-row mt-3">
-            <div class="level-current-perk">
-              <i data-lucide="sparkles" class="icon-xs" style="color: var(--accent);"></i>
-              <span>Active Perk: <strong>{{ gamification.level_details.perk }}</strong></span>
-            </div>
-            <div class="level-next-perk">
-              <i data-lucide="target" class="icon-xs" style="color: var(--accent-purple);"></i>
-              <span>Gain <strong>{{ gamification.level_details.xp_needed_for_next }} XP</strong> to unlock Level {{ gamification.level_details.level + 1 }} (<em>{{ gamification.level_details.next_title }}</em>: {{ gamification.level_details.next_perk }})</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ 4-Card Summary Metrics ══ -->
-  <div class="stats-grid mb-6">
-    <div class="stat-card purple">
-      <i data-lucide="trophy" class="stat-icon icon-xl"></i>
-      <div class="stat-label">Milestone Tiers Unlocked</div>
-      <div class="stat-value">{{ gamification.total_tiers_unlocked }} <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">/ {{ gamification.total_tiers_possible }}</span></div>
-      <div class="stat-sub">{{ gamification.total_badges_unlocked }} of {{ gamification.total_badges_possible }} tracks active</div>
-    </div>
-    
-    <div class="stat-card blue">
-      <i data-lucide="flame" class="stat-icon icon-xl"></i>
-      <div class="stat-label">Current Streak</div>
-      <div class="stat-value">{{ gamification.metrics.streak }} <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">days</span></div>
-      <div class="stat-sub">
-        {% if gamification.streak_info.is_active %}
-          <span style="color: #10B981; font-weight: 700;">+{{ gamification.streak_info.bonus_pct }}% XP Boost Active</span>
-        {% else %}
-          Log today to build streak
-        {% endif %}
-      </div>
-    </div>
-    
-    <div class="stat-card green">
-      <i data-lucide="zap" class="stat-icon icon-xl"></i>
-      <div class="stat-label">Milestone Bonus XP</div>
-      <div class="stat-value">+{{ gamification.bonus_xp }}</div>
-      <div class="stat-sub">From badge & tier completions</div>
-    </div>
-    
-    <div class="stat-card amber">
-      <i data-lucide="{{ gamification.level_details.tier_icon }}" class="stat-icon icon-xl"></i>
-      <div class="stat-label">Rank Status</div>
-      <div class="stat-value" style="font-size: 18px; line-height: 1.3; margin-top: 4px;">{{ gamification.level_details.tier_name }}</div>
-      <div class="stat-sub">Rank Tier · Level {{ gamification.level_details.level }}</div>
-    </div>
-  </div>
-
-  <!-- ══ Daily Quests & Missions Board ══ -->
-  <div class="card mb-6 daily-quests-card">
-    <div class="card-header" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);">
-      <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 10px;">
-        <div class="flex items-center gap-2">
-          <i data-lucide="target" class="icon-md" style="color: var(--accent);"></i>
-          <div>
-            <h3 class="card-title" style="margin: 0;">Daily Quests & Focus Missions</h3>
-            <p class="text-xs text-muted" style="margin: 2px 0 0 0;">Complete daily preparation missions to earn bonus XP and power up your streak.</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="badge {% if gamification.daily_quests.all_completed %}badge-green{% else %}badge-blue{% endif %}" style="font-weight: 700;">
-            {{ gamification.daily_quests.completed_count }} / {{ gamification.daily_quests.total_count }} Completed
+            {{ gamification.level_details.tier_name | upper }} TIER
           </span>
-          <span class="badge badge-purple" style="font-weight: 700;">
-            +{{ gamification.daily_quests.earned_xp }} / {{ gamification.daily_quests.total_possible_xp }} XP Earned
-          </span>
+          <span class="gm-tagline">{{ gamification.level_details.tier_tagline }}</span>
+        </div>
+
+        <h2 class="gm-hero-title">{{ gamification.level_details.title }}</h2>
+        <p class="gm-hero-sub">
+          <i data-lucide="user" class="icon-xs"></i>
+          {{ user.name }} &middot; {{ user.target_role }}
+        </p>
+
+        <div class="gm-xp-section mt-3">
+          <div class="gm-xp-labels">
+            <span><i data-lucide="zap" class="icon-xs" style="color:#F59E0B;"></i> <strong>{{ gamification.level_details.total_xp }}</strong> XP Total</span>
+            <span class="gm-xp-pct">{{ gamification.level_details.pct_progress }}%</span>
+            <span>Next: <strong>{{ gamification.level_details.xp_needed_for_next }} XP</strong></span>
+          </div>
+          <div class="gm-xp-track">
+            <div class="gm-xp-fill" style="width: {{ gamification.level_details.pct_progress }}%; background: {{ gamification.level_details.tier_gradient }};"></div>
+            <div class="gm-xp-glow" style="width: {{ gamification.level_details.pct_progress }}%;"></div>
+          </div>
+          <div class="gm-xp-bounds">
+            <span>Lv. {{ gamification.level_details.level }} &middot; {{ gamification.level_details.current_boundary }} XP</span>
+            <span>Lv. {{ gamification.level_details.level + 1 }} &middot; {{ gamification.level_details.next_boundary }} XP</span>
+          </div>
+        </div>
+
+        <div class="gm-perk-row mt-3">
+          <div class="gm-perk-chip">
+            <i data-lucide="sparkles" class="icon-xs" style="color:#F59E0B;"></i>
+            <span>{{ gamification.level_details.perk }}</span>
+          </div>
+          {% if gamification.streak_info.is_active %}
+          <div class="gm-streak-badge">
+            <i data-lucide="flame" class="icon-xs"></i>
+            {{ gamification.streak_info.label }}
+          </div>
+          {% endif %}
+          <button type="button" class="gm-btn-roadmap" onclick="openModal('careerRoadmapModal')">
+            <i data-lucide="map" class="icon-xs"></i> Career Roadmap
+          </button>
         </div>
       </div>
-    </div>
-    <div class="card-body">
-      <div class="daily-quests-grid">
-        {% for quest in gamification.daily_quests.quests %}
-        <div class="quest-mission-card {% if quest.completed %}mission-completed{% endif %}">
-          <div class="mission-icon-box">
-            <i data-lucide="{{ quest.lucide_icon }}" class="icon-md"></i>
-          </div>
-          <div class="mission-details">
-            <div class="flex items-center justify-between gap-2">
-              <h4 class="mission-title">{{ quest.title }}</h4>
-              <span class="mission-xp-reward">+{{ quest.reward_xp }} XP</span>
-            </div>
-            <p class="mission-desc">{{ quest.desc }}</p>
-            <div class="mission-progress-bar">
-              <div class="mission-progress-fill" style="width: {{ quest.progress_pct }}%;"></div>
-            </div>
-            <div class="flex justify-between items-center mt-2 text-xs">
-              <span class="text-muted">Progress: <strong>{{ quest.current }}</strong> / {{ quest.target }} {{ quest.unit }}</span>
-              {% if quest.completed %}
-                <span class="mission-status-chip completed">
-                  <i data-lucide="check-circle-2" class="icon-xs"></i> Completed
-                </span>
-              {% else %}
-                <span class="mission-status-chip pending">
-                  <i data-lucide="circle-dashed" class="icon-xs"></i> In Progress
-                </span>
-              {% endif %}
-            </div>
-          </div>
+
+      <div class="gm-hero-stats">
+        <div class="gm-stat-orb purple">
+          <div class="gm-stat-orb-val">{{ gamification.total_tiers_unlocked }}</div>
+          <div class="gm-stat-orb-lbl">Tiers</div>
         </div>
-        {% endfor %}
+        <div class="gm-stat-orb amber">
+          <div class="gm-stat-orb-val">{{ gamification.metrics.streak }}</div>
+          <div class="gm-stat-orb-lbl">Streak</div>
+        </div>
+        <div class="gm-stat-orb blue">
+          <div class="gm-stat-orb-val">{{ gamification.total_badges_unlocked }}</div>
+          <div class="gm-stat-orb-lbl">Badges</div>
+        </div>
+        <div class="gm-stat-orb green">
+          <div class="gm-stat-orb-val">+{{ gamification.bonus_xp }}</div>
+          <div class="gm-stat-orb-lbl">Bonus XP</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ══ XP Source Breakdown Analytics ══ -->
-  <div class="card mb-6">
-    <div class="card-header">
-      <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 8px;">
-        <div class="flex items-center gap-2">
-          <i data-lucide="pie-chart" class="icon-sm" style="color: var(--accent);"></i>
-          <span class="card-title">XP Source Distribution & Activity Matrix</span>
+  <!-- ══ DAILY QUEST BOARD ══ -->
+  <div class="gm-quest-board mb-6">
+    <div class="gm-quest-board-header">
+      <div class="gm-section-title">
+        <span class="gm-section-icon">&#127919;</span>
+        <div>
+          <h3>Daily Quests &amp; Focus Missions</h3>
+          <p>Reset at midnight &mdash; earn XP and power up your streak</p>
         </div>
-        <span class="text-xs text-muted">Base XP: <strong>{{ gamification.base_xp }}</strong> + Bonus: <strong>{{ gamification.bonus_xp }}</strong> = <strong>{{ gamification.level_details.total_xp }} XP</strong></span>
+      </div>
+      <div class="gm-quest-progress-chips">
+        <span class="gm-chip {% if gamification.daily_quests.all_completed %}gm-chip-green{% else %}gm-chip-blue{% endif %}">
+          <i data-lucide="{% if gamification.daily_quests.all_completed %}check-circle-2{% else %}circle-dashed{% endif %}" class="icon-xs"></i>
+          {{ gamification.daily_quests.completed_count }} / {{ gamification.daily_quests.total_count }} Done
+        </span>
+        <span class="gm-chip gm-chip-purple">
+          <i data-lucide="zap" class="icon-xs"></i>
+          +{{ gamification.daily_quests.earned_xp }} / {{ gamification.daily_quests.total_possible_xp }} XP
+        </span>
       </div>
     </div>
-    <div class="card-body">
-      <div class="xp-sources-grid">
-        {% for src in gamification.xp_breakdown %}
-        <div class="xp-source-item">
-          <div class="xp-source-header">
-            <div class="flex items-center gap-2">
-              <span class="xp-source-dot" style="background-color: {{ src.color }};"></span>
-              <i data-lucide="{{ src.icon }}" class="icon-xs" style="color: {{ src.color }};"></i>
-              <span class="xp-source-name">{{ src.source }}</span>
-            </div>
-            <span class="xp-source-value">{{ src.xp }} XP</span>
+
+    <div class="gm-quest-grid">
+      {% for quest in gamification.daily_quests.quests %}
+      <div class="gm-quest-card {% if quest.completed %}gm-quest-done{% endif %}">
+        {% if quest.completed %}<div class="gm-quest-done-glow"></div>{% endif %}
+        <div class="gm-quest-icon {% if quest.completed %}gm-qi-done{% endif %}">
+          <i data-lucide="{{ quest.lucide_icon }}" class="icon-md"></i>
+          {% if quest.completed %}
+          <div class="gm-qi-checkmark"><i data-lucide="check" class="icon-xs"></i></div>
+          {% endif %}
+        </div>
+
+        <div class="gm-quest-info">
+          <div class="gm-quest-top">
+            <span class="gm-quest-title">{{ quest.title }}</span>
+            <span class="gm-quest-xp {% if quest.completed %}gm-xp-earned{% endif %}">+{{ quest.reward_xp }} XP</span>
           </div>
-          <div class="progress-bar mt-1" style="height: 5px;">
-            <div class="progress-fill" style="background: {{ src.color }}; width: {{ [(src.xp / (gamification.level_details.total_xp or 1) * 100), 100] | min | round }}%;"></div>
+          <p class="gm-quest-desc">{{ quest.desc }}</p>
+
+          <div class="gm-quest-bar-wrap">
+            <div class="gm-quest-bar">
+              <div class="gm-quest-bar-fill {% if quest.completed %}gm-bar-complete{% endif %}" style="width: {{ quest.progress_pct }}%;"></div>
+            </div>
+          </div>
+
+          <div class="gm-quest-footer">
+            <span class="gm-quest-prog">{{ quest.current }} / {{ quest.target }} {{ quest.unit }}</span>
+            {% if quest.completed %}
+            <span class="gm-status-chip gm-done">
+              <i data-lucide="check-circle-2" class="icon-xs"></i> Completed
+            </span>
+            {% else %}
+            <span class="gm-status-chip gm-pending">
+              <i data-lucide="clock" class="icon-xs"></i> In Progress
+            </span>
+            {% endif %}
           </div>
         </div>
-        {% endfor %}
       </div>
+      {% endfor %}
     </div>
   </div>
 
-  <!-- ══ Quests & Milestones Board Header & Filter Bar ══ -->
-  <div class="milestones-control-bar mb-4">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div class="flex items-center gap-2">
-        <i data-lucide="shield" class="icon-md" style="color: var(--accent);"></i>
-        <h2 class="section-heading" style="margin: 0;">Milestone Quest Tracks</h2>
+  <!-- ══ XP SOURCE MATRIX ══ -->
+  <div class="gm-xp-breakdown-card mb-6">
+    <div class="gm-xp-bd-header">
+      <div class="gm-section-title">
+        <span class="gm-section-icon">&#9889;</span>
+        <div>
+          <h3>XP Source Matrix</h3>
+          <p>Base: <strong>{{ gamification.base_xp }}</strong> + Bonus: <strong>{{ gamification.bonus_xp }}</strong> = <strong>{{ gamification.level_details.total_xp }} XP</strong></p>
+        </div>
       </div>
-      
-      <!-- Live Search Box -->
-      <div class="quest-search-box">
-        <i data-lucide="search" class="icon-xs quest-search-icon"></i>
-        <input type="text" id="questSearchInput" class="quest-search-input" placeholder="Search milestones by title or description..." oninput="filterAchievements()">
+    </div>
+    <div class="gm-xp-sources">
+      {% for src in gamification.xp_breakdown %}
+      <div class="gm-src-item">
+        <div class="gm-src-icon" style="background: {{ src.color }}22; color: {{ src.color }}; border: 1px solid {{ src.color }}44;">
+          <i data-lucide="{{ src.icon }}" class="icon-sm"></i>
+        </div>
+        <div class="gm-src-info">
+          <div class="gm-src-row">
+            <span class="gm-src-name">{{ src.source }}</span>
+            <span class="gm-src-val" style="color: {{ src.color }};">{{ src.xp }} XP</span>
+          </div>
+          <div class="gm-src-bar">
+            <div class="gm-src-fill" style="background: {{ src.color }}; width: {{ [(src.xp / (gamification.level_details.total_xp or 1) * 100), 100] | min | round }}%;"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ══ MILESTONE QUEST TRACKS ══ -->
+  <div class="gm-milestones-header mb-4">
+    <div class="gm-section-title">
+      <span class="gm-section-icon">&#127942;</span>
+      <div>
+        <h3>Milestone Quest Tracks</h3>
+        <p>{{ gamification.total_tiers_unlocked }} / {{ gamification.total_tiers_possible }} tiers unlocked across {{ gamification.achievements | length }} tracks</p>
       </div>
     </div>
 
-    <!-- Category Tabs -->
-    <div class="quest-category-tabs mt-3">
-      <button type="button" class="category-tab active" data-category="all" onclick="setCategoryFilter('all', this)">
-        <i data-lucide="sparkles" class="icon-xs"></i> All Tracks ({{ gamification.achievements | length }})
+    <div class="gm-filter-row">
+      <div class="gm-search-wrap">
+        <i data-lucide="search" class="icon-xs gm-search-icon"></i>
+        <input type="text" id="questSearchInput" class="gm-search-input" placeholder="Search achievements..." oninput="filterAchievements()">
+      </div>
+    </div>
+
+    <div class="gm-cat-tabs">
+      <button type="button" class="gm-cat-tab active" data-category="all" onclick="setCategoryFilter('all', this)">
+        <i data-lucide="sparkles" class="icon-xs"></i> All ({{ gamification.achievements | length }})
       </button>
-      <button type="button" class="category-tab" data-category="grind" onclick="setCategoryFilter('grind', this)">
-        <i data-lucide="flame" class="icon-xs"></i> Discipline & Grind
+      <button type="button" class="gm-cat-tab" data-category="grind" onclick="setCategoryFilter('grind', this)">
+        <i data-lucide="flame" class="icon-xs"></i> Grind
       </button>
-      <button type="button" class="category-tab" data-category="dsa" onclick="setCategoryFilter('dsa', this)">
-        <i data-lucide="code-2" class="icon-xs"></i> Algorithms (DSA)
+      <button type="button" class="gm-cat-tab" data-category="dsa" onclick="setCategoryFilter('dsa', this)">
+        <i data-lucide="code-2" class="icon-xs"></i> Algorithms
       </button>
-      <button type="button" class="category-tab" data-category="sys_design" onclick="setCategoryFilter('sys_design', this)">
+      <button type="button" class="gm-cat-tab" data-category="sys_design" onclick="setCategoryFilter('sys_design', this)">
         <i data-lucide="network" class="icon-xs"></i> System Design
       </button>
-      <button type="button" class="category-tab" data-category="ai_llm" onclick="setCategoryFilter('ai_llm', this)">
-        <i data-lucide="cpu" class="icon-xs"></i> AI & LLM
+      <button type="button" class="gm-cat-tab" data-category="ai_llm" onclick="setCategoryFilter('ai_llm', this)">
+        <i data-lucide="cpu" class="icon-xs"></i> AI &amp; LLM
       </button>
-      <button type="button" class="category-tab" data-category="portfolio" onclick="setCategoryFilter('portfolio', this)">
-        <i data-lucide="briefcase" class="icon-xs"></i> Portfolio & Career
+      <button type="button" class="gm-cat-tab" data-category="portfolio" onclick="setCategoryFilter('portfolio', this)">
+        <i data-lucide="briefcase" class="icon-xs"></i> Portfolio
       </button>
     </div>
 
-    <!-- Status Filters -->
-    <div class="flex items-center justify-between mt-2 flex-wrap gap-2 text-xs">
-      <div class="flex items-center gap-2">
-        <span class="text-muted">Status:</span>
-        <button type="button" class="status-chip active" data-status="all" onclick="setStatusFilter('all', this)">All</button>
-        <button type="button" class="status-chip" data-status="unlocked" onclick="setStatusFilter('unlocked', this)">Unlocked Only</button>
-        <button type="button" class="status-chip" data-status="in-progress" onclick="setStatusFilter('in-progress', this)">In Progress</button>
+    <div class="gm-status-row">
+      <div class="gm-status-chips">
+        <button type="button" class="gm-status-chip active" data-status="all" onclick="setStatusFilter('all', this)">All</button>
+        <button type="button" class="gm-status-chip" data-status="unlocked" onclick="setStatusFilter('unlocked', this)">Unlocked</button>
+        <button type="button" class="gm-status-chip" data-status="in-progress" onclick="setStatusFilter('in-progress', this)">In Progress</button>
       </div>
-      <div class="text-muted">
-        Showing <strong id="visibleQuestsCount">{{ gamification.achievements | length }}</strong> milestones
-      </div>
+      <span class="gm-count-label">Showing <strong id="visibleQuestsCount">{{ gamification.achievements | length }}</strong> tracks</span>
     </div>
   </div>
 
-  <!-- ══ Achievements Grid ══ -->
-  <div class="quests-grid" id="questsContainer">
+  <div class="gm-ach-grid" id="questsContainer">
     {% for ach in gamification.achievements %}
-    <div class="card quest-card {% if ach.is_unlocked %}unlocked-card{% endif %} tier-border-{{ ach.active_tier | lower }}" 
+    <div class="gm-ach-card {% if ach.is_unlocked %}gm-ach-unlocked{% endif %} gm-ach-{{ ach.active_tier | lower }}"
          data-category="{{ ach.category }}"
          data-unlocked="{{ 'true' if ach.is_unlocked else 'false' }}"
          data-title="{{ ach.title | lower }}"
          data-desc="{{ ach.description | lower }}">
-      <div class="card-body">
-        
-        <!-- Card Header -->
-        <div class="quest-card-header">
-          <div class="quest-icon-wrapper tier-icon-{{ ach.active_tier | lower }}">
-            <i data-lucide="{{ ach.lucide_icon }}" class="icon-md"></i>
-          </div>
-          <div class="quest-title-section">
-            <div class="flex items-center gap-2">
-              <span class="quest-category-badge">{{ ach.category_name }}</span>
-            </div>
-            <h3 class="quest-title">{{ ach.title }}</h3>
-            <p class="quest-desc">{{ ach.description }}</p>
-          </div>
-          <div class="quest-badge-display">
-            <span class="quest-tier-chip tier-{{ ach.active_tier }}" title="Active milestone tier: {{ ach.active_tier }}">
-              {{ ach.active_tier }}
-            </span>
-          </div>
-        </div>
 
-        <!-- Progress Metrics Bar -->
-        <div class="quest-progress-section mt-3">
-          <div class="flex justify-between items-center text-xs mb-1">
-            <span class="current-metric-text">
-              Current: <strong>{{ ach.current_value }}</strong> {{ ach.unit }}
-            </span>
-            {% if ach.next_tier_name != 'Maxed' %}
-            <span class="next-milestone-text text-muted">
-              Next Tier: <strong>{{ ach.next_tier_threshold }} {{ ach.unit }}</strong> ({{ ach.next_tier_name }} ➔ +{{ ach.next_tier_bonus }} XP)
-            </span>
-            {% else %}
-            <span class="next-milestone-text" style="color: var(--success); font-weight: 700;">
-              ✨ MAX TIER ACHIEVED
-            </span>
-            {% endif %}
-          </div>
-          
-          <div class="progress-bar" style="height: 8px;">
-            <div class="progress-fill" style="width: {{ ach.progress_pct }}%;"></div>
-          </div>
-        </div>
+      {% if ach.is_unlocked %}<div class="gm-ach-shine"></div>{% endif %}
 
-        <!-- Tiers Checkpoint List with Interactive Confetti Click -->
-        <div class="quest-tiers-checkpoints mt-4">
-          <div class="flex items-center justify-between text-xs text-muted mb-2">
-            <span style="font-weight: 600;">Milestone Checkpoints:</span>
-          </div>
-          <div class="flex gap-2" style="flex-wrap: wrap;">
-            {% for tier in ach.tiers %}
-            <div class="badge checkpoint-tier-badge {% if tier.unlocked %}badge-tier-unlocked tier-badge-{{ tier.tier | lower }}{% else %}badge-gray{% endif %}" 
-                 onclick="{% if tier.unlocked %}triggerConfetti(); showToast('🎉 Unlocked {{ ach.title }} ({{ tier.tier }} Tier): +{{ tier.bonus }} XP!');{% else %}showToast('🔒 Locked: Reach {{ tier.threshold }} {{ ach.unit }} to unlock {{ tier.tier }} Tier (+{{ tier.bonus }} XP)');{% endif %}"
-                 title="{{ tier.tier }} Milestone: {{ tier.threshold }} {{ ach.unit }} (+{{ tier.bonus }} XP)">
-              {% if tier.unlocked %}
-                <i data-lucide="check-circle-2" class="icon-xs" style="color: var(--success);"></i>
-              {% else %}
-                <i data-lucide="lock" class="icon-xs"></i>
-              {% endif %}
-              <span>{{ tier.tier }} ({{ tier.threshold }})</span>
-            </div>
-            {% endfor %}
-          </div>
+      <div class="gm-ach-head">
+        <div class="gm-ach-icon gm-icon-{{ ach.active_tier | lower }}">
+          <i data-lucide="{{ ach.lucide_icon }}" class="icon-md"></i>
+          {% if ach.is_unlocked %}<div class="gm-icon-sparkle"></div>{% endif %}
         </div>
+        <div class="gm-ach-meta">
+          <span class="gm-ach-cat">{{ ach.category_name }}</span>
+          <h4 class="gm-ach-title">{{ ach.title }}</h4>
+          <p class="gm-ach-desc">{{ ach.description }}</p>
+        </div>
+        <div class="gm-ach-badge gm-tier-badge-{{ ach.active_tier | lower }}">{{ ach.active_tier }}</div>
+      </div>
 
+      <div class="gm-ach-progress mt-3">
+        <div class="gm-ach-prog-labels">
+          <span>Current: <strong>{{ ach.current_value }}</strong> {{ ach.unit }}</span>
+          {% if ach.next_tier_name != 'Maxed' %}
+          <span class="gm-next-tier">Next: {{ ach.next_tier_threshold }} {{ ach.unit }} &rarr; +{{ ach.next_tier_bonus }} XP</span>
+          {% else %}
+          <span class="gm-maxed">&#10024; MAX TIER</span>
+          {% endif %}
+        </div>
+        <div class="gm-prog-track">
+          <div class="gm-prog-fill gm-prog-{{ ach.active_tier | lower }}" style="width: {{ ach.progress_pct }}%;"></div>
+        </div>
+      </div>
+
+      <div class="gm-tier-checkpoints mt-3">
+        {% for tier in ach.tiers %}
+        <div class="gm-tier-pip {% if tier.unlocked %}gm-pip-{{ tier.tier | lower }}{% else %}gm-pip-locked{% endif %}"
+             onclick="if({{ 'true' if tier.unlocked else 'false' }}){triggerConfetti();showToast('Unlocked {{ ach.title }} {{ tier.tier }}: +{{ tier.bonus }} XP');}else{showToast('Reach {{ tier.threshold }} {{ ach.unit }} to unlock {{ tier.tier }}');}"
+             title="{{ tier.tier }}: {{ tier.threshold }} {{ ach.unit }} (+{{ tier.bonus }} XP)">
+          {% if tier.unlocked %}
+          <i data-lucide="check" class="icon-xs"></i>
+          {% else %}
+          <i data-lucide="lock" class="icon-xs"></i>
+          {% endif %}
+          <span>{{ tier.tier }}</span>
+        </div>
+        {% endfor %}
       </div>
     </div>
     {% endfor %}
   </div>
 
-  <!-- ══ Legendary Hall of Fame Badges ══ -->
-  <div class="card mt-6 legendary-hall-card">
-    <div class="card-header" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);">
-      <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 8px;">
-        <div class="flex items-center gap-2">
-          <i data-lucide="crown" class="icon-md" style="color: #F59E0B;"></i>
-          <div>
-            <h3 class="card-title" style="margin: 0;">Legendary Hall of Fame Trophies</h3>
-            <p class="text-xs text-muted" style="margin: 2px 0 0 0;">Mythic challenges awarded for extraordinary prep milestones.</p>
-          </div>
+  <!-- ══ LEGENDARY HALL OF FAME ══ -->
+  <div class="gm-legendary-section mt-6">
+    <div class="gm-legendary-header">
+      <div class="gm-section-title">
+        <span class="gm-section-icon">&#128081;</span>
+        <div>
+          <h3>Legendary Hall of Fame</h3>
+          <p>Mythic trophies for extraordinary milestones</p>
         </div>
-        <span class="badge badge-amber" style="font-weight: 700;">{{ gamification.legendary_unlocked_count }} / {{ gamification.legendary_badges | length }} Unlocked</span>
       </div>
+      <span class="gm-chip gm-chip-amber">{{ gamification.legendary_unlocked_count }} / {{ gamification.legendary_badges | length }} Unlocked</span>
     </div>
-    <div class="card-body">
-      <div class="legendary-badges-grid">
-        {% for leg in gamification.legendary_badges %}
-        <div class="legendary-card {% if leg.unlocked %}legendary-unlocked{% else %}legendary-locked{% endif %}"
-             onclick="{% if leg.unlocked %}triggerConfetti(); showToast('👑 Legendary Trophy: {{ leg.title }} (+{{ leg.bonus_xp }} XP)');{% else %}showToast('🔒 Complete criteria: {{ leg.criteria }} to claim {{ leg.title }}');{% endif %}">
-          <div class="legendary-icon-wrap">
-            <i data-lucide="{{ leg.icon }}" class="icon-lg"></i>
+
+    <div class="gm-legendary-grid">
+      {% for leg in gamification.legendary_badges %}
+      <div class="gm-legend-card {% if leg.unlocked %}gm-legend-unlocked{% else %}gm-legend-locked{% endif %}"
+           onclick="if({{ 'true' if leg.unlocked else 'false' }}){triggerConfetti();showToast('{{ leg.title }} (+{{ leg.bonus_xp }} XP)');}else{showToast('{{ leg.criteria }} to unlock {{ leg.title }}');}">
+        {% if leg.unlocked %}<div class="gm-legend-glow"></div>{% endif %}
+        <div class="gm-legend-icon">
+          <i data-lucide="{{ leg.icon }}" class="icon-lg"></i>
+        </div>
+        <div class="gm-legend-body">
+          <div class="gm-legend-top">
+            <h4>{{ leg.title }}</h4>
+            <span class="gm-legend-tag gm-tag-{{ leg.tag | lower }}">{{ leg.tag }}</span>
           </div>
-          <div class="legendary-info">
-            <div class="flex items-center justify-between gap-2">
-              <h4 class="legendary-title">{{ leg.title }}</h4>
-              <span class="legendary-tag">{{ leg.tag }}</span>
-            </div>
-            <p class="legendary-desc">{{ leg.description }}</p>
-            <div class="flex items-center justify-between mt-2 text-xs">
-              <span class="text-muted">Criteria: <strong>{{ leg.criteria }}</strong></span>
-              <span class="badge badge-purple">+{{ leg.bonus_xp }} XP</span>
-            </div>
+          <p class="gm-legend-desc">{{ leg.description }}</p>
+          <div class="gm-legend-foot">
+            <span>{{ leg.criteria }}</span>
+            <span class="gm-legend-xp">+{{ leg.bonus_xp }} XP</span>
           </div>
         </div>
-        {% endfor %}
       </div>
+      {% endfor %}
     </div>
   </div>
 
-  <!-- ══ XP Codex / How to Earn XP ══ -->
-  <div class="card mt-6">
-    <div class="card-header">
-      <div class="flex items-center gap-2">
-        <i data-lucide="book-open" class="icon-sm" style="color: var(--accent);"></i>
-        <span class="card-title">XP Codex — How to Level Up Faster</span>
+  <!-- ══ XP CODEX ══ -->
+  <div class="gm-codex-card mt-6">
+    <div class="gm-codex-header">
+      <span class="gm-section-icon">&#128218;</span>
+      <div>
+        <h3>XP Codex &mdash; How to Level Up</h3>
+        <p>Every action earns XP. Master more to ascend faster.</p>
       </div>
     </div>
-    <div class="card-body">
-      <div class="grid-2 text-sm">
-        <div>
-          <h4 style="color: var(--text-primary); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <i data-lucide="clock" class="icon-xs" style="color: var(--accent);"></i>
-            <span>Standard Action Gains</span>
-          </h4>
-          <ul class="xp-codex-list">
-            <li class="flex items-center gap-2">
-              <span class="badge badge-gray xp-pill">+10 XP</span>
-              <span>per study hour logged</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge diff-easy xp-pill">+10 XP</span>
-              <span>per Easy DSA problem solved</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge diff-medium xp-pill">+25 XP</span>
-              <span>per Medium DSA problem solved</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge diff-hard xp-pill">+50 XP</span>
-              <span>per Hard DSA problem conquered</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge badge-purple xp-pill">+10 XP</span>
-              <span>per day streak extension multiplier</span>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 style="color: var(--text-primary); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <i data-lucide="sparkles" class="icon-xs" style="color: var(--accent);"></i>
-            <span>Architecture & Career Gains</span>
-          </h4>
-          <ul class="xp-codex-list">
-            <li class="flex items-center gap-2">
-              <span class="badge badge-blue xp-pill">+20 XP</span>
-              <span>per System Design concept completed</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge badge-blue xp-pill">+40 XP</span>
-              <span>per System Design case study completed</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge badge-amber xp-pill">+20 XP</span>
-              <span>per AI/LLM & RAG topic mastered</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge badge-green xp-pill">+15 XP</span>
-              <span>per GitHub portfolio task completed</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="badge badge-purple xp-pill">+10 XP</span>
-              <span>per job application tracked</span>
-            </li>
-          </ul>
-        </div>
+    <div class="gm-codex-grid">
+      <div>
+        <h4 class="gm-codex-group-title"><i data-lucide="clock" class="icon-xs"></i> Study &amp; DSA</h4>
+        <ul class="gm-codex-list">
+          <li><span class="gm-xp-pill gm-pill-green">+10 XP</span> per study hour logged</li>
+          <li><span class="gm-xp-pill gm-pill-emerald">+10 XP</span> per Easy DSA problem</li>
+          <li><span class="gm-xp-pill gm-pill-amber">+25 XP</span> per Medium DSA problem</li>
+          <li><span class="gm-xp-pill gm-pill-red">+50 XP</span> per Hard DSA problem</li>
+          <li><span class="gm-xp-pill gm-pill-purple">+10 XP</span> per streak day</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="gm-codex-group-title"><i data-lucide="sparkles" class="icon-xs"></i> Architecture &amp; Career</h4>
+        <ul class="gm-codex-list">
+          <li><span class="gm-xp-pill gm-pill-blue">+20 XP</span> per System Design concept</li>
+          <li><span class="gm-xp-pill gm-pill-blue">+40 XP</span> per System Design case study</li>
+          <li><span class="gm-xp-pill gm-pill-amber">+20 XP</span> per AI/LLM topic mastered</li>
+          <li><span class="gm-xp-pill gm-pill-green">+15 XP</span> per GitHub task done</li>
+          <li><span class="gm-xp-pill gm-pill-purple">+10 XP</span> per job application tracked</li>
+        </ul>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════════
-     CAREER ROADMAP & 30-LEVEL PROGRESSION MODAL
-     ══════════════════════════════════════════════════════════════════════════════ -->
+<!-- Career Roadmap Modal -->
 <div class="modal-overlay" id="careerRoadmapModal">
   <div class="modal modal-lg roadmap-modal">
     <div class="modal-header">
@@ -469,10 +381,7 @@
         <i data-lucide="x" class="icon-sm"></i>
       </button>
     </div>
-    
     <div class="modal-body" style="max-height: 70vh; overflow-y: auto; padding: 20px;">
-      
-      <!-- Rank Tiers Overview Bar -->
       <div class="rank-tiers-bar mb-4">
         {% for tier in gamification.level_details.rank_tiers %}
         <div class="rank-tier-pill {% if tier.name == gamification.level_details.tier_name %}active-tier{% endif %}" style="border-left: 4px solid {{ tier.color }};">
@@ -480,12 +389,10 @@
             <i data-lucide="{{ tier.icon }}" class="icon-xs" style="color: {{ tier.color }};"></i>
             <strong>{{ tier.name }}</strong>
           </div>
-          <div class="text-xs text-muted">Lv. {{ tier.min_level }}{% if tier.max_level < 900 %}–{{ tier.max_level }}{% else %}+{% endif %}</div>
+          <div class="text-xs text-muted">Lv. {{ tier.min_level }}{% if tier.max_level < 900 %}&#8211;{{ tier.max_level }}{% else %}+{% endif %}</div>
         </div>
         {% endfor %}
       </div>
-
-      <!-- Vertical Roadmap Timeline -->
       <div class="roadmap-timeline">
         {% for step in gamification.level_details.roadmap %}
         <div class="roadmap-step step-{{ step.status }} {% if step.is_current %}step-current-active{% endif %}">
@@ -514,7 +421,6 @@
         </div>
         {% endfor %}
       </div>
-
     </div>
   </div>
 </div>

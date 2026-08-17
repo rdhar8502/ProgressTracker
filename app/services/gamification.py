@@ -474,12 +474,26 @@ def compute_daily_quests(db: Session, streak: int) -> dict:
     # Today's logs count
     today_logs_count = db.query(DailyLog).filter(DailyLog.date == today).count()
     
-    # Solved DSA count
-    total_dsa_solved = db.query(DSAProblem).filter(DSAProblem.status == "Solved").count()
+    # DSA problems solved TODAY (by solved_date)
+    today_dsa_solved = db.query(DSAProblem).filter(
+        DSAProblem.status == "Solved",
+        DSAProblem.solved_date == today
+    ).count()
     
-    # System design & AI topics done count
-    total_sd_done = db.query(SystemDesignSubConcept).filter(SystemDesignSubConcept.status == "Done").count()
-    total_ai_done = db.query(AILLMTopic).filter(AILLMTopic.status == "Done").count()
+    # System Design SubConcepts marked Done TODAY (by updated_at date)
+    today_sd_done = db.query(SystemDesignSubConcept).filter(
+        SystemDesignSubConcept.status == "Done",
+        func.date(SystemDesignSubConcept.updated_at) == today
+    ).count()
+    
+    # AI/LLM Topics marked Done TODAY (by updated_at date)
+    today_ai_done = db.query(AILLMTopic).filter(
+        AILLMTopic.status == "Done",
+        func.date(AILLMTopic.updated_at) == today
+    ).count()
+    
+    # Combined today's architecture progress
+    today_arch_done = today_sd_done + today_ai_done
     
     quests = [
         {
@@ -498,41 +512,41 @@ def compute_daily_quests(db: Session, streak: int) -> dict:
         {
             "id": "quest_dsa",
             "title": "Algorithm Drill",
-            "desc": "Solve at least 1 LeetCode or DSA problem.",
+            "desc": "Solve at least 1 LeetCode or DSA problem today.",
             "icon": "code-2",
             "lucide_icon": "code-2",
             "reward_xp": 40,
             "target": 1,
             "unit": "problem",
-            "current": 1 if total_dsa_solved > 0 else 0,
-            "progress_pct": 100 if total_dsa_solved > 0 else 0,
-            "completed": total_dsa_solved > 0,
+            "current": min(today_dsa_solved, 1),
+            "progress_pct": 100 if today_dsa_solved > 0 else 0,
+            "completed": today_dsa_solved > 0,
         },
         {
             "id": "quest_architecture",
             "title": "System Architecture Mastery",
-            "desc": "Review or master 1 System Design / AI concept.",
+            "desc": "Mark at least 1 System Design or AI concept as Done today.",
             "icon": "network",
             "lucide_icon": "network",
             "reward_xp": 45,
             "target": 1,
             "unit": "concept",
-            "current": 1 if (total_sd_done + total_ai_done) > 0 else 0,
-            "progress_pct": 100 if (total_sd_done + total_ai_done) > 0 else 0,
-            "completed": (total_sd_done + total_ai_done) > 0,
+            "current": min(today_arch_done, 1),
+            "progress_pct": 100 if today_arch_done > 0 else 0,
+            "completed": today_arch_done > 0,
         },
         {
             "id": "quest_streak",
             "title": "Streak Defender",
-            "desc": "Maintain your active study streak by logging daily activity.",
+            "desc": "Log at least one study session today to keep your streak alive.",
             "icon": "flame",
             "lucide_icon": "flame",
             "reward_xp": 30,
             "target": 1,
             "unit": "log",
-            "current": min(1, today_logs_count or (1 if streak > 0 else 0)),
-            "progress_pct": 100 if (today_logs_count > 0 or streak > 0) else 0,
-            "completed": (today_logs_count > 0 or streak > 0),
+            "current": min(1, today_logs_count),
+            "progress_pct": 100 if today_logs_count > 0 else 0,
+            "completed": today_logs_count > 0,
         },
     ]
     
