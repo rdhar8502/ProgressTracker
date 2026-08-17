@@ -229,6 +229,18 @@
     <button type="submit" class="btn btn-secondary btn-sm" style="height: 36px;">
       <i data-lucide="filter" class="icon-xs"></i> Filter
     </button>
+
+    <!-- Expand / Collapse All Accordions -->
+    <div class="flex gap-1" style="margin-left: auto;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllConceptAccordions(true)" title="Expand all concepts">
+        <i data-lucide="chevrons-down" class="icon-xs"></i>
+        <span>Expand All</span>
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllConceptAccordions(false)" title="Collapse all concepts">
+        <i data-lucide="chevrons-up" class="icon-xs"></i>
+        <span>Collapse All</span>
+      </button>
+    </div>
   </form>
 </div>
 
@@ -272,7 +284,7 @@
               <option value="In Progress" {% if ch.status == 'In Progress' %}selected{% endif %}>In Progress</option>
               <option value="Done" {% if ch.status == 'Done' %}selected{% endif %}>Done</option>
             </select>
-            <button class="btn btn-icon btn-sm btn-ghost text-muted" onclick="openEditChallengeModal({{ ch.id }}, '{{ ch.title|escape }}', '{{ ch.notes|escape if ch.notes else '' }}', `{{ ch.solution_query|escape if ch.solution_query else '' }}`)" title="Edit Challenge">
+            <button type="button" class="btn btn-icon btn-sm btn-ghost text-muted" data-ch-id="{{ ch.id }}" data-ch-title="{{ ch.title }}" data-ch-notes="{{ ch.notes or '' }}" data-ch-solution="{{ ch.solution_query or '' }}" onclick="openEditChallengeModalFromBtn(this)" title="Edit Challenge">
               <i data-lucide="edit-3" class="icon-xs"></i>
             </button>
             <form method="POST" action="/database/challenge/{{ ch.id }}/delete" onsubmit="return confirm('Delete this challenge?');" style="display:inline;">
@@ -304,7 +316,7 @@
             <i data-lucide="code" class="icon-xs" style="vertical-align: middle;"></i> Reference Solution Query
           </summary>
           <div class="db-code-block" style="margin-top: 6px; position: relative;">
-            <button class="copy-query-btn" onclick="copyQuery(this, `{{ ch.solution_query|escape }}`)" title="Copy SQL">
+            <button type="button" class="copy-query-btn" onclick="copyQuery(this)" title="Copy SQL">
               <i data-lucide="copy" class="icon-xs"></i>
             </button>
             <pre><code>{{ ch.solution_query }}</code></pre>
@@ -387,16 +399,18 @@
               {% endif %}
             </div>
 
-            <div class="flex items-center gap-3" onclick="event.stopPropagation()">
-              <button class="btn btn-secondary btn-xs" onclick="openAddItemModal({{ concept.id }}, '{{ concept.title|escape }}')">
+            <div class="flex items-center gap-3">
+              <button type="button" class="btn btn-secondary btn-xs" data-concept-id="{{ concept.id }}" data-concept-title="{{ concept.title }}" onclick="event.stopPropagation(); openAddItemModalFromBtn(this)">
                 <i data-lucide="plus" class="icon-xs"></i> Add Topic
               </button>
-              <form method="POST" action="/database/concept/{{ concept.id }}/delete" onsubmit="return confirm('Delete concept and all its topics?');" style="display:inline;">
+              <form method="POST" action="/database/concept/{{ concept.id }}/delete" onclick="event.stopPropagation();" onsubmit="return confirm('Delete concept and all its topics?');" style="display:inline;">
                 <button type="submit" class="btn btn-icon btn-xs btn-ghost text-danger" title="Delete Concept">
                   <i data-lucide="trash-2" class="icon-xs"></i>
                 </button>
               </form>
-              <i data-lucide="chevron-down" class="concept-chevron-icon" id="chevron-{{ concept.id }}" style="transition: transform 0.2s;"></i>
+              <div style="padding: 2px; display: flex; align-items: center;">
+                <i data-lucide="chevron-down" class="concept-chevron-icon" id="chevron-{{ concept.id }}" style="transition: transform 0.2s;"></i>
+              </div>
             </div>
           </div>
 
@@ -430,7 +444,7 @@
                           </span>
                         </label>
 
-                        <button class="btn btn-ghost btn-xs text-muted" onclick="openEditItemModal({{ item.id }}, '{{ item.title|escape }}', '{{ item.notes|escape if item.notes else '' }}', `{{ item.syntax_example|escape if item.syntax_example else '' }}`, {{ item.depth }}, '{{ item.sources|escape if item.sources else '' }}')" style="font-size: 11px; padding: 1px 6px;">
+                        <button type="button" class="btn btn-ghost btn-xs text-muted" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}" data-item-depth="{{ item.depth or 1 }}" data-item-sources="{{ item.sources or '' }}" data-item-syntax="{{ item.syntax_example or '' }}" data-item-notes="{{ item.notes or '' }}" onclick="openEditItemModalFromBtn(this)" style="font-size: 11px; padding: 1px 6px;">
                           <i data-lucide="file-text" class="icon-xs"></i> Notes {% if item.notes %}&bull;{% endif %}
                         </button>
                       </div>
@@ -455,7 +469,7 @@
                   <!-- Syntax Code Block -->
                   {% if item.syntax_example %}
                   <div class="db-code-block" style="margin-top: 10px; position: relative;">
-                    <button class="copy-query-btn" onclick="copyQuery(this, `{{ item.syntax_example|escape }}`)" title="Copy SQL">
+                    <button type="button" class="copy-query-btn" onclick="copyQuery(this)" title="Copy SQL">
                       <i data-lucide="copy" class="icon-xs"></i>
                     </button>
                     <pre><code>{{ item.syntax_example }}</code></pre>
@@ -493,24 +507,24 @@
      ══════════════════════════════════════════════════════════════════════════ -->
 
 <!-- 1. Joins & SQL Cheat Sheet Modal -->
-<div id="dbCheatModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeDbCheatModal()">
-  <div class="modal-dialog" style="max-width: 850px; max-height: 90vh; overflow-y: auto; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
-    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+<div id="dbCheatModal" class="modal-overlay">
+  <div class="modal" style="max-width: 850px;">
+    <div class="modal-header">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i data-lucide="book-marked" class="icon-sm" style="color: #06B6D4;"></i>
-        <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text-primary);">
-          Database Mastery & SQL Cheatsheet Reference
-        </h3>
+        <span class="modal-title">Database Mastery & SQL Cheatsheet Reference</span>
       </div>
-      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeDbCheatModal()">&times;</button>
+      <button type="button" class="modal-close" onclick="closeModal('dbCheatModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
 
     <!-- Modal Navigation Tabs -->
     <div style="display: flex; gap: 8px; padding: 12px 20px 0 20px; border-bottom: 1px solid var(--border-color); background: var(--surface-alt);">
-      <button class="btn btn-ghost btn-sm cheat-tab active" onclick="switchCheatTab('joins', this)">SQL Joins Visualizer</button>
-      <button class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('window', this)">Window Functions Guide</button>
-      <button class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('nosql', this)">SQL vs NoSQL Matrix</button>
-      <button class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('indexing', this)">Indexing & EXPLAIN</button>
+      <button type="button" class="btn btn-ghost btn-sm cheat-tab active" onclick="switchCheatTab('joins', this)">SQL Joins Visualizer</button>
+      <button type="button" class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('window', this)">Window Functions Guide</button>
+      <button type="button" class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('nosql', this)">SQL vs NoSQL Matrix</button>
+      <button type="button" class="btn btn-ghost btn-sm cheat-tab" onclick="switchCheatTab('indexing', this)">Indexing & EXPLAIN</button>
     </div>
 
     <div class="modal-body" style="padding: 20px;">
@@ -600,20 +614,26 @@
             <tr>
               <td><strong>Document Store</strong></td>
               <td>MongoDB, Couchbase</td>
-              <td>Catalogs, dynamic user profiles, semi-structured JSON</td>
-              <td>Multi-document transactions have overhead; 16MB doc limit</td>
+              <td>Hierarchical data, fast prototyping, semi-structured product catalogs</td>
+              <td>Eventual consistency pitfalls, unbounded nested growth</td>
             </tr>
             <tr>
-              <td><strong>Wide-Column / OLAP</strong></td>
-              <td>Cassandra, ClickHouse</td>
-              <td>High write throughput, sensor telemetry, analytical aggregations</td>
-              <td>No ad-hoc queries on non-partition keys; eventual consistency</td>
+              <td><strong>Wide-Column</strong></td>
+              <td>Apache Cassandra, ScyllaDB</td>
+              <td>High-throughput writes, time-series metrics, IoT sensor data</td>
+              <td>No ad-hoc aggregation queries, rigid query-first data modeling</td>
             </tr>
             <tr>
-              <td><strong>Vector Store</strong></td>
-              <td>pgvector, Pinecone</td>
-              <td>LLM RAG embeddings, semantic search, recommendation similarity</td>
-              <td>High dimensionality index build time (HNSW/IVFFlat)</td>
+              <td><strong>OLAP Columnar</strong></td>
+              <td>ClickHouse, Snowflake, DuckDB</td>
+              <td>Analytical dashboards, petabyte aggregations, business intelligence</td>
+              <td>Slow point updates/deletes, batch-first ingest</td>
+            </tr>
+            <tr>
+              <td><strong>Vector Database</strong></td>
+              <td>pgvector, Pinecone, Qdrant, Milvus</td>
+              <td>LLM Embeddings, RAG retrieval, semantic search, image similarity</td>
+              <td>Approximate Nearest Neighbor (HNSW/IVFFlat) recall trade-offs</td>
             </tr>
           </tbody>
         </table>
@@ -621,22 +641,20 @@
 
       <!-- Tab 4: Indexing & EXPLAIN -->
       <div id="cheat-tab-indexing" class="cheat-content" style="display:none;">
-        <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Indexing & Leftmost Prefix Rules</h4>
+        <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">PostgreSQL B-Tree Index Mechanics</h4>
         <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
-          <strong>Composite Index on (A, B, C):</strong>
-          <ul style="padding-left: 20px; margin: 4px 0;">
-            <li><code>WHERE A = 1 AND B = 2 AND C = 3</code> -> Full Index Scan</li>
-            <li><code>WHERE A = 1 AND B = 2</code> -> Index Scan (Matches prefix A + B)</li>
-            <li><code>WHERE A = 1</code> -> Index Scan (Matches prefix A)</li>
-            <li><code>WHERE B = 2 AND C = 3</code> -> <span style="color: #EF4444;">Cannot use index!</span> Missing leading column A.</li>
+          <ul style="padding-left: 20px; margin: 0;">
+            <li><strong>Leftmost Prefix Rule:</strong> A composite index <code>(user_id, status, created_at)</code> can satisfy <code>(user_id)</code> and <code>(user_id, status)</code> queries, but NOT <code>(status)</code> alone.</li>
+            <li><strong>Covering Index (INCLUDE):</strong> <code>CREATE INDEX ON orders (user_id) INCLUDE (total_amount);</code> enables <em>Index-Only Scans</em> without loading table heap pages.</li>
+            <li><strong>Partial Index:</strong> <code>CREATE INDEX ON users (email) WHERE is_active = true;</code> saves up to 90% index size for sparse queries.</li>
           </ul>
         </div>
 
-        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px 0;">EXPLAIN ANALYZE Plan Scan Types</h4>
-        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px 0;">Reading EXPLAIN (ANALYZE, BUFFERS)</h4>
+        <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
           <ul style="padding-left: 20px; margin: 0;">
-            <li><strong>Seq Scan:</strong> Reads full table heap sequentially. Fast for small tables, slow for massive tables without selective predicates.</li>
-            <li><strong>Index Scan:</strong> Traverses B-Tree index to find row pointers (TIDs), then fetches pages from heap table.</li>
+            <li><strong>Sequential Scan (Seq Scan):</strong> Reads entire table page-by-page. Warning when occurring on tables with > 10,000 rows.</li>
+            <li><strong>Index Scan:</strong> Traverses B-Tree to find row pointers (TIDs) and fetches from table heap.</li>
             <li><strong>Index Only Scan:</strong> Entire query payload satisfied directly by index pages without touching heap! (Fastest).</li>
             <li><strong>Bitmap Heap Scan:</strong> Gathers matching TIDs into in-memory bitmap, then reads heap pages in sequential physical disk order.</li>
           </ul>
@@ -647,11 +665,13 @@
 </div>
 
 <!-- 2. Add Concept Modal -->
-<div id="addConceptModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeAddConceptModal()">
-  <div class="modal-dialog" style="max-width: 500px; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
-      <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Add Database Concept Module</h3>
-      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeAddConceptModal()">&times;</button>
+<div id="addConceptModal" class="modal-overlay">
+  <div class="modal" style="max-width: 520px;">
+    <div class="modal-header">
+      <span class="modal-title">Add Database Concept Module</span>
+      <button type="button" class="modal-close" onclick="closeModal('addConceptModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <form method="POST" action="/database/concept/add" style="padding: 20px;">
       <div class="form-group mb-3">
@@ -689,7 +709,7 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddConceptModal()">Cancel</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('addConceptModal')">Cancel</button>
         <button type="submit" class="btn btn-primary btn-sm">Add Concept</button>
       </div>
     </form>
@@ -697,14 +717,16 @@
 </div>
 
 <!-- 3. Add Item Modal -->
-<div id="addItemModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeAddItemModal()">
-  <div class="modal-dialog" style="max-width: 550px; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+<div id="addItemModal" class="modal-overlay">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
       <div>
-        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Add Topic / Query Item</h3>
-        <span id="addItemConceptTitle" style="font-size: 12px; color: var(--text-muted);"></span>
+        <span class="modal-title">Add Topic / Query Item</span>
+        <div id="addItemConceptTitle" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"></div>
       </div>
-      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeAddItemModal()">&times;</button>
+      <button type="button" class="modal-close" onclick="closeModal('addItemModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <form method="POST" action="/database/item/add" style="padding: 20px;">
       <input type="hidden" name="concept_id" id="addItemConceptId">
@@ -734,7 +756,7 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddItemModal()">Cancel</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('addItemModal')">Cancel</button>
         <button type="submit" class="btn btn-primary btn-sm">Add Item</button>
       </div>
     </form>
@@ -742,11 +764,13 @@
 </div>
 
 <!-- 4. Add Challenge Modal -->
-<div id="addChallengeModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeAddChallengeModal()">
-  <div class="modal-dialog" style="max-width: 600px; max-height: 90vh; overflow-y: auto; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
-      <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Add Real-World Query Challenge</h3>
-      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeAddChallengeModal()">&times;</button>
+<div id="addChallengeModal" class="modal-overlay">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <span class="modal-title">Add Real-World Query Challenge</span>
+      <button type="button" class="modal-close" onclick="closeModal('addChallengeModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
     <form method="POST" action="/database/challenge/add" style="padding: 20px;">
       <div class="form-group mb-3">
@@ -796,7 +820,7 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAddChallengeModal()">Cancel</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('addChallengeModal')">Cancel</button>
         <button type="submit" class="btn btn-primary btn-sm">Add Challenge</button>
       </div>
     </form>
@@ -804,14 +828,16 @@
 </div>
 
 <!-- 5. Edit Item Notes & Query Modal with Quill -->
-<div id="editItemModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeEditItemModal()">
-  <div class="modal-dialog" style="max-width: 680px; max-height: 90vh; overflow-y: auto; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
-    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+<div id="editItemModal" class="modal-overlay">
+  <div class="modal" style="max-width: 680px;">
+    <div class="modal-header">
       <div>
-        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Edit Topic & Notes</h3>
-        <span id="editItemTitle" style="font-size: 12px; color: var(--text-muted);"></span>
+        <span class="modal-title">Edit Topic & Notes</span>
+        <div id="editItemTitle" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"></div>
       </div>
-      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeEditItemModal()">&times;</button>
+      <button type="button" class="modal-close" onclick="closeModal('editItemModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
 
     <div style="padding: 20px;">
@@ -842,7 +868,7 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeEditItemModal()">Cancel</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('editItemModal')">Cancel</button>
         <button type="button" class="btn btn-primary btn-sm" onclick="saveItemNotes()">Save Changes</button>
       </div>
     </div>
@@ -850,14 +876,16 @@
 </div>
 
 <!-- 6. Edit Challenge Notes Modal -->
-<div id="editChallengeModal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this) closeEditChallengeModal()">
-  <div class="modal-dialog" style="max-width: 650px; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
-    <div class="modal-header flex justify-between items-center" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+<div id="editChallengeModal" class="modal-overlay">
+  <div class="modal" style="max-width: 650px;">
+    <div class="modal-header">
       <div>
-        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Edit Challenge Solution & Notes</h3>
-        <span id="editChallengeTitle" style="font-size: 12px; color: var(--text-muted);"></span>
+        <span class="modal-title">Edit Challenge Solution & Notes</span>
+        <div id="editChallengeTitle" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"></div>
       </div>
-      <button class="btn btn-icon btn-sm btn-ghost" onclick="closeEditChallengeModal()">&times;</button>
+      <button type="button" class="modal-close" onclick="closeModal('editChallengeModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
     </div>
 
     <div style="padding: 20px;">
@@ -874,7 +902,7 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeEditChallengeModal()">Cancel</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('editChallengeModal')">Cancel</button>
         <button type="button" class="btn btn-primary btn-sm" onclick="saveChallengeNotes()">Save Notes</button>
       </div>
     </div>
@@ -1087,41 +1115,58 @@ let challengeQuill = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize Quill editors
-  itemQuill = new Quill('#itemQuillEditor', {
-    theme: 'snow',
-    placeholder: 'Write your notes, edge cases, and query insights...',
-    modules: {
-      toolbar: [
-        ['bold', 'italic', 'underline', 'code'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['code-block', 'clean']
-      ]
-    }
-  });
+  const itemQuillEl = document.getElementById('itemQuillEditor');
+  if (itemQuillEl && window.Quill) {
+    itemQuill = new Quill('#itemQuillEditor', {
+      theme: 'snow',
+      placeholder: 'Write your notes, edge cases, and query insights...',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'code'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['code-block', 'clean']
+        ]
+      }
+    });
+  }
 
-  challengeQuill = new Quill('#challengeQuillEditor', {
-    theme: 'snow',
-    placeholder: 'Write your solution analysis and takeaways...',
-    modules: {
-      toolbar: [
-        ['bold', 'italic', 'underline', 'code'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['code-block', 'clean']
-      ]
-    }
-  });
+  const challengeQuillEl = document.getElementById('challengeQuillEditor');
+  if (challengeQuillEl && window.Quill) {
+    challengeQuill = new Quill('#challengeQuillEditor', {
+      theme: 'snow',
+      placeholder: 'Write your solution analysis and takeaways...',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'code'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['code-block', 'clean']
+        ]
+      }
+    });
+  }
 });
 
 function toggleConceptAccordion(conceptId) {
   const body = document.getElementById(`body-${conceptId}`);
   const icon = document.getElementById(`chevron-${conceptId}`);
-  if (body.style.display === "none") {
+  if (!body) return;
+  const isHidden = body.style.display === "none";
+  if (isHidden) {
     body.style.display = "block";
     if (icon) icon.style.transform = "rotate(0deg)";
   } else {
     body.style.display = "none";
     if (icon) icon.style.transform = "rotate(-90deg)";
   }
+}
+
+function toggleAllConceptAccordions(expand) {
+  document.querySelectorAll('.db-concept-body').forEach(body => {
+    body.style.display = expand ? 'block' : 'none';
+  });
+  document.querySelectorAll('.concept-chevron-icon').forEach(icon => {
+    icon.style.transform = expand ? 'rotate(0deg)' : 'rotate(-90deg)';
+  });
 }
 
 async function updateItemStatus(itemId, newStatus) {
@@ -1178,54 +1223,82 @@ async function updateChallengeStatus(chId, newStatus) {
   }
 }
 
-function copyQuery(btn, queryText) {
+function copyQuery(btn) {
+  const codeEl = btn.closest('.db-code-block')?.querySelector('pre code');
+  const queryText = codeEl ? codeEl.innerText : '';
+  if (!queryText) return;
   navigator.clipboard.writeText(queryText).then(() => {
     const original = btn.innerHTML;
     btn.innerHTML = `<i data-lucide="check" class="icon-xs" style="color: #10B981;"></i>`;
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
     setTimeout(() => {
       btn.innerHTML = original;
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }, 1500);
   });
 }
 
 // Modal Handlers
-function openDbCheatModal() { document.getElementById("dbCheatModal").style.display = "flex"; }
-function closeDbCheatModal() { document.getElementById("dbCheatModal").style.display = "none"; }
+function openDbCheatModal() { openModal("dbCheatModal"); }
+function closeDbCheatModal() { closeModal("dbCheatModal"); }
 
 function switchCheatTab(tabName, btn) {
   document.querySelectorAll(".cheat-content").forEach(el => el.style.display = "none");
   document.querySelectorAll(".cheat-tab").forEach(el => el.classList.remove("active"));
-  document.getElementById(`cheat-tab-${tabName}`).style.display = "block";
-  btn.classList.add("active");
+  const target = document.getElementById(`cheat-tab-${tabName}`);
+  if (target) target.style.display = "block";
+  if (btn) btn.classList.add("active");
 }
 
-function openAddConceptModal() { document.getElementById("addConceptModal").style.display = "flex"; }
-function closeAddConceptModal() { document.getElementById("addConceptModal").style.display = "none"; }
+function openAddConceptModal() { openModal("addConceptModal"); }
+function closeAddConceptModal() { closeModal("addConceptModal"); }
 
 function openAddItemModal(conceptId, conceptTitle) {
-  document.getElementById("addItemConceptId").value = conceptId;
-  document.getElementById("addItemConceptTitle").innerText = `Concept: ${conceptTitle}`;
-  document.getElementById("addItemModal").style.display = "flex";
+  const idInput = document.getElementById("addItemConceptId");
+  const titleSpan = document.getElementById("addItemConceptTitle");
+  if (idInput) idInput.value = conceptId;
+  if (titleSpan) titleSpan.innerText = `Concept: ${conceptTitle}`;
+  openModal("addItemModal");
 }
-function closeAddItemModal() { document.getElementById("addItemModal").style.display = "none"; }
+function closeAddItemModal() { closeModal("addItemModal"); }
 
-function openAddChallengeModal() { document.getElementById("addChallengeModal").style.display = "flex"; }
-function closeAddChallengeModal() { document.getElementById("addChallengeModal").style.display = "none"; }
+function openAddItemModalFromBtn(btn) {
+  const conceptId = btn.dataset.conceptId;
+  const conceptTitle = btn.dataset.conceptTitle || '';
+  openAddItemModal(conceptId, conceptTitle);
+}
+
+function openAddChallengeModal() { openModal("addChallengeModal"); }
+function closeAddChallengeModal() { closeModal("addChallengeModal"); }
 
 function openEditItemModal(id, title, notes, syntax, depth, sources) {
-  document.getElementById("editItemId").value = id;
-  document.getElementById("editItemTitle").innerText = title;
-  document.getElementById("editItemSyntax").value = syntax || "";
-  document.getElementById("editItemDepth").value = depth || 1;
-  document.getElementById("editItemSources").value = sources || "";
+  const idInput = document.getElementById("editItemId");
+  const titleEl = document.getElementById("editItemTitle");
+  const syntaxEl = document.getElementById("editItemSyntax");
+  const depthEl = document.getElementById("editItemDepth");
+  const sourcesEl = document.getElementById("editItemSources");
+
+  if (idInput) idInput.value = id;
+  if (titleEl) titleEl.innerText = title;
+  if (syntaxEl) syntaxEl.value = syntax || "";
+  if (depthEl) depthEl.value = depth || 1;
+  if (sourcesEl) sourcesEl.value = sources || "";
   if (itemQuill) {
     itemQuill.root.innerHTML = notes || "";
   }
-  document.getElementById("editItemModal").style.display = "flex";
+  openModal("editItemModal");
 }
-function closeEditItemModal() { document.getElementById("editItemModal").style.display = "none"; }
+function closeEditItemModal() { closeModal("editItemModal"); }
+
+function openEditItemModalFromBtn(btn) {
+  const id = btn.dataset.itemId;
+  const title = btn.dataset.itemTitle || '';
+  const syntax = btn.dataset.itemSyntax || '';
+  const depth = btn.dataset.itemDepth || 1;
+  const sources = btn.dataset.itemSources || '';
+  const notes = btn.dataset.itemNotes || '';
+  openEditItemModal(id, title, notes, syntax, depth, sources);
+}
 
 async function saveItemNotes() {
   const itemId = document.getElementById("editItemId").value;
@@ -1251,15 +1324,27 @@ async function saveItemNotes() {
 }
 
 function openEditChallengeModal(id, title, notes, solution) {
-  document.getElementById("editChallengeId").value = id;
-  document.getElementById("editChallengeTitle").innerText = title;
-  document.getElementById("editChallengeSolution").value = solution || "";
+  const idInput = document.getElementById("editChallengeId");
+  const titleEl = document.getElementById("editChallengeTitle");
+  const solutionEl = document.getElementById("editChallengeSolution");
+
+  if (idInput) idInput.value = id;
+  if (titleEl) titleEl.innerText = title;
+  if (solutionEl) solutionEl.value = solution || "";
   if (challengeQuill) {
     challengeQuill.root.innerHTML = notes || "";
   }
-  document.getElementById("editChallengeModal").style.display = "flex";
+  openModal("editChallengeModal");
 }
-function closeEditChallengeModal() { document.getElementById("editChallengeModal").style.display = "none"; }
+function closeEditChallengeModal() { closeModal("editChallengeModal"); }
+
+function openEditChallengeModalFromBtn(btn) {
+  const id = btn.dataset.chId;
+  const title = btn.dataset.chTitle || '';
+  const notes = btn.dataset.chNotes || '';
+  const solution = btn.dataset.chSolution || '';
+  openEditChallengeModal(id, title, notes, solution);
+}
 
 async function saveChallengeNotes() {
   const chId = document.getElementById("editChallengeId").value;

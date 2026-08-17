@@ -1161,90 +1161,79 @@ def seed_database(db: Session):
     db.commit()
 
     # --- System Design Concepts & Sub-concepts ---
+    existing_concepts = db.query(SystemDesignConcept).all()
+    concept_map = {(c.track.upper().strip(), c.concept_name.lower().strip()): c for c in existing_concepts}
+    
     existing_subs = db.query(SystemDesignSubConcept).all()
-    sub_state = {}
-    for s in existing_subs:
-        sub_state[s.subconcept_name.lower().strip()] = {
-            "status": s.status,
-            "reading_done": s.reading_done,
-            "practical_done": s.practical_done,
-            "notes": s.notes or "",
-            "resources": s.resources or "",
-            "sources": s.sources or "",
-        }
-
-    # Clean and re-seed concepts & sub-concepts to apply new comprehensive curriculum
-    db.query(SystemDesignSubConcept).delete()
-    db.query(SystemDesignConcept).delete()
-    db.commit()
+    sub_map = {(s.concept_id, s.subconcept_name.lower().strip()): s for s in existing_subs}
 
     for i, (track, cat, concept_name, sub_list) in enumerate(SYSTEM_DESIGN_TOPICS):
-        concept = SystemDesignConcept(
-            track=track,
-            category=cat,
-            concept_name=concept_name,
-            sources="",
-            order_index=i + 1
-        )
-        db.add(concept)
-        db.flush()
+        c_key = (track.upper().strip(), concept_name.lower().strip())
+        concept = concept_map.get(c_key)
+        if not concept:
+            concept = SystemDesignConcept(
+                track=track,
+                category=cat,
+                concept_name=concept_name,
+                sources="",
+                order_index=i + 1
+            )
+            db.add(concept)
+            db.flush()
+            concept_map[c_key] = concept
+        else:
+            concept.category = cat
+            concept.order_index = i + 1
+
         for j, sub_name in enumerate(sub_list):
-            prev = sub_state.get(sub_name.lower().strip(), {})
-            if not prev:
-                for k, v in sub_state.items():
-                    if k in sub_name.lower() or sub_name.lower() in k:
-                        prev = v
-                        break
-            db.add(SystemDesignSubConcept(
-                concept_id=concept.id,
-                subconcept_name=sub_name,
-                order_index=j + 1,
-                status=prev.get("status", "Not Started"),
-                reading_done=prev.get("reading_done", False),
-                practical_done=prev.get("practical_done", False),
-                notes=prev.get("notes", ""),
-                resources=prev.get("resources", ""),
-                sources=prev.get("sources", ""),
-            ))
+            s_key = (concept.id, sub_name.lower().strip())
+            sub = sub_map.get(s_key)
+            if not sub:
+                sub = SystemDesignSubConcept(
+                    concept_id=concept.id,
+                    subconcept_name=sub_name,
+                    order_index=j + 1,
+                    status="Not Started",
+                    reading_done=False,
+                    practical_done=False,
+                    notes="",
+                    resources="",
+                    sources="",
+                )
+                db.add(sub)
+                db.flush()
+                sub_map[s_key] = sub
+            else:
+                sub.order_index = j + 1
     db.commit()
 
     # --- System Design Cases ---
-    existing_cases = db.query(SystemDesignCase).all()
-    case_state = {}
-    for c in existing_cases:
-        case_state[c.system_name.lower().strip()] = {
-            "status": c.status,
-            "key_components": c.key_components or "",
-            "diagram_url": c.diagram_url or "",
-            "notes": c.notes or "",
-        }
-
-    db.query(SystemDesignCase).delete()
-    db.commit()
-
+    existing_cases = {c.system_name.lower().strip(): c for c in db.query(SystemDesignCase).all()}
     for i, c_data in enumerate(SYSTEM_DESIGN_CASES):
         name = c_data["system_name"]
         track = c_data.get("track", "HLD")
         category = c_data.get("category", "Distributed Systems")
         default_components = c_data.get("key_components", "")
 
-        prev = case_state.get(name.lower().strip(), {})
-        if not prev:
-            for k, v in case_state.items():
-                if k in name.lower() or name.lower() in k:
-                    prev = v
-                    break
-
-        db.add(SystemDesignCase(
-            track=track,
-            category=category,
-            system_name=name,
-            order_index=i + 1,
-            status=prev.get("status", "Not Started"),
-            key_components=prev.get("key_components") or default_components,
-            diagram_url=prev.get("diagram_url", ""),
-            notes=prev.get("notes", ""),
-        ))
+        case = existing_cases.get(name.lower().strip())
+        if not case:
+            case = SystemDesignCase(
+                track=track,
+                category=category,
+                system_name=name,
+                order_index=i + 1,
+                status="Not Started",
+                key_components=default_components,
+                diagram_url="",
+                notes="",
+            )
+            db.add(case)
+        else:
+            case.track = track
+            case.category = category
+            case.order_index = i + 1
+            if not case.key_components:
+                case.key_components = default_components
     db.commit()
 
     # --- AI/LLM Topics ---
@@ -1253,24 +1242,20 @@ def seed_database(db: Session):
             db.add(AILLMTopic(topic_name=name, category=cat, order_index=i + 1))
 
     # --- GitHub Projects ---
-    # Delete existing GitHub projects and tasks to reset/re-seed the updated portfolio
-    db.query(GithubTask).delete()
-    db.query(GithubProject).delete()
-    db.commit()
+    if not db.query(GithubProject).first():
+        for i, proj in enumerate(GITHUB_PROJECTS):
+            p = GithubProject(
+                name=proj["name"],
+                description=proj["description"],
+                tech_stack=proj["tech_stack"],
+                order_index=i + 1,
+            )
+            db.add(p)
+            db.flush()  # get p.id
+            for cat, task_name in proj["tasks"]:
+                db.add(GithubTask(project_id=p.id, task_name=task_name, category=cat))
 
-    for i, proj in enumerate(GITHUB_PROJECTS):
-        p = GithubProject(
-            name=proj["name"],
-            description=proj["description"],
-            tech_stack=proj["tech_stack"],
-            order_index=i + 1,
-        )
-        db.add(p)
-        db.flush()  # get p.id
-        for cat, task_name in proj["tasks"]:
-            db.add(GithubTask(project_id=p.id, task_name=task_name, category=cat))
-
-    db.commit()
+        db.commit()
 
     # --- Database Mastery Track Topics & Challenges ---
     if not db.query(DatabaseConcept).first():

@@ -271,6 +271,7 @@
             <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
               <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px;">{{ case.status }}</span>
               <div class="flex items-center gap-1">
+                {% if case.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
                 {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="badge badge-purple" style="text-decoration: none; font-size: 10px;"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
                 <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
                 <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
@@ -314,6 +315,7 @@
             <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
               <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px;">{{ case.status }}</span>
               <div class="flex items-center gap-1">
+                {% if case.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
                 {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="badge badge-purple" style="text-decoration: none; font-size: 10px;"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
                 <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
                 <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
@@ -398,9 +400,10 @@
                     <div class="flex items-center gap-1" style="flex-shrink: 0;">
                       {% if sub.reading_done %}<span class="badge badge-green" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="book-open" class="icon-xs"></i></span>{% endif %}
                       {% if sub.practical_done %}<span class="badge badge-blue" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="code" class="icon-xs"></i></span>{% endif %}
-                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
-                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
-                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                      {% if sub.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-sub-notes-btn" data-name="{{ sub.subconcept_name | escape }}" data-notes="{{ sub.notes | escape }}" data-resource="{{ sub.resources | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
+                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" title="Resource"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}" title="Edit"><i data-lucide="pencil" class="icon-xs"></i></button>
+                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" title="Delete"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
                     </div>
                   </div>
                 {% endfor %}
@@ -480,9 +483,10 @@
                     <div class="flex items-center gap-1" style="flex-shrink: 0;">
                       {% if sub.reading_done %}<span class="badge badge-green" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="book-open" class="icon-xs"></i></span>{% endif %}
                       {% if sub.practical_done %}<span class="badge badge-blue" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="code" class="icon-xs"></i></span>{% endif %}
-                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
-                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
-                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                      {% if sub.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-sub-notes-btn" data-name="{{ sub.subconcept_name | escape }}" data-notes="{{ sub.notes | escape }}" data-resource="{{ sub.resources | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
+                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" title="Resource"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}" title="Edit"><i data-lucide="pencil" class="icon-xs"></i></button>
+                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" title="Delete"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
                     </div>
                   </div>
                 {% endfor %}
@@ -540,6 +544,7 @@
             <div class="flex justify-between items-center" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-light);">
               <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 9px;">{{ case.status }}</span>
               <div class="flex items-center gap-1">
+                {% if case.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-case-notes-btn" style="width: 18px; height: 18px; color: var(--accent);" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Notes"><i data-lucide="eye" style="width: 10px; height: 10px;"></i></button>{% endif %}
                 {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" style="width: 18px; height: 18px;"><i data-lucide="external-link" style="width: 10px; height: 10px;"></i></a>{% endif %}
                 <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" style="width: 18px; height: 18px;" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" style="width: 10px; height: 10px;"></i></button>
                 <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="width: 18px; height: 18px;"><i data-lucide="trash-2" style="width: 10px; height: 10px;"></i></button></form>
@@ -1003,6 +1008,33 @@
     </div>
   </div>
 </div>
+
+<!-- 6. View Notes Modal -->
+<div class="modal-overlay" id="viewNotesModal">
+  <div class="modal" style="max-width: 750px; width: 92%;">
+    <div class="modal-header">
+      <div class="flex items-center gap-2" style="min-width: 0;">
+        <i data-lucide="book-open" class="icon-sm" style="color: var(--accent);"></i>
+        <span class="modal-title" id="viewNotesModalTitle" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Notes</span>
+      </div>
+      <button class="modal-close" onclick="closeModal('viewNotesModal')">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+    <div class="modal-body" style="padding: 18px 22px;">
+      <div id="viewNotesModalContent" class="quill-rendered" style="font-size: 13.5px; line-height: 1.6; color: var(--text-primary); max-height: 60vh; overflow-y: auto; background: var(--surface-alt); padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+      </div>
+      <div id="viewNotesResourceSection" style="margin-top: 14px; display: none;">
+        <a id="viewNotesResourceLink" href="#" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+          <i data-lucide="external-link" class="icon-xs"></i> Open Attached Resource
+        </a>
+      </div>
+      <div class="flex justify-end gap-2" style="margin-top: 18px;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('viewNotesModal')">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -1229,7 +1261,56 @@ function filterCasesByTrack(track, btnEl) {
   });
 }
 
+function openViewNotesModal(title, notes, resourceUrl) {
+  document.getElementById('viewNotesModalTitle').textContent = 'Notes: ' + (title || 'Details');
+  const contentEl = document.getElementById('viewNotesModalContent');
+  
+  if (notes && (notes.includes('<p>') || notes.includes('<div>') || notes.includes('<h') || notes.includes('<ul>') || notes.includes('<ol>') || notes.includes('<pre>') || notes.includes('<strong>') || notes.includes('<em>'))) {
+    contentEl.innerHTML = notes;
+    contentEl.style.whiteSpace = 'normal';
+  } else if (notes && notes.trim().length > 0) {
+    contentEl.textContent = notes;
+    contentEl.style.whiteSpace = 'pre-wrap';
+  } else {
+    contentEl.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">No notes recorded yet.</span>';
+    contentEl.style.whiteSpace = 'normal';
+  }
+
+  const resSec = document.getElementById('viewNotesResourceSection');
+  const resLink = document.getElementById('viewNotesResourceLink');
+  if (resourceUrl && resourceUrl.trim().startsWith('http')) {
+    resLink.href = resourceUrl.trim();
+    resSec.style.display = 'block';
+  } else {
+    resSec.style.display = 'none';
+  }
+
+  openModal('viewNotesModal');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Wire up view notes buttons for subconcepts
+  document.querySelectorAll('.view-sub-notes-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const name = this.getAttribute('data-name');
+      const notes = this.getAttribute('data-notes');
+      const resource = this.getAttribute('data-resource');
+      openViewNotesModal(name, notes, resource);
+    });
+  });
+
+  // Wire up view notes buttons for cases
+  document.querySelectorAll('.view-case-notes-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const name = this.getAttribute('data-name');
+      const notes = this.getAttribute('data-notes');
+      const resource = this.getAttribute('data-resource');
+      openViewNotesModal(name, notes, resource);
+    });
+  });
+
   // Wire up subconcept edit buttons
   document.querySelectorAll('.edit-sub-btn').forEach(btn => {
     btn.addEventListener('click', function() {
