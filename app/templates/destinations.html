@@ -1,0 +1,800 @@
+{% extends "base.html" %}
+{% block title %}Relocation Destinations, Quality of Life & Compensation Blueprint{% endblock %}
+{% block page_title %}Relocation Destinations & Peaceful Living Blueprint{% endblock %}
+
+{% block content %}
+{% if request.query_params.get('updated') %}
+<div class="alert alert-success mb-4" style="display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--success);">
+  <i data-lucide="check-circle" class="icon-sm"></i>
+  <span><strong>Destination updated successfully!</strong> Compensation, lifestyle, and conversion metrics have been re-calculated.</span>
+</div>
+{% elif request.query_params.get('reset') %}
+<div class="alert alert-info mb-4" style="display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--info);">
+  <i data-lucide="refresh-cw" class="icon-sm"></i>
+  <span><strong>Destinations reset to default benchmarks!</strong> Current 2026 exchange rates, Top 10 rankings, and scenic insights restored.</span>
+</div>
+{% endif %}
+
+<!-- ══ Executive Summary KPI Row ══ -->
+<div class="grid-4 mb-4" style="gap: 16px;">
+  
+  <div class="card stat-card" style="border-left: 4px solid #f97316;">
+    <div class="stat-icon-wrapper" style="background: rgba(249, 115, 22, 0.12); color: #ea580c;">
+      <span style="font-size: 20px;">🇮🇳</span>
+    </div>
+    <div>
+      <div class="text-xs text-muted font-medium">Current India Baseline</div>
+      <div class="stat-value" style="font-size: 18px; margin-top: 2px;">₹1.00 L / mo</div>
+      <div class="text-xs" style="color: #ea580c; margin-top: 2px; font-weight: 600;">
+        Take-Home: ₹90k/mo · Savings: ₹50k/mo
+      </div>
+    </div>
+  </div>
+
+  <div class="card stat-card" style="border-left: 4px solid #eab308;">
+    <div class="stat-icon-wrapper" style="background: rgba(234, 179, 8, 0.12); color: #b45309;">
+      <span style="font-size: 20px;">🥇</span>
+    </div>
+    <div>
+      <div class="text-xs text-muted font-medium">#1 Career & Tech Pick</div>
+      <div class="stat-value" style="font-size: 18px; margin-top: 2px;">🇩🇪 Germany</div>
+      <div class="text-xs" style="color: #b45309; margin-top: 2px; font-weight: 600;">
+        ₹5.19 L/mo Net · Bavarian Alps & Lakes
+      </div>
+    </div>
+  </div>
+
+  <div class="card stat-card" style="border-left: 4px solid #10b981;">
+    <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+      <span style="font-size: 20px;">🥈</span>
+    </div>
+    <div>
+      <div class="text-xs text-muted font-medium">#2 Best Family & Safety</div>
+      <div class="stat-value" style="font-size: 18px; margin-top: 2px;">🇸🇬 Singapore</div>
+      <div class="text-xs" style="color: #10b981; margin-top: 2px; font-weight: 600;">
+        ₹6.02 L/mo Savings · Direct Mother LTVP
+      </div>
+    </div>
+  </div>
+
+  <div class="card stat-card" style="border-left: 4px solid #2563eb;">
+    <div class="stat-icon-wrapper" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+      <i data-lucide="award" class="icon-sm"></i>
+    </div>
+    <div>
+      <div class="text-xs text-muted font-medium">#1 Quality of Life Worldwide</div>
+      <div class="stat-value" style="font-size: 18px; margin-top: 2px;">🇳🇱 Netherlands</div>
+      <div class="text-xs" style="color: #2563eb; margin-top: 2px; font-weight: 600;">
+        #1 Living Rank · #7 Happiness Index
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ 🇮🇳 Current India Baseline Benchmark Card ══ -->
+<div class="card mb-4" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(59, 130, 246, 0.03) 100%); border: 2px dashed rgba(249, 115, 22, 0.4);">
+  <div class="card-body" style="padding: 16px 22px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-size: 32px;">🇮🇳</span>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0; color: var(--text-primary);">Current Benchmark: India (AllianceTek / Denali India)</h3>
+            <span class="badge" style="background: rgba(249, 115, 22, 0.15); color: #c2410c; font-weight: 700; font-size: 11px;">
+              Your Active Baseline
+            </span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0 0;">
+            Current Salary: <strong>₹1.00 Lakh/month (₹12.0 Lakhs/year)</strong> · Monthly In-Hand Take-Home: <strong>₹90,000</strong> · Expenses: <strong>~₹40,000</strong> · Net Savings: <strong>₹50,000/mo (₹6.00 L/yr)</strong>.
+          </p>
+          <p style="font-size: 11px; color: var(--text-secondary); margin: 4px 0 0 0;">
+            🌿 <strong>Scenic & Tech Hubs:</strong> Kerala (Wayanad / Munnar) & Himachal/Uttarakhand for mountain peace; Bengaluru/Pune/NCR for IT market.
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;">
+        <div style="text-align: right;">
+          <div style="color: var(--text-muted); font-size: 11px;">Target Abroad Upside:</div>
+          <div style="font-weight: 800; color: var(--success); font-size: 14px;">+5x to +12x Net Savings Increase</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Visual Economics Comparison Chart ══ -->
+<div class="card mb-4">
+  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div class="flex items-center gap-2">
+      <i data-lucide="bar-chart-3" class="icon-sm" style="color: var(--accent);"></i>
+      <span class="card-title">Comparative Compensation & Savings Spectrum vs India Baseline (in INR)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; font-size: 12px;">
+      <span style="display: flex; align-items: center; gap: 4px;">
+        <span style="width: 10px; height: 10px; border-radius: 2px; background: #2563eb; display: inline-block;"></span> Monthly Take-Home (INR)
+      </span>
+      <span style="display: flex; align-items: center; gap: 4px;">
+        <span style="width: 10px; height: 10px; border-radius: 2px; background: #ef4444; display: inline-block;"></span> Monthly Expenses (INR)
+      </span>
+      <span style="display: flex; align-items: center; gap: 4px;">
+        <span style="width: 10px; height: 10px; border-radius: 2px; background: #10b981; display: inline-block;"></span> Net Monthly Savings (INR)
+      </span>
+    </div>
+  </div>
+  <div class="card-body no-top" style="padding-top: 10px;">
+    <div style="position: relative; height: 260px; width: 100%;">
+      <canvas id="destinationsComparisonChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Global Top 10 Reference Tables (Happiness, Living, Clean Air & Nature) ══ -->
+<div class="card mb-4" style="border: 1px solid var(--border);">
+  <div class="card-header" style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+    <div class="flex items-center gap-2">
+      <i data-lucide="globe" class="icon-sm" style="color: var(--accent);"></i>
+      <span class="card-title">Global Reference Indices: Top 10 Rankings (2026)</span>
+    </div>
+  </div>
+  <div class="card-body" style="padding: 16px 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+      
+      <!-- 1. Top 10 Happiest Countries + Your Targets -->
+      <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
+        <div style="padding: 10px 14px; background: rgba(245, 158, 11, 0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 16px;">😊</span>
+            <span style="font-weight: 800; font-size: 13px; color: #b45309;">World Happiness Index (2026)</span>
+          </div>
+          <span class="badge badge-sm" style="background: rgba(245, 158, 11, 0.15); color: #b45309; font-size: 10px; font-weight: 700;">Top 10 + Your Hubs</span>
+        </div>
+        <div style="max-height: 290px; overflow-y: auto;">
+          <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+            <tbody>
+              {% for item in top_10_happiness %}
+              {% if item.is_divider %}
+              <tr style="background: var(--surface-alt);">
+                <td colspan="3" style="padding: 2px 10px; text-align: center; color: var(--text-muted); font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--border-light); font-family: monospace;">
+                  ............................................................
+                </td>
+              </tr>
+              {% else %}
+              <tr style="border-bottom: 1px solid var(--border-light); {% if item.is_target %}background: rgba(245, 158, 11, 0.06); font-weight: 700;{% endif %}">
+                <td style="padding: 6px 10px; width: 34px; color: {% if item.is_target %}#b45309; font-weight: 800;{% else %}var(--text-muted);{% endif %}">
+                  #{{ item.rank }}
+                </td>
+                <td style="padding: 6px 10px;">
+                  <span style="font-weight: 700; color: var(--text-primary);">{{ item.flag }} {{ item.country }}</span>
+                  {% if item.target_tag %}
+                  <span class="badge" style="font-size: 9px; padding: 1px 5px; margin-left: 4px; background: rgba(37, 99, 235, 0.12); color: var(--accent); font-weight: 700;">
+                    {{ item.target_tag }}
+                  </span>
+                  {% endif %}
+                </td>
+                <td style="padding: 6px 10px; color: #b45309; text-align: right; font-weight: 700;">{{ item.score }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Top 10 Best Living & Quality of Life + Your Targets -->
+      <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
+        <div style="padding: 10px 14px; background: rgba(37, 99, 235, 0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 16px;">🏆</span>
+            <span style="font-weight: 800; font-size: 13px; color: var(--accent);">Quality of Life (Numbeo 2026)</span>
+          </div>
+          <span class="badge badge-sm" style="background: rgba(37, 99, 235, 0.15); color: var(--accent); font-size: 10px; font-weight: 700;">Top 10 + Your Hubs</span>
+        </div>
+        <div style="max-height: 290px; overflow-y: auto;">
+          <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+            <tbody>
+              {% for item in top_10_living %}
+              {% if item.is_divider %}
+              <tr style="background: var(--surface-alt);">
+                <td colspan="3" style="padding: 2px 10px; text-align: center; color: var(--text-muted); font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--border-light); font-family: monospace;">
+                  ............................................................
+                </td>
+              </tr>
+              {% else %}
+              <tr style="border-bottom: 1px solid var(--border-light); {% if item.is_target %}background: rgba(37, 99, 235, 0.06); font-weight: 700;{% endif %}">
+                <td style="padding: 6px 10px; width: 34px; color: {% if item.is_target %}var(--accent); font-weight: 800;{% else %}var(--text-muted);{% endif %}">
+                  #{{ item.rank }}
+                </td>
+                <td style="padding: 6px 10px;">
+                  <span style="font-weight: 700; color: var(--text-primary);">{{ item.flag }} {{ item.country }}</span>
+                  {% if item.target_tag %}
+                  <span class="badge" style="font-size: 9px; padding: 1px 5px; margin-left: 4px; background: rgba(37, 99, 235, 0.12); color: var(--accent); font-weight: 700;">
+                    {{ item.target_tag }}
+                  </span>
+                  {% endif %}
+                </td>
+                <td style="padding: 6px 10px; color: var(--accent); text-align: right; font-weight: 700;">{{ item.score }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. Top 10 Pollution-Free, Green & Beautiful Scenic Countries + Your Targets -->
+      <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
+        <div style="padding: 10px 14px; background: rgba(16, 185, 129, 0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 16px;">🌲</span>
+            <span style="font-weight: 800; font-size: 13px; color: var(--success);">Clean Air & Nature (AQI 2026)</span>
+          </div>
+          <span class="badge badge-sm" style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 10px; font-weight: 700;">Top 10 + Your Hubs</span>
+        </div>
+        <div style="max-height: 290px; overflow-y: auto;">
+          <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+            <tbody>
+              {% for item in top_10_pollution_free %}
+              {% if item.is_divider %}
+              <tr style="background: var(--surface-alt);">
+                <td colspan="3" style="padding: 2px 10px; text-align: center; color: var(--text-muted); font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--border-light); font-family: monospace;">
+                  ............................................................
+                </td>
+              </tr>
+              {% else %}
+              <tr style="border-bottom: 1px solid var(--border-light); {% if item.is_target %}background: rgba(16, 185, 129, 0.06); font-weight: 700;{% endif %}">
+                <td style="padding: 6px 10px; width: 34px; color: {% if item.is_target %}var(--success); font-weight: 800;{% else %}var(--text-muted);{% endif %}">
+                  #{{ item.rank }}
+                </td>
+                <td style="padding: 6px 10px;">
+                  <span style="font-weight: 700; color: var(--text-primary);">{{ item.flag }} {{ item.country }}</span>
+                  {% if item.target_tag %}
+                  <span class="badge" style="font-size: 9px; padding: 1px 5px; margin-left: 4px; background: rgba(16, 185, 129, 0.12); color: var(--success); font-weight: 700;">
+                    {{ item.target_tag }}
+                  </span>
+                  {% endif %}
+                </td>
+                <td style="padding: 6px 10px; color: var(--success); text-align: right; font-weight: 700;">{{ item.aqi }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ Control & Filter Bar ══ -->
+<div class="card mb-4" style="padding: 12px 18px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+    
+    <!-- Left: Country Quick Navigation -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">Filter Region:</span>
+      <button class="btn btn-xs btn-primary filter-btn active" data-filter="all" onclick="filterDestinations('all', this)">All Hubs (12)</button>
+      <button class="btn btn-xs btn-outline filter-btn" data-filter="Europe" onclick="filterDestinations('Europe', this)">🇪🇺 Europe (DE/NL/CH/IE/SE/NO/PL)</button>
+      <button class="btn btn-xs btn-outline filter-btn" data-filter="APAC" onclick="filterDestinations('APAC', this)">🌏 Asia-Pacific (SG/AU/NZ)</button>
+      <button class="btn btn-xs btn-outline filter-btn" data-filter="Americas" onclick="filterDestinations('Americas', this)">🌎 North America (US/CA)</button>
+    </div>
+
+    <!-- Right: Currency Display Mode Toggle -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">Currency View:</span>
+      <div class="btn-group" style="display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+        <button id="viewBothBtn" class="btn btn-xs btn-primary" onclick="setCurrencyView('both', this)">Both (Local + INR)</button>
+        <button id="viewInrBtn" class="btn btn-xs btn-outline" onclick="setCurrencyView('inr', this)">INR (₹ Only)</button>
+        <button id="viewLocalBtn" class="btn btn-xs btn-outline" onclick="setCurrencyView('local', this)">Local Currency</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Destination Cards List ══ -->
+<div class="destinations-list" style="display: flex; flex-direction: column; gap: 24px;">
+  {% for d in destinations %}
+  {% set region_tag = 'Europe' if d.country_name in ['Germany', 'Netherlands', 'Ireland', 'Switzerland', 'Sweden', 'Norway', 'Poland'] else ('APAC' if d.country_name in ['Singapore', 'Australia', 'New Zealand'] else 'Americas') %}
+  <div class="card destination-card" id="dest-card-{{ d.id }}" data-region="{{ region_tag }}" style="border-top: 4px solid {% if d.rank == 1 %}#eab308{% elif d.rank == 2 %}#94a3b8{% elif d.rank == 3 %}#d97706{% elif d.rank == 4 %}#10b981{% else %}var(--accent){% endif %}; box-shadow: var(--shadow-sm);">
+    <div class="card-body" style="padding: 22px 26px;">
+      
+      <!-- Top Row: Rank, Flag, Name, Verdict & Quality Badges -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 14px;">
+        <div style="display: flex; align-items: flex-start; gap: 14px;">
+          <div style="font-size: 32px; line-height: 1; display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; background: var(--surface-alt); border-radius: 12px; border: 1px solid var(--border); flex-shrink: 0;">
+            {{ d.flag_emoji }}
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span class="badge" style="background: {% if d.rank == 1 %}rgba(234, 179, 8, 0.15); color: #b45309; border: 1px solid rgba(234, 179, 8, 0.3);{% elif d.rank == 2 %}rgba(148, 163, 184, 0.2); color: #475569; border: 1px solid rgba(148, 163, 184, 0.4);{% elif d.rank == 3 %}rgba(217, 119, 6, 0.15); color: #b45309; border: 1px solid rgba(217, 119, 6, 0.3);{% else %}rgba(37, 99, 235, 0.1); color: var(--accent); border: 1px solid rgba(37, 99, 235, 0.2);{% endif %} font-weight: 800;">
+                {% if d.rank == 1 %}🥇 Rank #1{% elif d.rank == 2 %}🥈 Rank #2{% elif d.rank == 3 %}🥉 Rank #3{% else %}Rank #{{ d.rank }}{% endif %}
+              </span>
+              <h2 style="font-size: 19px; font-weight: 800; margin: 0; color: var(--text-primary);">{{ d.country_name }}</h2>
+              
+              <!-- Quality of Life Rank Badge -->
+              {% if d.quality_of_life_rank %}
+              <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: var(--accent); border: 1px solid rgba(37, 99, 235, 0.25); font-weight: 700; font-size: 11px;">
+                <i data-lucide="home" class="icon-xs" style="margin-right: 3px;"></i> Living Rank: {{ d.quality_of_life_rank }}
+              </span>
+              {% endif %}
+
+              <!-- Happiness Index Badge -->
+              {% if d.happiness_rank %}
+              <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25); font-weight: 700; font-size: 11px;">
+                <i data-lucide="smile" class="icon-xs" style="margin-right: 3px;"></i> Happiness: {{ d.happiness_rank }}
+              </span>
+              {% endif %}
+
+              <!-- Safety Badge -->
+              {% if d.safety_score %}
+              <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25); font-weight: 700; font-size: 11px;">
+                <i data-lucide="shield-check" class="icon-xs" style="margin-right: 3px;"></i> {{ d.safety_score.split('·')[0].strip() }}
+              </span>
+              {% endif %}
+            </div>
+            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px; font-weight: 500;">
+              {{ d.summary_verdict }}
+            </p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-xs btn-outline" onclick="openEditModal({{ d.id }}, '{{ d.country_name }}', {{ d.salary_median }}, {{ d.salary_min }}, {{ d.salary_max }}, {{ d.estimated_tax_rate }}, {{ d.monthly_expense_local }}, {{ d.exchange_rate_inr }}, '{{ d.summary_verdict | replace("'", "\\'") }}')" style="display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="pencil" class="icon-xs"></i>
+            <span>Edit Metrics</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 🌲 Motivation for Living & Peaceful Green Beauty -->
+      {% if d.peaceful_scenic_motivation %}
+      <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.07) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 800; color: #047857; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <i data-lucide="mountain-snow" class="icon-sm"></i>
+          <span>Motivation for Living in Peace & Scenic Natural Beauty:</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+          {{ d.peaceful_scenic_motivation }}
+        </p>
+      </div>
+      {% endif %}
+
+      <!-- 🏙️ Best State, Province / Canton & City Recommendations -->
+      {% if d.best_cities_states %}
+      <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 12px 16px; margin-bottom: 18px;">
+        <div style="font-size: 12px; font-weight: 800; color: #4338ca; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+          <i data-lucide="map-pin" class="icon-sm"></i>
+          <span>Best State / Province / Canton & City for Living & Tech:</span>
+        </div>
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.55;">
+          {% for line in d.best_cities_states.split('\n') %}
+            {% if line.strip() %}
+            <div style="margin-top: 4px; display: flex; align-items: flex-start; gap: 6px;">
+              <span style="color: #4338ca; font-weight: bold; flex-shrink: 0; line-height: 1.5;">📍</span>
+              <div>
+                {{ line.replace('•', '').replace('**', '').strip() }}
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Financial Economics Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px;">
+        
+        <!-- Yearly Gross -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;">
+          <div class="text-xs text-muted" style="font-weight: 600;">Yearly Gross Salary</div>
+          <div class="curr-val-local" style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+            {{ d.currency_symbol }}{{ "{:,.0f}".format(d.salary_median) }} <span class="text-xs text-muted">/ yr</span>
+          </div>
+          <div class="curr-val-inr" style="font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 2px;">
+            {{ d.format_inr(d.annual_gross_inr) }}
+          </div>
+          <div class="text-xs text-muted" style="font-size: 10px; margin-top: 2px;">
+            Range: {{ d.currency_symbol }}{{ "{:,.0f}".format(d.salary_min / 1000) }}k–{{ "{:,.0f}".format(d.salary_max / 1000) }}k
+          </div>
+        </div>
+
+        <!-- Monthly Gross -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;">
+          <div class="text-xs text-muted" style="font-weight: 600;">Monthly Gross Salary</div>
+          <div class="curr-val-local" style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
+            {{ d.currency_symbol }}{{ "{:,.0f}".format(d.monthly_gross_local) }} <span class="text-xs text-muted">/ mo</span>
+          </div>
+          <div class="curr-val-inr" style="font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 2px;">
+            {{ d.format_inr(d.monthly_gross_inr) }} / mo
+          </div>
+          <div class="text-xs text-muted" style="font-size: 10px; margin-top: 2px;">
+            Rate: 1 {{ d.currency_code }} = ₹{{ "%.2f" | format(d.exchange_rate_inr) }}
+          </div>
+        </div>
+
+        <!-- Estimated Tax % -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;">
+          <div class="text-xs text-muted" style="font-weight: 600;">Estimated Tax Rate</div>
+          <div style="font-size: 16px; font-weight: 800; color: {% if d.estimated_tax_rate < 20 %}var(--success){% elif d.estimated_tax_rate < 35 %}var(--warning){% else %}var(--danger){% endif %}; margin-top: 2px;">
+            ~{{ "%.1f" | format(d.estimated_tax_rate) }}%
+          </div>
+          <div class="curr-val-local text-xs text-muted" style="margin-top: 2px;">
+            Tax: ~{{ d.currency_symbol }}{{ "{:,.0f}".format(d.annual_tax_local) }}/yr
+          </div>
+          <div class="curr-val-inr text-xs text-muted" style="margin-top: 2px;">
+            Tax: ~{{ d.format_inr(d.annual_tax_local * d.exchange_rate_inr) }}/yr
+          </div>
+        </div>
+
+        <!-- Monthly Take-Home Net -->
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px 14px;">
+          <div class="text-xs" style="font-weight: 700; color: var(--success);">Monthly Take-Home (Net)</div>
+          <div class="curr-val-local" style="font-size: 16px; font-weight: 800; color: var(--success); margin-top: 2px;">
+            {{ d.currency_symbol }}{{ "{:,.0f}".format(d.monthly_take_home_local) }} <span class="text-xs">/ mo</span>
+          </div>
+          <div class="curr-val-inr" style="font-size: 13px; font-weight: 700; color: var(--success); margin-top: 2px;">
+            {{ d.format_inr(d.monthly_take_home_inr) }} / mo
+          </div>
+          <div class="text-xs" style="font-size: 10px; margin-top: 2px; color: var(--success); font-weight: 600;">
+            vs India (₹90k): <strong>{{ "%.1f" | format(d.monthly_take_home_inr / 90000.0) }}x</strong>
+          </div>
+        </div>
+
+        <!-- Monthly Living Expenses -->
+        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 10px 14px;">
+          <div class="text-xs" style="font-weight: 700; color: var(--danger);">Avg Monthly Living + Rent</div>
+          <div class="curr-val-local" style="font-size: 16px; font-weight: 800; color: var(--danger); margin-top: 2px;">
+            {{ d.currency_symbol }}{{ "{:,.0f}".format(d.monthly_expense_local) }} <span class="text-xs">/ mo</span>
+          </div>
+          <div class="curr-val-inr" style="font-size: 13px; font-weight: 700; color: var(--danger); margin-top: 2px;">
+            {{ d.format_inr(d.monthly_expense_inr) }} / mo
+          </div>
+          <div class="text-xs text-muted" style="font-size: 10px; margin-top: 2px;">
+            1BHK/Condo + Utilities + Food
+          </div>
+        </div>
+
+        <!-- Net Monthly Savings -->
+        <div style="background: rgba(37, 99, 235, 0.06); border: 1px solid rgba(37, 99, 235, 0.25); border-radius: 8px; padding: 10px 14px;">
+          <div class="text-xs" style="font-weight: 700; color: var(--accent);">Net Monthly Savings</div>
+          <div class="curr-val-local" style="font-size: 16px; font-weight: 800; color: var(--accent); margin-top: 2px;">
+            {{ d.currency_symbol }}{{ "{:,.0f}".format(d.monthly_savings_local) }} <span class="text-xs">/ mo</span>
+          </div>
+          <div class="curr-val-inr" style="font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 2px;">
+            {{ d.format_inr(d.monthly_savings_inr) }} / mo
+          </div>
+          <div class="text-xs" style="font-size: 10px; margin-top: 2px; color: var(--accent); font-weight: 600;">
+            vs India (₹50k): <strong>{{ "%.1f" | format(d.monthly_savings_inr / 50000.0) }}x savings</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ 4 Practical Relocation & Immigration Pillars ══ -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px;">
+        
+        <!-- 1. Sponsor Visa Pathway -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+            <i data-lucide="plane-takeoff" class="icon-xs" style="color: var(--accent);"></i>
+            <span>Best Way to Move / Sponsor Visa</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+            {{ d.sponsor_visa_pathway }}
+          </div>
+        </div>
+
+        <!-- 2. Permanent Residency (PR) Criteria -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+            <i data-lucide="award" class="icon-xs" style="color: #8b5cf6;"></i>
+            <span>Permanent Residency (PR) Criteria</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+            {{ d.pr_criteria_timeline }}
+          </div>
+        </div>
+
+        <!-- 3. Language Need -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+            <i data-lucide="languages" class="icon-xs" style="color: #f59e0b;"></i>
+            <span>Language Requirements</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+            {{ d.language_requirements }}
+          </div>
+        </div>
+
+        <!-- 4. Family & Mother Feasibility -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+            <i data-lucide="users" class="icon-xs" style="color: var(--success);"></i>
+            <span>Family & Mother Visa Feasibility</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+            {{ d.family_mother_feasibility }}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ Lifestyle, Scenic Clean Air, Retirement & Keep in Mind Gotchas ══ -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        
+        <!-- Clean Air & Scenic Environment -->
+        <div style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 12px 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--success); display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <i data-lucide="trees" class="icon-xs"></i>
+            <span>Scenic Environment & Pollution-Free Clean Air</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+            {{ d.scenic_pollution_rating }}
+          </div>
+        </div>
+
+        <!-- Retirement & Healthcare -->
+        <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px; padding: 12px 14px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <i data-lucide="shield" class="icon-xs"></i>
+            <span>Retirement & Golden Years Suitability</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+            {{ d.retirement_suitability }}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ⚠️ "Keep In Mind" Real-World Practical Gotchas -->
+      {% if d.keep_in_mind_notes %}
+      <div style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;">
+        <div style="font-size: 12px; font-weight: 800; color: #b45309; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <i data-lucide="alert-triangle" class="icon-xs"></i>
+          <span>💡 Keep in Mind (Real-World Practical Gotchas & Local Quirks):</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.45;">
+          {{ d.keep_in_mind_notes }}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Expandable Deep Dive Details -->
+      <details style="background: var(--surface-alt); border-radius: 8px; padding: 8px 12px; border: 1px solid var(--border);">
+        <summary style="font-size: 12px; font-weight: 700; color: var(--accent); cursor: pointer; user-select: none;">
+          View Tax Deductions Breakdown & Tech Market Ecosystem Details ▾
+        </summary>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border);">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">🧾 Tax Rules & Deductions Breakdown</div>
+            <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.4; margin: 0;">{{ d.tax_breakdown_notes }}</p>
+          </div>
+          <div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">🏢 Top Tech Employers & Ecosystem</div>
+            <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.4; margin: 0;">{{ d.tech_market_notes }}</p>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ══ Edit Destination Modal ══ -->
+<div id="editDestModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div class="modal-card" style="background: var(--surface); border-radius: 12px; max-width: 520px; width: 90%; padding: 24px; box-shadow: var(--shadow-lg); border: 1px solid var(--border);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 16px; font-weight: 800; margin: 0;" id="editModalTitle">Edit Destination Metrics</h3>
+      <button class="btn btn-xs btn-outline" onclick="closeEditModal()" style="padding: 2px 6px;">✕</button>
+    </div>
+
+    <form id="editDestForm" method="post" action="">
+      <div class="form-group mb-3">
+        <label class="form-label">Summary Verdict</label>
+        <input type="text" name="summary_verdict" id="modalVerdict" class="form-input" required>
+      </div>
+
+      <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Median Annual Salary (Local)</label>
+          <input type="number" step="100" name="salary_median" id="modalMedian" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exchange Rate to INR (1 Unit = X ₹)</label>
+          <input type="number" step="0.05" name="exchange_rate_inr" id="modalRate" class="form-input" required>
+        </div>
+      </div>
+
+      <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Min Salary Range (Local)</label>
+          <input type="number" step="100" name="salary_min" id="modalMin" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Salary Range (Local)</label>
+          <input type="number" step="100" name="salary_max" id="modalMax" class="form-input" required>
+        </div>
+      </div>
+
+      <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Estimated Tax Rate (%)</label>
+          <input type="number" step="0.1" min="0" max="60" name="estimated_tax_rate" id="modalTax" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monthly Expenses & Rent (Local)</label>
+          <input type="number" step="50" name="monthly_expense_local" id="modalExpense" class="form-input" required>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Filter destinations by region
+function filterDestinations(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'btn-primary'));
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.add('btn-outline'));
+  btn.classList.remove('btn-outline');
+  btn.classList.add('active', 'btn-primary');
+
+  const cards = document.querySelectorAll('.destination-card');
+  cards.forEach(card => {
+    const region = card.getAttribute('data-region') || '';
+    if (filter === 'all' || region === filter) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// Currency View toggle (both, inr, local)
+function setCurrencyView(mode, btn) {
+  const group = btn.parentElement;
+  group.querySelectorAll('button').forEach(b => {
+    b.classList.remove('btn-primary');
+    b.classList.add('btn-outline');
+  });
+  btn.classList.remove('btn-outline');
+  btn.classList.add('btn-primary');
+
+  const inrEls = document.querySelectorAll('.curr-val-inr');
+  const localEls = document.querySelectorAll('.curr-val-local');
+
+  if (mode === 'inr') {
+    inrEls.forEach(el => el.style.display = 'block');
+    localEls.forEach(el => el.style.display = 'none');
+  } else if (mode === 'local') {
+    inrEls.forEach(el => el.style.display = 'none');
+    localEls.forEach(el => el.style.display = 'block');
+  } else {
+    inrEls.forEach(el => el.style.display = 'block');
+    localEls.forEach(el => el.style.display = 'block');
+  }
+}
+
+// Modal handling
+function openEditModal(destId, countryName, median, min, max, tax, expense, rate, verdict) {
+  document.getElementById('editModalTitle').innerText = 'Edit ' + countryName + ' Compensation & Rates';
+  document.getElementById('editDestForm').action = '/destinations/' + destId + '/edit';
+  document.getElementById('modalVerdict').value = verdict;
+  document.getElementById('modalMedian').value = median;
+  document.getElementById('modalMin').value = min;
+  document.getElementById('modalMax').value = max;
+  document.getElementById('modalTax').value = tax;
+  document.getElementById('modalExpense').value = expense;
+  document.getElementById('modalRate').value = rate;
+  document.getElementById('editDestModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('editDestModal').style.display = 'none';
+}
+
+// Initialize Chart.js comparison chart (including India baseline)
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('destinationsComparisonChart');
+  if (!ctx) return;
+
+  const labels = [
+    "🇮🇳 India (Baseline)",
+    {% for d in destinations %}
+      "{{ d.flag_emoji }} {{ d.country_name }}",
+    {% endfor %}
+  ];
+
+  const takeHomeInr = [
+    0.90, // India ₹90,000 / mo
+    {% for d in destinations %}
+      {{ (d.monthly_take_home_inr / 100000) | round(2) }},
+    {% endfor %}
+  ];
+
+  const expenseInr = [
+    0.40, // India ₹40,000 / mo
+    {% for d in destinations %}
+      {{ (d.monthly_expense_inr / 100000) | round(2) }},
+    {% endfor %}
+  ];
+
+  const savingsInr = [
+    0.50, // India ₹50,000 / mo
+    {% for d in destinations %}
+      {{ (d.monthly_savings_inr / 100000) | round(2) }},
+    {% endfor %}
+  ];
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Monthly Take-Home (₹ Lakhs)',
+          data: takeHomeInr,
+          backgroundColor: 'rgba(37, 99, 235, 0.85)',
+          borderRadius: 4,
+        },
+        {
+          label: 'Monthly Living Expenses (₹ Lakhs)',
+          data: expenseInr,
+          backgroundColor: 'rgba(239, 68, 68, 0.75)',
+          borderRadius: 4,
+        },
+        {
+          label: 'Net Monthly Savings (₹ Lakhs)',
+          data: savingsInr,
+          backgroundColor: 'rgba(16, 185, 129, 0.85)',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Amount in ₹ Lakhs / month',
+            font: { size: 11, weight: 'bold' }
+          },
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          }
+        },
+        x: {
+          grid: { display: false }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ₹' + context.parsed.y + ' Lakhs';
+            }
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

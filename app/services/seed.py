@@ -7,6 +7,7 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.user import UserProfile, SalaryTarget, WeeklySchedule
+from app.models.destination import RelocationDestination
 from app.models.dsa import DSATopic, DSAProblem, DSACompany
 from app.models.system_design import SystemDesignConcept, SystemDesignSubConcept, SystemDesignCase
 from app.models.ai_llm import AILLMTopic
@@ -15,6 +16,7 @@ from app.models.database_track import DatabaseConcept, DatabaseItem, DatabaseCha
 from app.services.week_utils import generate_weeks, week_target_hours
 from app.services.dsa_seed_data import DSA_PROBLEMS_DATA, DSA_ALGORITHM_TOPICS, DSA_COMPANIES
 from app.services.database_seed_data import DATABASE_TOPICS, DATABASE_CHALLENGES
+from app.services.destination_seed_data import DESTINATIONS_DATA
 
 
 START_DATE = date(2026, 8, 12)
@@ -962,6 +964,19 @@ def seed_database(db: Session):
             region=region, currency=currency,
             salary_min=s_min, salary_max=s_max, salary_unit=unit
         ))
+
+    # --- Relocation Destinations ---
+    existing_destinations = {d.country_name.lower(): d for d in db.query(RelocationDestination).all()}
+    for d_data in DESTINATIONS_DATA:
+        c_name = d_data["country_name"].lower()
+        if c_name not in existing_destinations:
+            dest = RelocationDestination(**d_data)
+            db.add(dest)
+        else:
+            dest = existing_destinations[c_name]
+            for key, val in d_data.items():
+                setattr(dest, key, val)
+    db.commit()
 
     # --- Weekly Schedule ---
     weeks = generate_weeks(START_DATE, END_DATE)

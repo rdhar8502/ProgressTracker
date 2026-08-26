@@ -262,31 +262,107 @@ Lead Backend & AI Systems Engineer (8 YOE) | High-throughput Async Python (FastA
       </div>
     </div>
 
-    <!-- Salary Targets & Middleman Economics -->
-    <div class="card">
-      <div class="card-header">
+    <!-- 🌍 8 Target Relocation Destinations & Compensation Economics -->
+    <div class="card" style="border-left: 4px solid var(--accent);">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <div class="flex items-center gap-2">
-          <i data-lucide="dollar-sign" class="icon-sm" style="color: var(--accent);"></i>
-          <span class="card-title">Salary Targets & Middleman Economics</span>
+          <i data-lucide="globe-2" class="icon-sm" style="color: var(--accent);"></i>
+          <span class="card-title">Target Relocation Countries & Compensation Economics</span>
         </div>
+        <a href="/destinations" class="btn btn-xs btn-primary" style="display: flex; align-items: center; gap: 4px;">
+          <span>View All 8 Hubs</span>
+          <i data-lucide="arrow-right" class="icon-xs"></i>
+        </a>
       </div>
       <div class="card-body no-top">
-        {% for st in salary_targets %}
-        <div style="padding: 9px 0; border-bottom: 1px solid var(--border-light);">
-          <div class="flex justify-between items-center">
-            <div>
-              <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ st.region }}</div>
-              <div class="text-xs text-muted">{{ st.currency }}</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-size: 13px; font-weight: 800; color: var(--accent);">
-                {{ st.currency }} {{ (st.salary_min / 1000) | int }}k — {{ (st.salary_max / 1000) | int }}k
+        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+          Ranked target markets showing <strong>Gross Salary, Tax, Monthly Take-Home, Living Expenses</strong>, and converted <strong>INR (₹) values</strong> calculated with 2026 live exchange benchmarks.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          
+          <!-- 🇮🇳 India Current Baseline Reference -->
+          <div style="padding: 10px 12px; background: rgba(249, 115, 22, 0.06); border: 1px dashed rgba(249, 115, 22, 0.5); border-radius: 8px; border-left: 3px solid #ea580c;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 16px;">🇮🇳</span>
+                <span style="font-size: 12px; font-weight: 800; color: #c2410c;">Active Baseline: India</span>
+                <span class="badge badge-sm" style="background: rgba(249, 115, 22, 0.15); color: #c2410c; font-size: 10px; font-weight: 700;">
+                  Current Salary: ₹1.00 L / mo
+                </span>
               </div>
-              <div class="text-xs text-muted">per {{ st.salary_unit }}</div>
+              <div style="font-size: 11px; font-weight: 800; color: #c2410c;">
+                ₹12.00 L / yr
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 11px; background: var(--surface); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light);">
+              <div>
+                <span class="text-muted" style="font-size: 10px;">Take-Home (In-Hand):</span><br>
+                <strong style="color: var(--success);">₹90,000 / mo</strong>
+              </div>
+              <div>
+                <span class="text-muted" style="font-size: 10px;">Avg Expenses:</span><br>
+                <strong style="color: var(--danger);">~₹40,000 / mo</strong>
+              </div>
+              <div>
+                <span class="text-muted" style="font-size: 10px;">Net Savings:</span><br>
+                <strong style="color: #ea580c;">₹50,000 / mo</strong>
+              </div>
             </div>
           </div>
+
+          {% for d in destinations %}
+          <div style="padding: 10px 12px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; border-left: 3px solid {% if d.rank == 1 %}#eab308{% elif d.rank == 2 %}#94a3b8{% elif d.rank == 3 %}#d97706{% else %}var(--accent){% endif %};">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span style="font-size: 16px;">{{ d.flag_emoji }}</span>
+                <span style="font-size: 12px; font-weight: 800; color: var(--text-primary);">#{{ d.rank }} {{ d.country_name }}</span>
+                {% if d.quality_of_life_rank %}
+                <span class="badge badge-sm" style="background: rgba(37, 99, 235, 0.1); color: var(--accent); font-size: 10px; font-weight: 700;">
+                  Living: {{ d.quality_of_life_rank }}
+                </span>
+                {% endif %}
+                {% if d.happiness_rank %}
+                <span class="badge badge-sm" style="background: rgba(245, 158, 11, 0.12); color: #b45309; font-size: 10px; font-weight: 700;">
+                  {{ d.happiness_rank }}
+                </span>
+                {% endif %}
+              </div>
+              <div style="font-size: 11px; font-weight: 800; color: var(--accent);">
+                {{ d.format_inr(d.annual_gross_inr) }} / yr <span class="text-muted" style="font-weight: normal;">({{ d.currency_symbol }}{{ "{:,.0f}".format(d.salary_median / 1000) }}k)</span>
+              </div>
+            </div>
+
+            <!-- Mini 3-Column Metrics -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 11px; background: var(--surface); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light);">
+              <div>
+                <span class="text-muted" style="font-size: 10px;">Take-Home (Net):</span><br>
+                <strong style="color: var(--success);">{{ d.format_inr(d.monthly_take_home_inr) }}/mo</strong>
+                <span class="text-muted" style="font-size: 9px;">({{ d.currency_symbol }}{{ "{:,.0f}".format(d.monthly_take_home_local) }})</span>
+              </div>
+              <div>
+                <span class="text-muted" style="font-size: 10px;">Avg Expense + Rent:</span><br>
+                <strong style="color: var(--danger);">{{ d.format_inr(d.monthly_expense_inr) }}/mo</strong>
+                <span class="text-muted" style="font-size: 9px;">({{ d.currency_symbol }}{{ "{:,.0f}".format(d.monthly_expense_local) }})</span>
+              </div>
+              <div>
+                <span class="text-muted" style="font-size: 10px;">Net Savings:</span><br>
+                <strong style="color: var(--accent);">{{ d.format_inr(d.monthly_savings_inr) }}/mo</strong>
+                <span class="text-muted" style="font-size: 9px;">(Tax ~{{ "%.0f" | format(d.estimated_tax_rate) }}%)</span>
+              </div>
+            </div>
+
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 5px; line-height: 1.3;">
+              <strong>Visa:</strong> {{ d.sponsor_visa_pathway | truncate(85) }}
+            </div>
+            {% if d.best_cities_states %}
+            <div style="font-size: 10px; color: #4338ca; margin-top: 3px; line-height: 1.3;">
+              <strong>Best Hub:</strong> {{ d.best_cities_states.split('\n')[0].replace('•', '').replace('**', '').strip() | truncate(85) }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
 
         <div style="background: rgba(99, 102, 241, 0.05); border: 1px dashed var(--accent); border-radius: 8px; padding: 12px; margin-top: 14px;">
           <div style="font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">

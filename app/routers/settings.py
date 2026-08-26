@@ -6,6 +6,8 @@ from datetime import date
 
 from app.database import get_db
 from app.models.user import UserProfile, SalaryTarget
+from app.models.destination import RelocationDestination
+from app.services.destination_seed_data import INDIA_BASELINE
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 templates = Jinja2Templates(directory="app/templates")
@@ -15,14 +17,18 @@ templates = Jinja2Templates(directory="app/templates")
 def settings_page(request: Request, db: Session = Depends(get_db)):
     user = db.query(UserProfile).first()
     salary_targets = db.query(SalaryTarget).all()
+    destinations = db.query(RelocationDestination).order_by(RelocationDestination.rank.asc()).all()
     return templates.TemplateResponse("settings.html", {
         "request": request,
         "user": user,
         "today": date.today(),
         "salary_targets": salary_targets,
+        "destinations": destinations,
+        "india_baseline": INDIA_BASELINE,
         "active_page": "settings",
         "saved": False,
     })
+
 
 
 @router.post("/profile")

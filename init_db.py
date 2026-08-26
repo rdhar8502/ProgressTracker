@@ -184,6 +184,28 @@ def init():
                     "ALTER TABLE system_design_cases ADD COLUMN category VARCHAR(100) DEFAULT 'Distributed Systems'"
                 ))
                 logger.info("✅ Added category column to system_design_cases.")
+
+            # Verify columns on relocation_destinations
+            dest_cols = [
+                ("quality_of_life_rank", "VARCHAR(50) DEFAULT ''"),
+                ("happiness_rank", "VARCHAR(50) DEFAULT ''"),
+                ("safety_score", "VARCHAR(100) DEFAULT ''"),
+                ("retirement_suitability", "TEXT DEFAULT ''"),
+                ("scenic_pollution_rating", "TEXT DEFAULT ''"),
+                ("peaceful_scenic_motivation", "TEXT DEFAULT ''"),
+                ("best_cities_states", "TEXT DEFAULT ''"),
+                ("keep_in_mind_notes", "TEXT DEFAULT ''"),
+            ]
+            for col_name, col_type in dest_cols:
+                res_col = conn.execute(text(
+                    f"SELECT column_name FROM information_schema.columns "
+                    f"WHERE table_name='relocation_destinations' AND column_name='{col_name}'"
+                )).fetchone()
+                if not res_col:
+                    conn.execute(text(
+                        f"ALTER TABLE relocation_destinations ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                    ))
+            logger.info("✅ Verified relocation_destinations columns.")
     except Exception as e:
         logger.error(f"Error migrating database schema: {e}")
 

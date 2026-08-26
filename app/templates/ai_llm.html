@@ -6,6 +6,359 @@
 <!-- Quill Rich Text Editor (BSD License - Open Source) -->
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<style>
+/* ══ AI / LLM Dedicated Styles ══ */
+.ai-filter-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-topic-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.ai-topic-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.ai-topic-card.is-done {
+  border-left: 3px solid #10B981;
+}
+
+.ai-topic-card.is-in-progress {
+  border-left: 3px solid #8B5CF6;
+}
+
+.ai-topic-card.is-not-started {
+  border-left: 3px solid var(--border-light);
+}
+
+.ai-topic-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-topic-header:hover {
+  background: var(--surface-alt);
+}
+
+.ai-status-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.ai-status-btn:hover {
+  transform: scale(1.15);
+}
+
+.ai-status-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.ai-status-circle.done {
+  background: #10B981;
+  border-color: #10B981;
+  color: #FFFFFF;
+}
+
+.ai-status-circle.in-progress {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8B5CF6;
+  color: #C4B5FD;
+}
+
+.ai-status-circle.not-started {
+  background: transparent;
+  border-color: var(--text-muted);
+  color: transparent;
+}
+
+.ai-topic-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-topic-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ai-topic-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.ai-topic-title.is-done-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.ai-preview-snippet {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 780px;
+}
+
+.ai-preview-snippet span.snippet-label {
+  font-weight: 600;
+  color: #FCD34D;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: rgba(251, 191, 36, 0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.ai-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.ai-drawer {
+  display: none;
+  padding: 0 18px 18px 18px;
+  border-top: 1px solid var(--border-light);
+  background: var(--surface-card);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.ai-drawer.open {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-drawer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* ── Rich Notes & Content Area ── */
+.ai-notes-box {
+  background: var(--surface-alt);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  color: var(--text-primary);
+}
+
+.ai-notes-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #60A5FA;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.ai-rich-content {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+.ai-rich-content h1,
+.ai-rich-content h2,
+.ai-rich-content h3,
+.ai-rich-content h4 {
+  color: var(--text-primary);
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.ai-rich-content h1 { font-size: 17px; border-bottom: 1px solid var(--border-light); padding-bottom: 4px; }
+.ai-rich-content h2 { font-size: 15px; color: #FCD34D; }
+.ai-rich-content h3 { font-size: 14px; color: #93C5FD; }
+.ai-rich-content h4 { font-size: 13px; color: #C4B5FD; }
+
+.ai-rich-content p {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.ai-rich-content p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-rich-content ul,
+.ai-rich-content ol {
+  margin: 6px 0 10px 20px;
+  padding-left: 0;
+}
+
+.ai-rich-content li {
+  margin-bottom: 4px;
+}
+
+.ai-rich-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #38BDF8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ai-rich-content pre,
+.ai-rich-content .ql-syntax {
+  background: #090D16;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #38BDF8;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.ai-rich-content blockquote {
+  border-left: 3px solid #8B5CF6;
+  padding-left: 12px;
+  margin: 10px 0;
+  color: var(--text-secondary);
+  font-style: italic;
+  background: rgba(139, 92, 246, 0.06);
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Interview Talking Point Callout ── */
+.ai-talking-card {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  position: relative;
+}
+
+.ai-talking-header {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #FCD34D;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ai-talking-body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* ── Learning Sources & Links ── */
+.ai-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(251, 191, 36, 0.12);
+  color: #FCD34D;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.ai-source-chip:hover {
+  background: rgba(251, 191, 36, 0.25);
+  color: #FFFFFF;
+  border-color: #FCD34D;
+  transform: translateY(-1px);
+}
+
+.ai-source-chip-text {
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ai-depth-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+.ai-depth-1 { background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); }
+.ai-depth-2 { background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.ai-depth-3 { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+/* Chevron rotation */
+.ai-chevron {
+  transition: transform 0.2s ease;
+  color: var(--text-muted);
+}
+.ai-topic-card.open .ai-chevron {
+  transform: rotate(180deg);
+  color: #FCD34D;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,25 +366,25 @@
 <div class="ai-hero-card">
   <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
     <div>
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
         <span class="badge" style="background: rgba(251, 191, 36, 0.2); color: #FCD34D; border: 1px solid rgba(252, 211, 77, 0.3); font-size: 11px; font-weight: 700;">
           <i data-lucide="sparkles" class="icon-xs"></i> Generative AI &amp; LLM Concepts
         </span>
         <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #C4B5FD; border: 1px solid rgba(196, 181, 253, 0.3); font-size: 11px; font-weight: 700;">
-          RAG &bull; Transformers &bull; Fine-Tuning &bull; Inference
+          RAG &bull; Transformers &bull; Agents &bull; Evaluation &bull; Production
         </span>
       </div>
       <h2 style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 6px;">
         AI / LLM Preparation &amp; Concept Mastery
       </h2>
       <p style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 680px; line-height: 1.5;">
-        Master <strong>Transformers, Attention Mechanisms, RAG Pipelines, Prompt Engineering</strong>, fine-tuning strategies, vector databases, and LLM evaluation techniques for modern AI engineer interviews.
+        Master <strong>Transformers, Attention Mechanisms, RAG Pipelines, Prompt Engineering, Agentic Workflows</strong>, fine-tuning strategies, vector databases, and LLM evaluation techniques for top AI engineer interviews.
       </p>
     </div>
 
     <!-- Quick Action Buttons -->
     <div class="flex gap-2" style="align-items: center; flex-wrap: wrap;">
-      <button class="btn btn-primary btn-sm" onclick="openAIModal(0, 'New Topic', 'Not Started', 1, '', '', '', '')">
+      <button class="btn btn-primary btn-sm" onclick="openAddAIModal()">
         <i data-lucide="plus" class="icon-xs"></i>
         <span>Add Topic</span>
       </button>
@@ -83,104 +436,346 @@
   </div>
 </div>
 
-
-<!-- Topics by Category -->
-{% for cat, cat_topics in by_category.items() %}
-<div class="card mb-4">
-  <div class="card-header">
-    <div class="flex items-center gap-3">
-      <span class="card-title">{{ cat }}</span>
-      <span class="badge badge-amber">{{ cat_topics | selectattr('status', 'eq', 'Done') | list | length }}/{{ cat_topics | length }}</span>
-    </div>
-    <div class="progress-bar" style="width: 100px;">
-      {% set cat_done = cat_topics | selectattr('status', 'eq', 'Done') | list | length %}
-      <div class="progress-fill amber" style="width: {{ (cat_done / cat_topics | length * 100) | int }}%;"></div>
-    </div>
-  </div>
-  <div class="card-body no-top">
-    {% for topic in cat_topics %}
-    <div style="display: flex; flex-direction: column; border-bottom: 1px solid var(--border-light); padding: 12px 0;">
-      <div class="topic-item" style="border: none; padding: 0; margin-bottom: 0;">
-        <div class="topic-check {% if topic.status == 'Done' %}done{% elif topic.status == 'In Progress' %}in-progress{% endif %}">
-          {% if topic.status == 'Done' %}
-            <i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>
-          {% elif topic.status == 'In Progress' %}
-            <i data-lucide="minus" class="icon-xs"></i>
-          {% endif %}
-        </div>
-        <div style="flex: 1;">
-          <div class="topic-name" style="text-decoration: {% if topic.status == 'Done' %}line-through; color: var(--text-muted){% else %}none{% endif %}; font-weight: 600;">
-            {{ topic.topic_name }}
-          </div>
-          {% if topic.interview_talking_point %}
-          <div class="text-sm text-muted mt-1" style="font-style: italic;">
-            "{{ topic.interview_talking_point[:110] }}{% if topic.interview_talking_point | length > 110 %}…{% endif %}"
-          </div>
-          {% endif %}
-        </div>
-        <div class="topic-actions" style="align-items: center;">
-          <!-- Depth indicator -->
-          <div style="display: flex; gap: 3px;" title="Depth: {{ depth_labels[topic.depth] }}">
-            {% for i in range(1, 4) %}
-            <div style="width: 7px; height: 7px; border-radius: 50%; background: {% if i <= topic.depth %}var(--warning){% else %}var(--border){% endif %};"></div>
-            {% endfor %}
-          </div>
-          <span class="badge {% if topic.status == 'Done' %}status-done{% elif topic.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}">
-            {{ topic.status }}
-          </span>
-          <button class="btn btn-ghost btn-sm btn-icon edit-ai-btn" 
-                  data-id="{{ topic.id }}"
-                  data-name="{{ topic.topic_name | escape }}"
-                  data-status="{{ topic.status }}"
-                  data-depth="{{ topic.depth }}"
-                  data-notes="{{ topic.notes | escape }}"
-                  data-resources="{{ topic.resources | escape }}"
-                  data-sources="{{ topic.sources | escape }}"
-                  data-talking="{{ topic.interview_talking_point | escape }}"
-                  title="Edit">
-            <i data-lucide="pencil" class="icon-xs"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- AI Topic sources -->
-      {% if topic.sources %}
-      <div class="flex gap-2" style="flex-wrap: wrap; align-items: center; margin-left: 28px; margin-top: 6px;">
-        {% for src in topic.sources.split('\n') %}
-          {% set src = src.strip() %}
-          {% if src %}
-            {% if src.startswith('http://') or src.startswith('https://') %}
-              <a href="{{ src }}" target="_blank" class="badge badge-amber" style="font-size: 10px; text-decoration: none; padding: 1px 6px; border-radius: 4px;">
-                <i data-lucide="link" class="icon-xs"></i>
-                <span>{{ src[:25] }}{% if src | length > 25 %}...{% endif %}</span>
-              </a>
-            {% else %}
-              <span class="badge badge-gray" style="font-size: 10px; padding: 1px 6px; border-radius: 4px;">
-                <i data-lucide="file-text" class="icon-xs"></i>
-                <span>{{ src }}</span>
-              </span>
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-      </div>
+<!-- ══ Search, Filter & Quick Expand Toolbar ══ -->
+<div class="ai-filter-card">
+  <form method="GET" action="/ai-llm" id="aiFilterForm" class="flex gap-3 items-center" style="flex-wrap: wrap;">
+    <!-- Search Bar -->
+    <div style="position: relative; flex: 1; min-width: 240px;">
+      <i data-lucide="search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted);"></i>
+      <input type="text" name="search" value="{{ selected_search }}" placeholder="Search topics, concepts, talking points, notes..." class="form-input" style="padding-left: 32px; height: 36px; font-size: 13px;">
+      {% if selected_search %}
+      <a href="/ai-llm" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 12px; text-decoration: none;">✕</a>
       {% endif %}
     </div>
-    {% endfor %}
-  </div>
-</div>
-{% endfor %}
 
-<!-- AI Topic Modal -->
+    <!-- Category Filter -->
+    <div style="min-width: 140px;">
+      <select name="category" class="form-select" style="height: 36px; font-size: 13px;" onchange="this.form.submit()">
+        <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Status Filter -->
+    <div style="min-width: 130px;">
+      <select name="status_filter" class="form-select" style="height: 36px; font-size: 13px;" onchange="this.form.submit()">
+        <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All Statuses</option>
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Depth Filter -->
+    <div style="min-width: 130px;">
+      <select name="depth_filter" class="form-select" style="height: 36px; font-size: 13px;" onchange="this.form.submit()">
+        <option value="all" {% if selected_depth == 'all' %}selected{% endif %}>All Depths</option>
+        <option value="1" {% if selected_depth == '1' %}selected{% endif %}>1 — Surface</option>
+        <option value="2" {% if selected_depth == '2' %}selected{% endif %}>2 — Comfortable</option>
+        <option value="3" {% if selected_depth == '3' %}selected{% endif %}>3 — Deep Mastery</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-secondary btn-sm" style="height: 36px;">
+      <i data-lucide="filter" class="icon-xs"></i> Filter
+    </button>
+
+    {% if selected_search or selected_category != 'all' or selected_status != 'all' or selected_depth != 'all' %}
+    <a href="/ai-llm" class="btn btn-ghost btn-sm" style="height: 36px; color: var(--text-muted);">
+      <i data-lucide="rotate-ccw" class="icon-xs"></i> Reset
+    </a>
+    {% endif %}
+
+    <!-- Expand / Collapse All -->
+    <div class="flex gap-1" style="margin-left: auto;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllDrawers(true)" title="Expand all topic notes">
+        <i data-lucide="chevrons-down" class="icon-xs"></i>
+        <span>Expand All</span>
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllDrawers(false)" title="Collapse all topic notes">
+        <i data-lucide="chevrons-up" class="icon-xs"></i>
+        <span>Collapse All</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ══ Topics by Category ══ -->
+{% if by_category %}
+  {% for cat, cat_topics in by_category.items() %}
+  <div class="card mb-4" style="border-radius: var(--radius-md);">
+    <div class="card-header" style="background: var(--surface-card); border-bottom: 1px solid var(--border-color); padding: 14px 18px;">
+      <div class="flex items-center gap-3">
+        <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #FCD34D; font-weight: 800; font-size: 12px; letter-spacing: 0.04em;">
+          {{ cat }}
+        </span>
+        <span class="text-sm font-semibold" style="color: var(--text-secondary);">
+          {{ cat_topics | selectattr('status', 'eq', 'Done') | list | length }} of {{ cat_topics | length }} Mastered
+        </span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="progress-bar" style="width: 120px; height: 6px;">
+          {% set cat_done = cat_topics | selectattr('status', 'eq', 'Done') | list | length %}
+          <div class="progress-fill amber" style="width: {{ ((cat_done / cat_topics | length * 100) if cat_topics else 0) | int }}%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body" style="padding: 12px 18px;">
+      {% for topic in cat_topics %}
+      <div class="ai-topic-card {% if topic.status == 'Done' %}is-done{% elif topic.status == 'In Progress' %}is-in-progress{% else %}is-not-started{% endif %}" id="topic-card-{{ topic.id }}">
+        
+        <!-- Topic Header Row (Clickable) -->
+        <div class="ai-topic-header" onclick="toggleTopicDrawer({{ topic.id }}, event)">
+          
+          <!-- Quick Status Cycle Button -->
+          <button type="button" class="ai-status-btn" onclick="cycleTopicStatus({{ topic.id }}, event)" title="Click to cycle status: Not Started &rarr; In Progress &rarr; Done">
+            <div class="ai-status-circle {% if topic.status == 'Done' %}done{% elif topic.status == 'In Progress' %}in-progress{% else %}not-started{% endif %}" id="status-circle-{{ topic.id }}">
+              {% if topic.status == 'Done' %}
+                <i data-lucide="check" style="width: 13px; height: 13px; stroke-width: 3.5px;"></i>
+              {% elif topic.status == 'In Progress' %}
+                <i data-lucide="minus" style="width: 13px; height: 13px; stroke-width: 3px;"></i>
+              {% endif %}
+            </div>
+          </button>
+
+          <!-- Main Info Column -->
+          <div class="ai-topic-main">
+            <div class="ai-topic-title-row">
+              <span class="ai-topic-title {% if topic.status == 'Done' %}is-done-title{% endif %}" id="topic-title-{{ topic.id }}">
+                {{ topic.topic_name }}
+              </span>
+
+              <!-- Depth Badge -->
+              <span class="ai-depth-badge ai-depth-{{ topic.depth }}" title="Understanding Depth: {{ depth_labels.get(topic.depth, 'Surface') }}">
+                {% if topic.depth == 3 %}
+                  Deep Mastery (3/3)
+                {% elif topic.depth == 2 %}
+                  Comfortable (2/3)
+                {% else %}
+                  Surface (1/3)
+                {% endif %}
+              </span>
+
+              <!-- Status Badge -->
+              <span class="badge {% if topic.status == 'Done' %}status-done{% elif topic.status == 'In Progress' %}status-in-progress{% else %}status-not-started{% endif %}" id="status-badge-{{ topic.id }}" style="font-size: 10.5px; font-weight: 700;">
+                {{ topic.status }}
+              </span>
+            </div>
+
+            <!-- Clean Subtitle / Preview Snippet (NO raw HTML) -->
+            {% set clean_talking = topic.interview_talking_point | striptags | trim %}
+            {% set clean_notes = topic.notes | striptags | trim %}
+
+            {% if clean_talking %}
+            <div class="ai-preview-snippet" title="{{ clean_talking }}">
+              <span class="snippet-label">Talking Point</span>
+              <span>{{ clean_talking[:110] }}{% if clean_talking | length > 110 %}…{% endif %}</span>
+            </div>
+            {% elif clean_notes %}
+            <div class="ai-preview-snippet" title="{{ clean_notes }}">
+              <span class="snippet-label" style="background: rgba(96, 165, 250, 0.12); color: #93C5FD;">Notes</span>
+              <span>{{ clean_notes[:110] }}{% if clean_notes | length > 110 %}…{% endif %}</span>
+            </div>
+            {% endif %}
+
+            <!-- Quick Source Link Chips in Header (if any) -->
+            {% if topic.sources %}
+            <div class="flex gap-2 items-center" style="flex-wrap: wrap; margin-top: 6px;">
+              {% for src in topic.sources.split('\n') %}
+                {% set src = src.strip() %}
+                {% if src %}
+                  {% if src.startswith('http://') or src.startswith('https://') %}
+                    {% set domain_short = src.replace('https://', '').replace('http://', '').replace('www.', '') %}
+                    <a href="{{ src }}" target="_blank" onclick="event.stopPropagation()" class="ai-source-chip" title="{{ src }}">
+                      {% if 'youtube.com' in src or 'youtu.be' in src %}
+                        <i data-lucide="video" class="icon-xs" style="color: #EF4444;"></i>
+                      {% elif 'github.com' in src %}
+                        <i data-lucide="git-branch" class="icon-xs" style="color: #C4B5FD;"></i>
+                      {% elif 'arxiv.org' in src %}
+                        <i data-lucide="book-marked" class="icon-xs" style="color: #60A5FA;"></i>
+                      {% elif 'medium.com' in src %}
+                        <i data-lucide="bookmark" class="icon-xs" style="color: #34D399;"></i>
+                      {% else %}
+                        <i data-lucide="external-link" class="icon-xs"></i>
+                      {% endif %}
+                      <span>{{ domain_short[:22] }}{% if domain_short | length > 22 %}...{% endif %}</span>
+                    </a>
+                  {% else %}
+                    <span class="ai-source-chip-text">
+                      <i data-lucide="file-text" class="icon-xs"></i>
+                      <span>{{ src[:30] }}{% if src | length > 30 %}...{% endif %}</span>
+                    </span>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Actions Group -->
+          <div class="ai-actions-group" onclick="event.stopPropagation()">
+            <!-- Edit Button -->
+            <button class="btn btn-ghost btn-sm btn-icon edit-ai-btn"
+                    data-id="{{ topic.id }}"
+                    data-name="{{ topic.topic_name | escape }}"
+                    data-category="{{ topic.category | escape }}"
+                    data-status="{{ topic.status }}"
+                    data-depth="{{ topic.depth }}"
+                    data-notes="{{ topic.notes | escape }}"
+                    data-resources="{{ topic.resources | escape }}"
+                    data-sources="{{ topic.sources | escape }}"
+                    data-talking="{{ topic.interview_talking_point | escape }}"
+                    title="Edit Topic &amp; Notes">
+              <i data-lucide="pencil" class="icon-xs"></i>
+            </button>
+
+            <!-- Delete Button -->
+            <form method="POST" action="/ai-llm/delete/{{ topic.id }}" onsubmit="return confirm('Delete topic \'{{ topic.topic_name | escape }}\'?');" style="display: inline; margin: 0;">
+              <button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" title="Delete Topic">
+                <i data-lucide="trash-2" class="icon-xs"></i>
+              </button>
+            </form>
+
+            <!-- Expand / Collapse Drawer Chevron -->
+            <button type="button" class="btn btn-ghost btn-sm btn-icon" onclick="toggleTopicDrawer({{ topic.id }}, event)" title="Toggle Notes &amp; Details">
+              <i data-lucide="chevron-down" class="icon-xs ai-chevron" id="chevron-{{ topic.id }}"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ Expanded Rich Content Drawer ══ -->
+        <div class="ai-drawer" id="drawer-{{ topic.id }}">
+          <div class="ai-drawer-grid">
+            
+            <!-- 1. Notes & Understanding Box -->
+            <div class="ai-notes-box">
+              <div class="flex justify-between items-center mb-2">
+                <div class="ai-notes-title">
+                  <i data-lucide="book-open" class="icon-xs"></i> Key Concepts &amp; Understanding Notes
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm text-muted" onclick="openAIModalFromId({{ topic.id }})" style="font-size: 11px; padding: 2px 6px;">
+                  <i data-lucide="pencil" class="icon-xs"></i> Edit Notes
+                </button>
+              </div>
+
+              {% if topic.notes and topic.notes.strip() %}
+                <div class="ai-rich-content">
+                  {{ topic.notes | safe }}
+                </div>
+              {% else %}
+                <div style="color: var(--text-muted); font-size: 12.5px; font-style: italic; display: flex; align-items: center; justify-content: space-between; padding: 6px 0;">
+                  <span>No deep study notes added for this concept yet.</span>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="openAIModalFromId({{ topic.id }})" style="font-size: 11px;">
+                    <i data-lucide="plus" class="icon-xs"></i> Add Notes
+                  </button>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- 2. Interview Talking Point Callout -->
+            {% if topic.interview_talking_point and topic.interview_talking_point.strip() %}
+            <div class="ai-talking-card">
+              <div class="ai-talking-header">
+                <i data-lucide="message-square" class="icon-xs"></i> Interview Talking Point &amp; 60-Second Pitch
+              </div>
+              <div class="ai-talking-body ai-rich-content">
+                {{ topic.interview_talking_point | safe }}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- 3. Primary Resource & Full Sources List -->
+            {% if topic.resources or topic.sources %}
+            <div style="background: var(--surface-card); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                <i data-lucide="link-2" class="icon-xs"></i> Resources &amp; Learning References
+              </div>
+              
+              <div class="flex gap-2 items-center" style="flex-wrap: wrap;">
+                {% if topic.resources %}
+                <a href="{{ topic.resources }}" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 4px 10px;">
+                  <i data-lucide="external-link" class="icon-xs"></i>
+                  <span>Primary Link: {{ topic.resources[:35] }}{% if topic.resources | length > 35 %}...{% endif %}</span>
+                </a>
+                {% endif %}
+
+                {% if topic.sources %}
+                  {% for src in topic.sources.split('\n') %}
+                    {% set src = src.strip() %}
+                    {% if src and src != topic.resources %}
+                      {% if src.startswith('http://') or src.startswith('https://') %}
+                        <a href="{{ src }}" target="_blank" class="ai-source-chip">
+                          <i data-lucide="link" class="icon-xs"></i>
+                          <span>{{ src[:35] }}{% if src | length > 35 %}...{% endif %}</span>
+                        </a>
+                      {% else %}
+                        <span class="ai-source-chip-text">
+                          <i data-lucide="file-text" class="icon-xs"></i>
+                          <span>{{ src }}</span>
+                        </span>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card p-5 text-center" style="border-radius: var(--radius-md);">
+    <div style="color: var(--text-muted); margin-bottom: 12px;">
+      <i data-lucide="search-x" style="width: 48px; height: 48px; margin: 0 auto; stroke-width: 1.5;"></i>
+    </div>
+    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">No topics matched your search / filters</h3>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Try adjusting your keywords or clearing the active filters.</p>
+    <a href="/ai-llm" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+      <i data-lucide="rotate-ccw" class="icon-xs"></i> Clear All Filters
+    </a>
+  </div>
+{% endif %}
+
+
+<!-- ══ AI Topic Edit / Create Modal ══ -->
 <div class="modal-overlay" id="aiModal">
-  <div class="modal" style="max-width: 800px; width: 90%;">
+  <div class="modal" style="max-width: 860px; width: 92%;">
     <div class="modal-header">
-      <span class="modal-title" id="aiModalTitle">Update AI/LLM Topic</span>
+      <span class="modal-title" id="aiModalTitle">Update AI / LLM Topic</span>
       <button class="modal-close" onclick="closeModal('aiModal')">
         <i data-lucide="x" class="icon-sm"></i>
       </button>
     </div>
     <div class="modal-body">
       <form method="post" id="aiForm" action="/ai-llm/update/0">
+        
+        <!-- Topic Name & Category Row -->
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label class="form-label">Topic / Concept Name <span class="text-danger">*</span></label>
+            <input type="text" name="topic_name" class="form-input" id="aiTopicName" placeholder="e.g. Chunking Strategies, RAG Reranking..." required>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Category</label>
+            <input type="text" name="category" class="form-input" id="aiCategory" list="aiCategoryList" placeholder="e.g. Core, RAG, Agents...">
+            <datalist id="aiCategoryList">
+              {% for cat in categories %}
+              <option value="{{ cat }}">
+              {% endfor %}
+            </datalist>
+          </div>
+        </div>
+
+        <!-- Status & Depth Row -->
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Status</label>
@@ -191,37 +786,54 @@
           <div class="form-group">
             <label class="form-label">Depth of Understanding</label>
             <select name="depth" class="form-select" id="aiDepth">
-              <option value="1">1 — Surface level</option>
-              <option value="2">2 — Comfortable</option>
-              <option value="3">3 — Deep / Can teach</option>
+              <option value="1">1 — Surface level (Know concepts &amp; trade-offs)</option>
+              <option value="2">2 — Comfortable (Can implement &amp; architect)</option>
+              <option value="3">3 — Deep / Can teach &amp; debug in production</option>
             </select>
           </div>
         </div>
+
+        <!-- Rich Notes Editor -->
         <div class="form-group">
-          <label class="form-label">Notes / Understanding</label>
-          <textarea name="notes" id="aiNotes" class="form-textarea auto-resize-code" placeholder="Key concepts, how it works..."></textarea>
-          <div class="quill-editor-wrapper" id="aiNotesQuillWrapper" style="display: none;">
-            <div id="aiNotesQuillEditor" style="height: 120px;"></div>
+          <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Key Concepts &amp; Deep Notes (Rich Text)</span>
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">Supports headings, code blocks, lists, bold/italics</span>
+          </label>
+          <textarea name="notes" id="aiNotes" class="form-textarea" style="display: none;"></textarea>
+          <div class="quill-editor-wrapper" id="aiNotesQuillWrapper">
+            <div id="aiNotesQuillEditor" style="height: 180px;"></div>
           </div>
         </div>
+
+        <!-- Primary URL Resource -->
         <div class="form-group">
           <label class="form-label">Primary URL Resource</label>
-          <input type="text" name="resources" class="form-input" id="aiResources" placeholder="e.g. https://arxiv.org/abs/...">
+          <input type="text" name="resources" class="form-input" id="aiResources" placeholder="e.g. https://arxiv.org/abs/... or https://platform.openai.com/docs/...">
         </div>
+
+        <!-- Learning Sources (One per line) -->
         <div class="form-group">
-          <label class="form-label">Learning Sources (one per line)</label>
-          <textarea name="sources" class="form-textarea" id="aiSources" placeholder="e.g. https://arxiv.org/abs/...&#10;https://youtube.com/...&#10;Blog post on RAG optimization" rows="3"></textarea>
+          <label class="form-label">Learning Sources (one URL or book/paper per line)</label>
+          <textarea name="sources" class="form-textarea" id="aiSources" placeholder="e.g. https://arxiv.org/abs/...&#10;https://youtube.com/watch?v=...&#10;Medium post on Semantic Chunking" rows="3"></textarea>
         </div>
+
+        <!-- Rich Interview Talking Point Editor -->
         <div class="form-group">
-          <label class="form-label">Interview Talking Point</label>
-          <textarea name="interview_talking_point" id="aiTalking" class="form-textarea auto-resize-code" placeholder="How would you explain this in an interview?"></textarea>
-          <div class="quill-editor-wrapper" id="aiTalkingQuillWrapper" style="display: none;">
-            <div id="aiTalkingQuillEditor" style="height: 120px;"></div>
+          <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Interview Talking Point &amp; 60-Sec Pitch</span>
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">How would you articulate this in a Staff / Senior AI interview?</span>
+          </label>
+          <textarea name="interview_talking_point" id="aiTalking" class="form-textarea" style="display: none;"></textarea>
+          <div class="quill-editor-wrapper" id="aiTalkingQuillWrapper">
+            <div id="aiTalkingQuillEditor" style="height: 140px;"></div>
           </div>
         </div>
-        <div class="flex gap-3 justify-between" style="margin-top: 20px;">
+
+        <div class="flex gap-3 justify-between" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light);">
           <button type="button" class="btn btn-secondary" onclick="closeModal('aiModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="save" class="icon-xs"></i> Save Topic &amp; Notes
+          </button>
         </div>
       </form>
     </div>
@@ -233,99 +845,201 @@
 <script>
 let aiNotesQuill, aiTalkingQuill;
 
-function autoResizeTextarea(textarea) {
-  if (!textarea) return;
-  textarea.style.height = 'auto';
-  textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+// Open modal for adding a new topic
+function openAddAIModal() {
+  document.getElementById('aiForm').action = '/ai-llm/update/0';
+  document.getElementById('aiModalTitle').textContent = 'Add New AI / LLM Topic';
+  document.getElementById('aiTopicName').value = '';
+  document.getElementById('aiCategory').value = 'Core';
+  document.getElementById('aiStatus').value = 'Not Started';
+  document.getElementById('aiDepth').value = '1';
+  document.getElementById('aiResources').value = '';
+  document.getElementById('aiSources').value = '';
+
+  if (aiNotesQuill) {
+    aiNotesQuill.root.innerHTML = '';
+  }
+  if (aiTalkingQuill) {
+    aiTalkingQuill.root.innerHTML = '';
+  }
+
+  openModal('aiModal');
 }
 
-function openAIModal(id, name, status, depth, notes, resources, sources, talking) {
+// Open modal for editing an existing topic
+function openAIModal(id, name, category, status, depth, notes, resources, sources, talking) {
   document.getElementById('aiForm').action = '/ai-llm/update/' + id;
   document.getElementById('aiModalTitle').textContent = 'Update: ' + name;
-  document.getElementById('aiStatus').value = status;
-  document.getElementById('aiDepth').value = depth;
-  
+  document.getElementById('aiTopicName').value = name || '';
+  document.getElementById('aiCategory').value = category || 'Core';
+  document.getElementById('aiStatus').value = status || 'Not Started';
+  document.getElementById('aiDepth').value = depth || 1;
+  document.getElementById('aiResources').value = resources || '';
+  document.getElementById('aiSources').value = sources || '';
+
   const notesTextarea = document.getElementById('aiNotes');
   notesTextarea.value = notes || '';
-  if (window.Quill && aiNotesQuill) {
+  if (aiNotesQuill) {
     aiNotesQuill.root.innerHTML = notes || '';
   }
 
-  document.getElementById('aiResources').value = resources;
-  document.getElementById('aiSources').value = sources || '';
-  
   const talkingTextarea = document.getElementById('aiTalking');
   talkingTextarea.value = talking || '';
-  if (window.Quill && aiTalkingQuill) {
+  if (aiTalkingQuill) {
     aiTalkingQuill.root.innerHTML = talking || '';
   }
 
   openModal('aiModal');
+}
 
-  setTimeout(() => {
-    autoResizeTextarea(notesTextarea);
-    autoResizeTextarea(talkingTextarea);
-  }, 80);
+// Helper to open edit modal from button in drawer
+function openAIModalFromId(topicId) {
+  const btn = document.querySelector(`.edit-ai-btn[data-id="${topicId}"]`);
+  if (btn) {
+    btn.click();
+  }
+}
+
+// Toggle drawer for a specific topic
+function toggleTopicDrawer(topicId, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  const drawer = document.getElementById(`drawer-${topicId}`);
+  const card = document.getElementById(`topic-card-${topicId}`);
+  if (!drawer || !card) return;
+
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    drawer.classList.remove('open');
+    card.classList.remove('open');
+  } else {
+    drawer.classList.add('open');
+    card.classList.add('open');
+  }
+}
+
+// Expand or collapse all drawers
+function toggleAllDrawers(expand) {
+  document.querySelectorAll('.ai-drawer').forEach(drawer => {
+    if (expand) {
+      drawer.classList.add('open');
+    } else {
+      drawer.classList.remove('open');
+    }
+  });
+
+  document.querySelectorAll('.ai-topic-card').forEach(card => {
+    if (expand) {
+      card.classList.add('open');
+    } else {
+      card.classList.remove('open');
+    }
+  });
+}
+
+// Fast AJAX status cycling directly from checkbox
+async function cycleTopicStatus(topicId, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+
+  try {
+    const resp = await fetch(`/ai-llm/toggle-status/${topicId}`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      const status = data.status;
+      
+      // Update circle UI
+      const circle = document.getElementById(`status-circle-${topicId}`);
+      const title = document.getElementById(`topic-title-${topicId}`);
+      const badge = document.getElementById(`status-badge-${topicId}`);
+      const card = document.getElementById(`topic-card-${topicId}`);
+
+      if (circle) {
+        circle.className = 'ai-status-circle ' + (status === 'Done' ? 'done' : (status === 'In Progress' ? 'in-progress' : 'not-started'));
+        circle.innerHTML = status === 'Done' 
+          ? '<i data-lucide="check" style="width: 13px; height: 13px; stroke-width: 3.5px;"></i>'
+          : (status === 'In Progress' ? '<i data-lucide="minus" style="width: 13px; height: 13px; stroke-width: 3px;"></i>' : '');
+      }
+
+      if (badge) {
+        badge.textContent = status;
+        badge.className = 'badge ' + (status === 'Done' ? 'status-done' : (status === 'In Progress' ? 'status-in-progress' : 'status-not-started'));
+      }
+
+      if (title) {
+        if (status === 'Done') {
+          title.classList.add('is-done-title');
+        } else {
+          title.classList.remove('is-done-title');
+        }
+      }
+
+      if (card) {
+        card.classList.remove('is-done', 'is-in-progress', 'is-not-started');
+        card.classList.add(status === 'Done' ? 'is-done' : (status === 'In Progress' ? 'is-in-progress' : 'is-not-started'));
+      }
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+  } catch (err) {
+    console.error('Error toggling status:', err);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Wire up edit buttons using data attributes
-  document.querySelectorAll('.edit-ai-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      const name = this.getAttribute('data-name');
-      const status = this.getAttribute('data-status');
-      const depth = this.getAttribute('data-depth');
-      const notes = this.getAttribute('data-notes');
-      const resources = this.getAttribute('data-resources');
-      const sources = this.getAttribute('data-sources');
-      const talking = this.getAttribute('data-talking');
-      openAIModal(id, name, status, depth, notes, resources, sources, talking);
-    });
-  });
-
-  // Rich toolbar config
+  // Rich toolbar config for Quill
   const richToolbar = [
     [{ 'header': [1, 2, 3, 4, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
+    ['bold', 'italic', 'underline', 'code'],
     [{ 'color': [] }, { 'background': [] }],
-    [{ 'script': 'sub'}, { 'script': 'super' }],
     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'indent': '-1'}, { 'indent': '+1' }],
-    [{ 'align': [] }],
-    ['link', 'blockquote', 'code-block'],
-    ['clean']
+    ['blockquote', 'code-block'],
+    ['link', 'clean']
   ];
 
-  // Initialize Quill if loaded
+  // Initialize Quill editors
   if (window.Quill) {
-    const aiNotesEl = document.getElementById('aiNotes');
-    if (aiNotesEl) aiNotesEl.style.display = 'none';
     const aiNotesWrap = document.getElementById('aiNotesQuillWrapper');
     if (aiNotesWrap) aiNotesWrap.style.display = 'block';
     
     aiNotesQuill = new Quill('#aiNotesQuillEditor', {
       theme: 'snow',
       modules: { toolbar: richToolbar },
-      placeholder: 'Key concepts, how it works...'
+      placeholder: 'Write key concepts, architecture trade-offs, code examples, edge cases...'
     });
 
-    const aiTalkingEl = document.getElementById('aiTalking');
-    if (aiTalkingEl) aiTalkingEl.style.display = 'none';
     const aiTalkingWrap = document.getElementById('aiTalkingQuillWrapper');
     if (aiTalkingWrap) aiTalkingWrap.style.display = 'block';
 
     aiTalkingQuill = new Quill('#aiTalkingQuillEditor', {
       theme: 'snow',
       modules: { toolbar: richToolbar },
-      placeholder: 'How would you explain this in an interview?'
+      placeholder: 'How would you explain this in an interview? Key 60-second summary and trade-offs...'
     });
   }
 
-  // Auto-resize standard textareas
-  document.querySelectorAll('textarea.auto-resize-code').forEach(ta => {
-    ta.addEventListener('input', function() {
-      autoResizeTextarea(this);
+  // Wire up edit buttons using data attributes
+  document.querySelectorAll('.edit-ai-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      const category = this.getAttribute('data-category');
+      const status = this.getAttribute('data-status');
+      const depth = this.getAttribute('data-depth');
+      const notes = this.getAttribute('data-notes');
+      const resources = this.getAttribute('data-resources');
+      const sources = this.getAttribute('data-sources');
+      const talking = this.getAttribute('data-talking');
+      openAIModal(id, name, category, status, depth, notes, resources, sources, talking);
     });
   });
 
