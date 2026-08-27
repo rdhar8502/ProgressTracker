@@ -8,6 +8,8 @@ from app.models.application import Application
 from app.models.personal_hub import PersonalHubItem
 from app.models.database_track import DatabaseConcept, DatabaseItem, DatabaseChallenge
 from app.models.destination import RelocationDestination
+from app.models.german_lang import GermanLangSkill, GermanLangCert
+from app.models.dutch_lang import DutchLangSkill, DutchLangCert
 
 __all__ = [
     "UserProfile", "SalaryTarget", "WeeklySchedule",
@@ -20,6 +22,6 @@ __all__ = [
     "PersonalHubItem",
     "DatabaseConcept", "DatabaseItem", "DatabaseChallenge",
     "RelocationDestination",
+    "GermanLangSkill", "GermanLangCert",
+    "DutchLangSkill", "DutchLangCert",
 ]
-
-

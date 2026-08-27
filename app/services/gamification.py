@@ -565,7 +565,92 @@ def compute_daily_quests(db: Session, streak: int) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. MAIN GAMIFICATION STATE COMPUTATION
+# 4. EU READINESS SCORE COMPUTATION (Germany 🇩🇪 + Netherlands 🇳🇱)
+# ══════════════════════════════════════════════════════════════════════════════
+
+def compute_eu_readiness_score(
+    dsa_pct: float,
+    dsa_medium_pct: float,
+    sd_pct: float,
+    db_pct: float,
+    ai_pct: float,
+    gh_pct: float,
+    hours_pct: float,
+    apps_pct: float,
+) -> dict:
+    """
+    Computes Germany 🇩🇪 and Netherlands 🇳🇱 interview readiness scores (0-100).
+
+    Germany weights:    System Design > DB > DSA Medium > AI > GitHub > Hours > Apps
+    Netherlands weights: DSA Medium > System Design > AI > GitHub > DB > Behavioral(apps) > Hours
+    """
+    # Germany 🇩🇪 – HLD/architecture-first, DB-heavy, code portfolio matters
+    de_score = round(
+        sd_pct        * 0.28 +   # System Design: cornerstone of German senior interviews
+        dsa_medium_pct* 0.20 +   # DSA Medium: EU sweet spot difficulty
+        db_pct        * 0.18 +   # Database: Zalando/Adyen/SAP love DB depth
+        ai_pct        * 0.14 +   # AI/LLM: growing in DE companies
+        gh_pct        * 0.10 +   # GitHub portfolio: reviewed by German hiring managers
+        hours_pct     * 0.06 +   # Study hours
+        apps_pct      * 0.04,    # Job applications
+        1,
+    )
+
+    # Netherlands 🇳🇱 – More pragmatic, Booking.com/Adyen/bol.com profile
+    nl_score = round(
+        dsa_medium_pct* 0.25 +   # DSA Medium: Booking.com & Adyen are LeetCode-heavy
+        sd_pct        * 0.22 +   # System Design: still very important
+        ai_pct        * 0.18 +   # AI/LLM: NL startup ecosystem growing fast
+        gh_pct        * 0.14 +   # GitHub: portfolio critical for NL startups
+        db_pct        * 0.10 +   # Database: important but slightly less than DE
+        apps_pct      * 0.07 +   # Applications: active search (behavioral indicator)
+        hours_pct     * 0.04,    # Study hours
+        1,
+    )
+
+    combined_score = round((de_score * 0.55 + nl_score * 0.45), 1)
+
+    # Determine status label
+    def _status(score):
+        if score >= 80:
+            return {"label": "Interview Ready", "color": "#10B981", "emoji": "🟢"}
+        elif score >= 60:
+            return {"label": "Getting There", "color": "#F59E0B", "emoji": "🟡"}
+        elif score >= 40:
+            return {"label": "Building Base", "color": "#F97316", "emoji": "🟠"}
+        else:
+            return {"label": "Early Stage", "color": "#EF4444", "emoji": "🔴"}
+
+    # Priority recommendation: find the lowest-weighted-contribution gap
+    dimensions = [
+        {"name": "System Design",    "de_weight": 0.28, "nl_weight": 0.22, "pct": sd_pct,         "link": "/system-design"},
+        {"name": "DSA Medium+Hard",  "de_weight": 0.20, "nl_weight": 0.25, "pct": dsa_medium_pct, "link": "/dsa"},
+        {"name": "Database Mastery", "de_weight": 0.18, "nl_weight": 0.10, "pct": db_pct,         "link": "/database"},
+        {"name": "AI / LLM Topics",  "de_weight": 0.14, "nl_weight": 0.18, "pct": ai_pct,         "link": "/ai-llm"},
+        {"name": "GitHub Portfolio", "de_weight": 0.10, "nl_weight": 0.14, "pct": gh_pct,         "link": "/github"},
+    ]
+    # Combined gap = weight × (100 - pct) — highest gap = biggest priority
+    for d in dimensions:
+        avg_weight = (d["de_weight"] + d["nl_weight"]) / 2
+        d["gap_score"] = round(avg_weight * (100 - d["pct"]), 1)
+        d["gap_pct"] = round(100 - d["pct"], 1)
+
+    top_priority = sorted(dimensions, key=lambda x: x["gap_score"], reverse=True)[0]
+
+    return {
+        "de_score": min(100, de_score),
+        "nl_score": min(100, nl_score),
+        "combined_score": min(100, combined_score),
+        "de_status": _status(de_score),
+        "nl_status": _status(nl_score),
+        "combined_status": _status(combined_score),
+        "dimensions": dimensions,
+        "top_priority": top_priority,
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. MAIN GAMIFICATION STATE COMPUTATION
 # ══════════════════════════════════════════════════════════════════════════════
 
 def get_gamification_state(db: Session) -> dict:
@@ -603,21 +688,24 @@ def get_gamification_state(db: Session) -> dict:
     weekend_hours = sum(h for h, d in weekend_logs if d.weekday() in (5, 6))
     
     # 2. Calculate Base XP from study vectors
+    # ── EU-Calibrated XP Weights (Germany 🇩🇪 + Netherlands 🇳🇱 Priority) ──
+    # System Design & Database are weighted higher (cornerstone of DE/NL senior interviews).
+    # DSA Medium boosted (EU sweet spot), Hard slightly reduced vs US-standard.
     xp_hours = total_hours * 10.0
-    xp_dsa_easy = solved_easy * 10.0
-    xp_dsa_medium = solved_medium * 25.0
-    xp_dsa_hard = solved_hard * 50.0
+    xp_dsa_easy = solved_easy * 8.0         # Reduced: EU rarely asks Easy in senior rounds
+    xp_dsa_medium = solved_medium * 30.0    # Boosted: Medium is the EU sweet spot
+    xp_dsa_hard = solved_hard * 40.0        # Slightly reduced from 50 (less obsessive than US)
     xp_dsa_total = xp_dsa_easy + xp_dsa_medium + xp_dsa_hard
     
-    xp_sd_concepts = sd_concepts_done * 20.0
-    xp_sd_cases = sd_cases_done * 40.0
+    xp_sd_concepts = sd_concepts_done * 30.0   # Boosted: German interviews are HLD-heavy
+    xp_sd_cases = sd_cases_done * 55.0          # Boosted: Case studies = EU interview differentiator
     xp_sys_design_total = xp_sd_concepts + xp_sd_cases
 
-    xp_database = (db_items_done * 20.0) + (db_challenges_done * 40.0)
+    xp_database = (db_items_done * 25.0) + (db_challenges_done * 50.0)  # Boosted: DE/NL love DB depth
     
-    xp_ai_llm = total_ai_llm * 20.0
-    xp_github = total_github * 15.0
-    xp_apps = total_apps * 10.0
+    xp_ai_llm = total_ai_llm * 25.0    # Boosted: EU AI roles growing fast
+    xp_github = total_github * 20.0    # Boosted: German companies review actual code
+    xp_apps = total_apps * 15.0        # Boosted: active EU job search matters
     xp_streak = streak * 10.0
     
     base_xp = xp_hours + xp_dsa_total + xp_sys_design_total + xp_database + xp_ai_llm + xp_github + xp_apps + xp_streak
@@ -702,7 +790,7 @@ def get_gamification_state(db: Session) -> dict:
             "progress_pct": progress_pct
         })
     
-    # 4. Process Legendary Hall of Fame Badges
+    # 4. Process Legendary Hall of Fame Badges (includes EU-specific badges)
     legendary_badges = [
         {
             "id": "centurion",
@@ -744,6 +832,37 @@ def get_gamification_state(db: Session) -> dict:
             "criteria": f"{streak} / 14 Day Streak",
             "tag": "Mythic",
         },
+        # ── EU-Specific Legendary Badges ──
+        {
+            "id": "eu_blue_card_ready",
+            "title": "🇪🇺 EU Blue Card Ready",
+            "description": "Hit the full EU Blue Card hiring bar: 150+ DSA + 10+ System Design cases + 5+ Applications tracked.",
+            "icon": "award",
+            "unlocked": (total_dsa >= 150 and sd_cases_done >= 10 and total_apps >= 5),
+            "bonus_xp": 2000,
+            "criteria": f"DSA {total_dsa}/150 · Cases {sd_cases_done}/10 · Apps {total_apps}/5",
+            "tag": "EU Elite",
+        },
+        {
+            "id": "german_engineer",
+            "title": "🇩🇪 German Engineer",
+            "description": "Master the German interview standard: 80%+ System Design completion + deep DB mastery (20+ items done).",
+            "icon": "layers",
+            "unlocked": (sd_concepts_done >= int(0.8 * max(sd_concepts_done + 1, 1)) and (db_items_done + db_challenges_done) >= 20),
+            "bonus_xp": 1800,
+            "criteria": f"SysDesign {sd_concepts_done} concepts · DB {db_items_done + db_challenges_done}/20 done",
+            "tag": "EU Elite",
+        },
+        {
+            "id": "dutch_pragmatist",
+            "title": "🇳🇱 Dutch Pragmatist",
+            "description": "Nail the Netherlands interview profile: 100+ Medium DSA + 10+ AI topics + 10+ GitHub tasks done.",
+            "icon": "compass",
+            "unlocked": (solved_medium >= 100 and total_ai_llm >= 10 and total_github >= 10),
+            "bonus_xp": 1800,
+            "criteria": f"Medium DSA {solved_medium}/100 · AI {total_ai_llm}/10 · GitHub {total_github}/10",
+            "tag": "EU Elite",
+        },
     ]
     
     legendary_bonus = sum(b["bonus_xp"] for b in legendary_badges if b["unlocked"])
@@ -762,6 +881,28 @@ def get_gamification_state(db: Session) -> dict:
     # 7. Calculate Level details
     level_details = get_level_data(total_xp)
     
+    # 8. EU Readiness Score (Germany 🇩🇪 + Netherlands 🇳🇱)
+    from app.services import analytics as _analytics
+    _sd_stats = _analytics.get_system_design_stats(db)
+    _db_stats  = _analytics.get_database_stats(db)
+    _ai_stats  = _analytics.get_ai_llm_stats(db)
+    _gh_stats  = _analytics.get_github_stats(db)
+    _apps_count = total_apps
+    # hours_pct: assume 400h target for a solid EU prep campaign
+    _hours_pct  = min(100, round(total_hours / 400 * 100, 1))
+    _apps_pct   = min(100, round(_apps_count / 50 * 100, 1))
+    _dsa_medium_pct = min(100, round(solved_medium / 120 * 100, 1))
+    eu_readiness = compute_eu_readiness_score(
+        dsa_pct      = metrics_map["dsa"] / 200 * 100 if metrics_map["dsa"] <= 200 else 100,
+        dsa_medium_pct = _dsa_medium_pct,
+        sd_pct       = _sd_stats["pct"],
+        db_pct       = _db_stats["pct"],
+        ai_pct       = _ai_stats["pct"],
+        gh_pct       = _gh_stats["pct"],
+        hours_pct    = _hours_pct,
+        apps_pct     = _apps_pct,
+    )
+    
     # Detailed XP Breakdown dictionary for visual progress bars / charts
     xp_breakdown = [
         {"source": "DSA Problems",     "xp": int(xp_dsa_total),        "color": "#7C3AED", "icon": "code-2"},
@@ -773,6 +914,7 @@ def get_gamification_state(db: Session) -> dict:
         {"source": "Job Applications", "xp": int(xp_apps),             "color": "#8B5CF6", "icon": "briefcase"},
         {"source": "Streak Bonuses",   "xp": int(xp_streak + streak_multiplier_bonus), "color": "#EF4444", "icon": "flame"},
         {"source": "Milestone Badges", "xp": int(bonus_xp + legendary_bonus), "color": "#EC4899", "icon": "award"},
+        {"source": "EU Elite Badges",   "xp": sum(b["bonus_xp"] for b in legendary_badges if b["unlocked"] and b.get("tag") == "EU Elite"), "color": "#2563EB", "icon": "globe"},
     ]
     
     total_badges = sum(1 for a in achievements_list if a["is_unlocked"])
@@ -793,4 +935,5 @@ def get_gamification_state(db: Session) -> dict:
         "total_badges_possible": len(ACHIEVEMENT_SCHEMAS),
         "total_tiers_unlocked": unlocked_tiers_count,
         "total_tiers_possible": total_tiers_count,
+        "eu_readiness": eu_readiness,
     }

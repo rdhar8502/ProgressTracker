@@ -116,6 +116,25 @@
         <span>Applications</span>
       </a>
 
+      <div class="nav-section-label" style="display: flex; align-items: center; gap: 4px;">
+        <span>🇪🇺 EU Career</span>
+      </div>
+
+      <a href="/eu-readiness" class="nav-item {% if active_page == 'eu_readiness' %}active{% endif %}" style="{% if active_page == 'eu_readiness' %}background: linear-gradient(90deg, rgba(37,99,235,0.15), transparent);{% endif %}">
+        <i data-lucide="compass" class="sidebar-nav-icon" style="{% if active_page == 'eu_readiness' %}color: #3B82F6;{% endif %}"></i>
+        <span>EU Readiness</span>
+      </a>
+
+      <a href="/german-language" class="nav-item {% if active_page == 'german_language' %}active{% endif %}">
+        <i data-lucide="languages" class="sidebar-nav-icon"></i>
+        <span>🇩🇪 German Language</span>
+      </a>
+
+      <a href="/dutch-language" class="nav-item {% if active_page == 'dutch_language' %}active{% endif %}">
+        <i data-lucide="book-open" class="sidebar-nav-icon"></i>
+        <span>🇳🇱 Dutch Language</span>
+      </a>
+
       <div class="nav-section-label">Personal</div>
 
       <a href="/personal-hub" class="nav-item {% if active_page == 'personal_hub' %}active{% endif %}">

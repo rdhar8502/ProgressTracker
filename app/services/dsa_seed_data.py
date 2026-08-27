@@ -3,32 +3,20 @@ Comprehensive DSA Seed Dataset with Complete Searching & Sorting, Algorithms, an
 """
 
 DSA_COMPANIES = [
-    "Adobe",
-    "Airbnb",
-    "Amazon",
-    "Apple",
-    "Atlassian",
-    "Bloomberg",
-    "ByteDance",
-    "DE Shaw",
-    "Dropbox",
-    "Flipkart",
-    "Goldman Sachs",
-    "Google",
-    "LinkedIn",
-    "Meta",
-    "Microsoft",
-    "Netflix",
-    "Oracle",
-    "PayPal",
-    "PayPal",
-    "Paytm",
-    "Pinterest",
-    "Samsung",
-    "Spotify",
-    "Twitter / X",
-    "Uber",
-    "Valve"
+    # ── US/Global Tech ──
+    "Adobe", "Airbnb", "Amazon", "Apple", "Atlassian", "Bloomberg",
+    "ByteDance", "DE Shaw", "Dropbox", "Flipkart", "Goldman Sachs",
+    "Google", "LinkedIn", "Meta", "Microsoft", "Netflix", "Oracle",
+    "PayPal", "Paytm", "Pinterest", "Samsung", "Spotify",
+    "Twitter / X", "Uber", "Valve",
+    # ── 🇩🇪 Germany Tech ──
+    "Zalando", "SAP", "Delivery Hero", "Siemens Tech",
+    "Deutsche Bank Tech", "Celonis", "Personio", "Trade Republic",
+    # ── 🇳🇱 Netherlands Tech ──
+    "Booking.com", "Adyen", "ASML", "bol.com",
+    "Philips Tech", "TomTom", "Takeaway / JustEat",
+    # ── 🌍 EU / Pan-European ──
+    "Spotify (Stockholm)", "Klarna", "Revolut", "Wise",
 ]
 
 DSA_ALGORITHM_TOPICS = [

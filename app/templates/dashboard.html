@@ -18,7 +18,7 @@
     <div class="card-body" style="padding: 18px 20px;">
       <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">
         <i data-lucide="sparkles" class="icon-sm"></i>
-        <span>Daily Spark & Focus</span>
+        <span>Daily Spark &amp; Focus</span>
       </div>
       <div style="font-size: 13px; font-style: italic; color: var(--text-primary); margin-bottom: 8px; line-height: 1.5;">"{{ spark.motivation }}"</div>
       <div style="height: 1px; background: #DBEAFE; margin: 10px 0;"></div>
@@ -34,9 +34,9 @@
       <div class="flex items-center justify-between" style="margin-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: {{ gamification.level_details.tier_color }}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">
           <i data-lucide="{{ gamification.level_details.tier_icon }}" class="icon-sm"></i>
-          <span>{{ gamification.level_details.tier_name }} Tier · Status</span>
+          <span>{{ gamification.level_details.tier_name }} Tier &middot; Status</span>
         </div>
-        <a href="/achievements" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600;">Quest Board →</a>
+        <a href="/achievements" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600;">Quest Board &rarr;</a>
       </div>
       <div class="flex items-center gap-3">
         <div style="width: 46px; height: 46px; border-radius: 50%; background: {{ gamification.level_details.tier_gradient }}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); flex-shrink: 0; position: relative;">
@@ -45,7 +45,7 @@
         </div>
         <div style="flex-grow: 1;">
           <div style="font-size: 15px; font-weight: 800; color: var(--text-primary);">{{ gamification.level_details.title }}</div>
-          <div style="font-size: 11px; color: var(--text-muted);">{{ gamification.level_details.total_xp }} Total XP · {{ gamification.total_tiers_unlocked }} tiers unlocked</div>
+          <div style="font-size: 11px; color: var(--text-muted);">{{ gamification.level_details.total_xp }} Total XP &middot; {{ gamification.total_tiers_unlocked }} tiers unlocked</div>
         </div>
       </div>
       <div style="margin-top: 10px;">
@@ -61,6 +61,86 @@
   </div>
 </div>
 
+<!-- ══ EU Interview Readiness Score Banner ══ -->
+{% set eu = gamification.eu_readiness %}
+<div class="card mb-6" style="background: linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(16,185,129,0.04) 50%, rgba(245,158,11,0.04) 100%); border: 1px solid rgba(37,99,235,0.20); overflow: hidden; position: relative;">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #000 33%, #D00 33%, #D00 66%, #FFD700 66%); opacity: 0.18;"></div>
+  <div class="card-body" style="padding: 20px 24px;">
+    <!-- Header -->
+    <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #1D4ED8, #0EA5E9); display: flex; align-items: center; justify-content: center; font-size: 18px;">🇪🇺</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.01em;">EU Interview Readiness Score</div>
+          <div style="font-size: 11px; color: var(--text-muted);">🇩🇪 Germany &nbsp;·&nbsp; 🇳🇱 Netherlands &nbsp;·&nbsp; Weighted by EU hiring standards</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <a href="/eu-readiness" style="font-size: 11px; font-weight: 700; color: #2563EB; text-decoration: none; display: flex; align-items: center; gap: 4px; background: rgba(37,99,235,0.1); padding: 4px 10px; border-radius: 6px;">
+          <i data-lucide="compass" class="icon-xs"></i> Full EU Radar →
+        </a>
+      </div>
+    </div>
+
+    <!-- Score Cards -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 14px; margin-bottom: 20px;">
+      <!-- Germany -->
+      <div style="background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 16px; text-align: center; position: relative; overflow: hidden;">
+        <div style="font-size: 26px; margin-bottom: 4px;">🇩🇪</div>
+        <div style="font-size: 28px; font-weight: 900; color: {{ eu.de_status.color }}; letter-spacing: -1px; line-height: 1;">{{ eu.de_score }}<span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">/100</span></div>
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: {{ eu.de_status.color }}; letter-spacing: 0.05em; margin: 4px 0 2px;">{{ eu.de_status.label }}</div>
+        <div style="font-size: 10px; color: var(--text-muted);">Germany</div>
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,0,0.07);"></div>
+        <div style="position: absolute; bottom: 0; left: 0; height: 3px; background: {{ eu.de_status.color }}; width: {{ eu.de_score }}%;"></div>
+      </div>
+      <!-- Netherlands -->
+      <div style="background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 16px; text-align: center; position: relative; overflow: hidden;">
+        <div style="font-size: 26px; margin-bottom: 4px;">🇳🇱</div>
+        <div style="font-size: 28px; font-weight: 900; color: {{ eu.nl_status.color }}; letter-spacing: -1px; line-height: 1;">{{ eu.nl_score }}<span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">/100</span></div>
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: {{ eu.nl_status.color }}; letter-spacing: 0.05em; margin: 4px 0 2px;">{{ eu.nl_status.label }}</div>
+        <div style="font-size: 10px; color: var(--text-muted);">Netherlands</div>
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,0,0.07);"></div>
+        <div style="position: absolute; bottom: 0; left: 0; height: 3px; background: {{ eu.nl_status.color }}; width: {{ eu.nl_score }}%;"></div>
+      </div>
+      <!-- Priority Focus -->
+      <div style="background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(99,102,241,0.06)); border: 1px solid rgba(37,99,235,0.2); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #2563EB; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+          <i data-lucide="target" class="icon-xs"></i> #1 Priority This Week
+        </div>
+        <div>
+          <div style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">{{ eu.top_priority.name }}</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">{{ eu.top_priority.gap_pct | round | int }}% gap &mdash; highest EU impact area</div>
+          <div style="background: rgba(0,0,0,0.06); border-radius: 99px; height: 6px; margin-bottom: 8px; overflow: hidden;">
+            <div style="height: 100%; background: linear-gradient(90deg, #2563EB, #7C3AED); width: {{ (100 - eu.top_priority.gap_pct) | round | int }}%; border-radius: 99px;"></div>
+          </div>
+        </div>
+        <a href="{{ eu.top_priority.link }}" style="display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: white; background: linear-gradient(135deg, #2563EB, #7C3AED); padding: 6px 12px; border-radius: 8px; text-decoration: none; width: fit-content;">
+          <i data-lucide="arrow-right" class="icon-xs"></i> Focus Now
+        </a>
+      </div>
+    </div>
+
+    <!-- Dimension Bars -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+      {% for dim in eu.dimensions %}
+      <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 10px 12px;">
+        <div class="flex items-center justify-between" style="margin-bottom: 6px;">
+          <span style="font-size: 11px; font-weight: 600; color: var(--text-primary);">{{ dim.name }}</span>
+          <span style="font-size: 11px; font-weight: 800; color: {% if dim.pct >= 70 %}#10B981{% elif dim.pct >= 40 %}#F59E0B{% else %}#EF4444{% endif %};">{{ dim.pct | round | int }}%</span>
+        </div>
+        <div style="background: rgba(0,0,0,0.07); border-radius: 99px; height: 5px; overflow: hidden;">
+          <div style="height: 100%; width: {{ dim.pct | round | int }}%; background: {% if dim.pct >= 70 %}linear-gradient(90deg,#059669,#10B981){% elif dim.pct >= 40 %}linear-gradient(90deg,#D97706,#F59E0B){% else %}linear-gradient(90deg,#DC2626,#EF4444){% endif %}; border-radius: 99px;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+          <span style="font-size: 9px; color: var(--text-muted);">🇩🇪 {{ (dim.de_weight * 100) | round | int }}% wt</span>
+          <span style="font-size: 9px; color: var(--text-muted);">🇳🇱 {{ (dim.nl_weight * 100) | round | int }}% wt</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
 <!-- ── Week Banner ── -->
 <div class="card mb-6" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-xs);">
   <div class="card-body" style="padding: 18px 22px;">
@@ -68,7 +148,7 @@
       <div>
         <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
           <i data-lucide="calendar" class="icon-sm"></i>
-          <span>Week {{ current_week_num }} of {{ total_weeks }} &nbsp;·&nbsp; {{ week_start.strftime('%b %d') }} – {{ week_end.strftime('%b %d, %Y') }}</span>
+          <span>Week {{ current_week_num }} of {{ total_weeks }} &nbsp;&middot;&nbsp; {{ week_start.strftime('%b %d') }} &ndash; {{ week_end.strftime('%b %d, %Y') }}</span>
         </div>
         <div style="font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px;">{{ week_theme }}</div>
         <div style="font-size: 12px; color: var(--text-muted);">{{ days_remaining }} days remaining to target</div>
@@ -143,7 +223,7 @@
 <div class="charts-grid">
   <div class="card">
     <div class="card-header">
-      <span class="card-title">Daily Study Hours — Last 14 Days</span>
+      <span class="card-title">Daily Study Hours &mdash; Last 14 Days</span>
     </div>
     <div class="card-body">
       <canvas id="dailyChart" height="90"></canvas>
@@ -159,7 +239,7 @@
   </div>
 </div>
 
-<!-- ── Weekly Trend + DSA ── -->
+<!-- ── Weekly Trend + DSA (EU-Standard Targets) ── -->
 <div class="grid-2">
   <div class="card">
     <div class="card-header">
@@ -173,20 +253,26 @@
   <div class="card">
     <div class="card-header">
       <span class="card-title">DSA Target Progress</span>
-      <a href="/dsa" class="btn btn-ghost btn-sm">View All →</a>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="badge" style="background: rgba(37,99,235,0.1); color: #2563EB; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">🇪🇺 EU Standard</span>
+        <a href="/dsa" class="btn btn-ghost btn-sm">View All →</a>
+      </div>
     </div>
     <div class="card-body no-top">
+      <div style="font-size: 10px; color: var(--text-muted); background: rgba(37,99,235,0.05); border-radius: 6px; padding: 6px 10px; margin-bottom: 12px; border-left: 3px solid #2563EB; line-height: 1.5;">
+        🇩🇪 🇳🇱 EU targets: <strong>Easy 40</strong> (de-prioritized) · <strong>Medium 120 ⭐</strong> (EU sweet spot) · <strong>Hard 40</strong> (FAANG-EU)
+      </div>
       <div class="flex justify-between" style="margin-bottom: 14px;">
         <div style="text-align: center; flex: 1;">
           <div style="font-size: 22px; font-weight: 800; color: #059669;">{{ dsa_stats.easy }}</div>
-          <div class="text-sm text-muted">Easy / 60</div>
-          <div class="progress-bar mt-1"><div class="progress-fill green" style="width: {{ [(dsa_stats.easy / 60 * 100), 100] | min | int }}%;"></div></div>
+          <div class="text-sm text-muted">Easy / 40</div>
+          <div class="progress-bar mt-1"><div class="progress-fill green" style="width: {{ [(dsa_stats.easy / 40 * 100), 100] | min | int }}%;"></div></div>
         </div>
         <div style="width: 1px; background: var(--border); margin: 0 16px;"></div>
         <div style="text-align: center; flex: 1;">
           <div style="font-size: 22px; font-weight: 800; color: var(--warning);">{{ dsa_stats.medium }}</div>
-          <div class="text-sm text-muted">Medium / 150</div>
-          <div class="progress-bar mt-1"><div class="progress-fill amber" style="width: {{ [(dsa_stats.medium / 150 * 100), 100] | min | int }}%;"></div></div>
+          <div class="text-sm text-muted">Medium / 120</div>
+          <div class="progress-bar mt-1"><div class="progress-fill amber" style="width: {{ [(dsa_stats.medium / 120 * 100), 100] | min | int }}%;"></div></div>
         </div>
         <div style="width: 1px; background: var(--border); margin: 0 16px;"></div>
         <div style="text-align: center; flex: 1;">
@@ -196,11 +282,11 @@
         </div>
       </div>
       <div class="progress-bar" style="height: 8px;">
-        <div class="progress-fill" style="width: {{ dsa_stats.pct }}%;"></div>
+        <div class="progress-fill" style="width: {{ [((dsa_stats.easy + dsa_stats.medium + dsa_stats.hard) / 200 * 100), 100] | min | int }}%;"></div>
       </div>
       <div class="flex justify-between mt-1">
         <span class="text-sm text-muted">{{ dsa_stats.solved }} solved</span>
-        <span class="text-sm text-muted">250 target</span>
+        <span class="text-sm text-muted">200 EU target</span>
       </div>
     </div>
   </div>
@@ -215,78 +301,30 @@ const dailyData  = {{ daily_chart_json | safe }};
 const weeklyData = {{ weekly_chart_json | safe }};
 const catData    = {{ cat_chart_json | safe }};
 
-// Daily chart
 new Chart(document.getElementById('dailyChart'), {
   type: 'bar',
   data: {
     labels: dailyData.map(d => d.date),
-    datasets: [{
-      label: 'Hours',
-      data: dailyData.map(d => d.hours),
-      backgroundColor: 'rgba(37, 99, 235, 0.12)',
-      borderColor: '#2563EB',
-      borderWidth: 1.5,
-      borderRadius: 4,
-    }]
+    datasets: [{ label: 'Hours', data: dailyData.map(d => d.hours), backgroundColor: 'rgba(37, 99, 235, 0.12)', borderColor: '#2563EB', borderWidth: 1.5, borderRadius: 4 }]
   },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } } },
-      x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 30 } }
-    }
-  }
+  options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 30 } } } }
 });
 
-// Category doughnut
 if (catData.labels.length) {
   new Chart(document.getElementById('catChart'), {
     type: 'doughnut',
-    data: {
-      labels: catData.labels,
-      datasets: [{
-        data: catData.data,
-        backgroundColor: catData.colors,
-        borderWidth: 0,
-        hoverOffset: 4,
-      }]
-    },
-    options: {
-      responsive: false,
-      cutout: '68%',
-      plugins: {
-        legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } }
-      }
-    }
+    data: { labels: catData.labels, datasets: [{ data: catData.data, backgroundColor: catData.colors, borderWidth: 0, hoverOffset: 4 }] },
+    options: { responsive: false, cutout: '68%', plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } } } }
   });
 }
 
-// Weekly trend chart
 new Chart(document.getElementById('weeklyChart'), {
   type: 'line',
   data: {
     labels: weeklyData.map(d => d.week),
-    datasets: [{
-      label: 'Hours',
-      data: weeklyData.map(d => d.hours),
-      borderColor: '#2563EB',
-      backgroundColor: 'rgba(37, 99, 235, 0.06)',
-      borderWidth: 2,
-      pointBackgroundColor: '#2563EB',
-      pointRadius: 4,
-      fill: true,
-      tension: 0.4,
-    }]
+    datasets: [{ label: 'Hours', data: weeklyData.map(d => d.hours), borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.06)', borderWidth: 2, pointBackgroundColor: '#2563EB', pointRadius: 4, fill: true, tension: 0.4 }]
   },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } } },
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
-    }
-  }
+  options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
 });
 </script>
 {% endblock %}

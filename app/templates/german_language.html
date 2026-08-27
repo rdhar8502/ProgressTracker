@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}German Language{% endblock %}
+{% block page_title %}German Language{% endblock %}
+
+{% block content %}
+<!-- ══ Hero ══ -->
+<div style="background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%); border-radius: 16px; padding: 24px 28px; margin-bottom: 24px; position: relative; overflow: hidden;">
+  <div style="position: absolute; top: -20px; right: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(37,99,235,0.15), transparent 70%);"></div>
+  <div style="position: relative; z-index: 2;">
+    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+      <span style="background: rgba(37,99,235,0.3); color: #93C5FD; border: 1px solid rgba(147,197,253,0.3); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;">🇩🇪 Deutsch Lernen</span>
+      <span style="background: rgba(16,185,129,0.2); color: #6EE7B7; border: 1px solid rgba(110,231,183,0.25); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;">CEFR A1 → B2</span>
+      <span style="background: rgba(245,158,11,0.2); color: #FCD34D; border: 1px solid rgba(252,211,77,0.25); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;">+10% Germany Target Score</span>
+    </div>
+    <h2 style="font-size: 22px; font-weight: 900; color: #FFFFFF; margin-bottom: 6px; letter-spacing: -0.02em;">German Language Tracker</h2>
+    <p style="color: #94A3B8; font-size: 13px; max-width: 600px; line-height: 1.5; margin: 0;">
+      Track your CEFR progress across Reading, Writing, Speaking, Listening, Vocabulary &amp; Grammar. B1 = EU Blue Card eligible. B2 = German job interview capable.
+    </p>
+    <div style="margin-top: 14px; display: flex; align-items: center; gap: 16px;">
+      <div>
+        <div style="font-size: 32px; font-weight: 900; color: white; letter-spacing: -1px; line-height: 1;">{{ overall_score }}<span style="font-size: 14px; color: #64748B;">/100</span></div>
+        <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">Overall German Score</div>
+      </div>
+      <div style="flex: 1; max-width: 200px;">
+        <div style="background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; overflow: hidden;">
+          <div style="height: 100%; background: linear-gradient(90deg, #3B82F6, #8B5CF6); width: {{ overall_score }}%; border-radius: 99px;"></div>
+        </div>
+        <div style="font-size: 10px; color: #64748B; margin-top: 4px;">B1 target = ~55/100 &nbsp; B2 target = 80/100</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CEFR Level Guide ══ -->
+<div class="card mb-6">
+  <div class="card-header"><span class="card-title">CEFR Level Guide &amp; EU Relevance</span></div>
+  <div class="card-body" style="padding: 12px 20px;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      {% for level in cefr_levels %}
+      {% set meta = cefr_meta[level] %}
+      <div style="flex: 1; min-width: 120px; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid {{ meta.color }}; border-radius: 8px; padding: 10px 12px;">
+        <div style="font-size: 16px; font-weight: 900; color: {{ meta.color }};">{{ level }}</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-primary);">{{ meta.label }}</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px; line-height: 1.3;">{{ meta.eu_relevance }}</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">+{{ meta.xp_per_skill }} XP / skill</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ══ Skills Grid ══ -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  {% for skill in skills %}
+  {% set meta = cefr_meta[skill.current_level] %}
+  <div class="card" style="border-left: 4px solid {{ meta.color }};">
+    <div class="card-body" style="padding: 18px 20px;">
+      <div class="flex items-center justify-between" style="margin-bottom: 12px;">
+        <div>
+          <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">{{ skill.skill }}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Target: {{ skill.target_level }} &middot; {{ cefr_meta[skill.target_level].label }}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 22px; font-weight: 900; color: {{ meta.color }};">{{ skill.current_level }}</div>
+          <div style="font-size: 10px; color: var(--text-muted);">{{ meta.label }}</div>
+        </div>
+      </div>
+
+      <!-- CEFR step bar -->
+      <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+        {% for level in cefr_levels %}
+        {% set lmeta = cefr_meta[level] %}
+        <div style="flex: 1; height: 6px; border-radius: 3px; background: {% if skill.current_level >= level %}{{ lmeta.color }}{% else %}var(--surface-alt){% endif %};"></div>
+        {% endfor %}
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); margin-bottom: 14px;">
+        {% for level in cefr_levels %}<span>{{ level }}</span>{% endfor %}
+      </div>
+
+      <!-- Notes -->
+      {% if skill.notes %}
+      <div style="font-size: 11px; color: var(--text-muted); background: var(--surface-alt); border-radius: 6px; padding: 6px 10px; margin-bottom: 12px;">{{ skill.notes }}</div>
+      {% endif %}
+      {% if skill.resources %}
+      <div style="font-size: 10px; color: #3B82F6; margin-bottom: 12px;"><strong>Resources:</strong> {{ skill.resources }}</div>
+      {% endif %}
+
+      <!-- Quick update form -->
+      <form method="POST" action="/german-language/skill/update" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;">
+        <input type="hidden" name="skill_id" value="{{ skill.id }}">
+        <div>
+          <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px;">Current Level</label>
+          <select name="current_level" style="font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+            {% for level in cefr_levels %}
+            <option value="{{ level }}" {% if skill.current_level == level %}selected{% endif %}>{{ level }} — {{ cefr_meta[level].label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px;">Target Level</label>
+          <select name="target_level" style="font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+            {% for level in cefr_levels %}
+            <option value="{{ level }}" {% if skill.target_level == level %}selected{% endif %}>{{ level }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+          <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px;">Notes</label>
+          <input type="text" name="notes" value="{{ skill.notes or '' }}" placeholder="e.g. using Duolingo" style="width: 100%; font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+        </div>
+        <input type="hidden" name="resources" value="{{ skill.resources or '' }}">
+        <button type="submit" class="btn btn-primary btn-sm" style="font-size: 11px; padding: 5px 12px;">Save</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ══ Certifications ══ -->
+<div class="card mb-6">
+  <div class="card-header">
+    <span class="card-title">📜 Certifications (Goethe / TestDaF / telc)</span>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('addCertForm').style.display = document.getElementById('addCertForm').style.display === 'none' ? 'block' : 'none'">
+      <i data-lucide="plus" class="icon-xs"></i> Add Certificate
+    </button>
+  </div>
+
+  <!-- Add cert form (hidden by default) -->
+  <div id="addCertForm" style="display: none; padding: 16px 20px; background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+    <form method="POST" action="/german-language/cert/add" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Cert Name</label>
+        <input type="text" name="cert_name" placeholder="Goethe-Zertifikat B1" required style="font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); width: 200px;">
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">CEFR Level</label>
+        <select name="level" style="font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+          {% for level in cefr_levels %}<option value="{{ level }}">{{ level }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Score</label>
+        <input type="text" name="score" placeholder="87/100" style="width: 90px; font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Exam Date</label>
+        <input type="text" name="exam_date" placeholder="2026-11" style="width: 100px; font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+        <input type="checkbox" name="passed" id="cert_passed" style="width: 14px; height: 14px;">
+        <label for="cert_passed" style="font-size: 12px; color: var(--text-primary);">Passed</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Add Cert</button>
+    </form>
+  </div>
+
+  <div class="card-body" style="padding: 16px 20px;">
+    {% if certs %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+      {% for cert in certs %}
+      {% set cmeta = cefr_meta[cert.level] %}
+      <div style="border: 1px solid {{ cmeta.color }}40; border-left: 4px solid {{ cmeta.color }}; border-radius: 10px; padding: 14px 16px; background: var(--surface-alt);">
+        <div class="flex items-center justify-between">
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-primary);">{{ cert.cert_name }}</div>
+          <form method="POST" action="/german-language/cert/delete/{{ cert.id }}" style="display: inline;">
+            <button type="submit" style="background: none; border: none; cursor: pointer; color: var(--text-muted);" title="Delete"><i data-lucide="x" class="icon-xs"></i></button>
+          </form>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+          <span style="font-size: 12px; font-weight: 900; color: {{ cmeta.color }};">{{ cert.level }}</span>
+          {% if cert.passed %}
+          <span style="font-size: 10px; font-weight: 700; background: rgba(16,185,129,0.15); color: #10B981; padding: 2px 7px; border-radius: 4px;">&#10003; Passed</span>
+          {% else %}
+          <span style="font-size: 10px; font-weight: 700; background: rgba(245,158,11,0.12); color: #F59E0B; padding: 2px 7px; border-radius: 4px;">Planned</span>
+          {% endif %}
+          {% if cert.score %}
+          <span style="font-size: 10px; color: var(--text-muted);">Score: {{ cert.score }}</span>
+          {% endif %}
+          {% if cert.exam_date %}
+          <span style="font-size: 10px; color: var(--text-muted);">{{ cert.exam_date }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">
+      No certifications yet. Click "Add Certificate" to track your Goethe / TestDaF plans.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ══ Resources Section ══ -->
+<div class="card">
+  <div class="card-header"><span class="card-title">&#128218; Recommended German Learning Resources</span></div>
+  <div class="card-body" style="padding: 16px 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+      {% set resources = [
+        {"name": "Deutsche Welle (DW Learn German)", "level": "A1-B2", "url": "https://learngerman.dw.com", "type": "Free Course", "icon": "tv"},
+        {"name": "Goethe Institut Online", "level": "A1-C1", "url": "https://www.goethe.de/en/spr/kup/kur/oni.html", "type": "Official", "icon": "award"},
+        {"name": "Duolingo German", "level": "A1-B1", "url": "https://www.duolingo.com/course/de/en/", "type": "App", "icon": "zap"},
+        {"name": "Anki Decks (German Core 2k)", "level": "A1-B2", "url": "https://ankiweb.net", "type": "Vocab", "icon": "layers"},
+        {"name": "Easy German YouTube", "level": "A2-B2", "url": "https://www.youtube.com/@EasyGerman", "type": "Listening", "icon": "video"},
+        {"name": "Nicos Weg (ARD Mediathek)", "level": "A1-B1", "url": "https://www.dw.com/en/learn-german/nicos-weg/s-53485", "type": "Video Course", "icon": "film"},
+      ] %}
+      {% for r in resources %}
+      <a href="{{ r.url }}" target="_blank" rel="noopener" style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; text-decoration: none; transition: border-color 0.15s;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(37,99,235,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="{{ r.icon }}" class="icon-sm" style="color: #3B82F6;"></i>
+        </div>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ r.name }}</div>
+          <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">{{ r.type }} &middot; {{ r.level }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

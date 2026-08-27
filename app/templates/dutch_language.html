@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Dutch Language (Nederlands){% endblock %}
+{% block page_title %}Dutch Language{% endblock %}
+
+{% block content %}
+<!-- ══ Hero ══ -->
+<div style="background: linear-gradient(135deg, #1C1917 0%, #1E1B4B 50%, #431407 100%); border-radius: 16px; padding: 24px 28px; margin-bottom: 24px; position: relative; overflow: hidden;">
+  <div style="position: absolute; top: -20px; right: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(249,115,22,0.2), transparent 70%);"></div>
+  <div style="position: relative; z-index: 2;">
+    <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+      <span style="background: rgba(249,115,22,0.3); color: #FDBA74; border: 1px solid rgba(253,186,116,0.3); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;">🇳🇱 Nederlands Leren</span>
+      <span style="background: rgba(16,185,129,0.2); color: #6EE7B7; border: 1px solid rgba(110,231,183,0.25); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;">CEFR A1 → B2 (NT2)</span>
+      <span style="background: rgba(59,130,246,0.2); color: #93C5FD; border: 1px solid rgba(147,197,253,0.25); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;">+7% Netherlands Score</span>
+    </div>
+    <h2 style="font-size: 22px; font-weight: 900; color: #FFFFFF; margin-bottom: 6px; letter-spacing: -0.02em;">Dutch Language Tracker (Nederlands)</h2>
+    <p style="color: #94A3B8; font-size: 13px; max-width: 620px; line-height: 1.5; margin: 0;">
+      Track your Dutch proficiency across Reading, Writing, Speaking, Listening, Vocabulary & Grammar. A2 = Inburgering (Civic Integration). B1/B2 = NT2 (Staatsexamen Nederlands als Tweede Taal) for tech and workplace fluency in Amsterdam & Eindhoven.
+    </p>
+    <div style="margin-top: 14px; display: flex; align-items: center; gap: 16px;">
+      <div>
+        <div style="font-size: 32px; font-weight: 900; color: white; letter-spacing: -1px; line-height: 1;">{{ overall_score }}<span style="font-size: 14px; color: #64748B;">/100</span></div>
+        <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">Overall Dutch Score</div>
+      </div>
+      <div style="flex: 1; max-width: 220px;">
+        <div style="background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; overflow: hidden;">
+          <div style="height: 100%; background: linear-gradient(90deg, #F97316, #EC4899); width: {{ overall_score }}%; border-radius: 99px;"></div>
+        </div>
+        <div style="font-size: 10px; color: #94A3B8; margin-top: 4px;">Inburgering A2 = ~25/100 · NT2-II B2 = 80/100</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CEFR Level Guide ══ -->
+<div class="card mb-6">
+  <div class="card-header"><span class="card-title">CEFR Level Guide & Netherlands Relevance</span></div>
+  <div class="card-body" style="padding: 12px 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+      {% for level in cefr_levels %}
+      {% set meta = cefr_meta[level] %}
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid {{ meta.color }}; border-radius: 8px; padding: 10px 12px;">
+        <div style="font-size: 16px; font-weight: 900; color: {{ meta.color }};">{{ level }}</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-primary);">{{ meta.label }}</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px; line-height: 1.3;">{{ meta.eu_relevance }}</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">+{{ meta.xp_per_skill }} XP / skill</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ══ Skills Grid ══ -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  {% for skill in skills %}
+  {% set meta = cefr_meta[skill.current_level] %}
+  <div class="card" style="border-left: 4px solid {{ meta.color }};">
+    <div class="card-body" style="padding: 18px 20px;">
+      <div class="flex items-center justify-between" style="margin-bottom: 12px;">
+        <div>
+          <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">{{ skill.skill }}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Target: {{ skill.target_level }} · {{ cefr_meta[skill.target_level].label }}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 22px; font-weight: 900; color: {{ meta.color }};">{{ skill.current_level }}</div>
+          <div style="font-size: 10px; color: var(--text-muted);">{{ meta.label }}</div>
+        </div>
+      </div>
+
+      <!-- CEFR step bar -->
+      <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+        {% for level in cefr_levels %}
+        {% set lmeta = cefr_meta[level] %}
+        <div style="flex: 1; height: 6px; border-radius: 3px; background: {% if skill.current_level >= level %}{{ lmeta.color }}{% else %}var(--surface-alt){% endif %};"></div>
+        {% endfor %}
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); margin-bottom: 14px;">
+        {% for level in cefr_levels %}<span>{{ level }}</span>{% endfor %}
+      </div>
+
+      <!-- Notes -->
+      {% if skill.notes %}
+      <div style="font-size: 11px; color: var(--text-muted); background: var(--surface-alt); border-radius: 6px; padding: 6px 10px; margin-bottom: 12px;">{{ skill.notes }}</div>
+      {% endif %}
+      {% if skill.resources %}
+      <div style="font-size: 10px; color: #F97316; margin-bottom: 12px;"><strong>Resources:</strong> {{ skill.resources }}</div>
+      {% endif %}
+
+      <!-- Quick update form -->
+      <form method="POST" action="/dutch-language/skill/update" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;">
+        <input type="hidden" name="skill_id" value="{{ skill.id }}">
+        <div>
+          <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px;">Current Level</label>
+          <select name="current_level" style="font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+            {% for level in cefr_levels %}
+            <option value="{{ level }}" {% if skill.current_level == level %}selected{% endif %}>{{ level }} — {{ cefr_meta[level].label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px;">Target Level</label>
+          <select name="target_level" style="font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+            {% for level in cefr_levels %}
+            <option value="{{ level }}" {% if skill.target_level == level %}selected{% endif %}>{{ level }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+          <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px;">Notes</label>
+          <input type="text" name="notes" value="{{ skill.notes or '' }}" placeholder="e.g. NOS Jeugdjournaal & Anki" style="width: 100%; font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+        </div>
+        <input type="hidden" name="resources" value="{{ skill.resources or '' }}">
+        <button type="submit" class="btn btn-primary btn-sm" style="font-size: 11px; padding: 5px 12px;">Save</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ══ Certifications ══ -->
+<div class="card mb-6">
+  <div class="card-header">
+    <span class="card-title">📜 Certifications (NT2 Programma I/II, Inburgering, CNaVT)</span>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('addCertForm').style.display = document.getElementById('addCertForm').style.display === 'none' ? 'block' : 'none'">
+      <i data-lucide="plus" class="icon-xs"></i> Add Certificate
+    </button>
+  </div>
+
+  <!-- Add cert form (hidden by default) -->
+  <div id="addCertForm" style="display: none; padding: 16px 20px; background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+    <form method="POST" action="/dutch-language/cert/add" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Cert Name</label>
+        <input type="text" name="cert_name" placeholder="Staatsexamen NT2 Programma II" required style="font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); width: 220px;">
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">CEFR Level</label>
+        <select name="level" style="font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+          {% for level in cefr_levels %}<option value="{{ level }}">{{ level }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Score / Status</label>
+        <input type="text" name="score" placeholder="Passed / 85%" style="width: 100px; font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+      </div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Exam Date</label>
+        <input type="text" name="exam_date" placeholder="2026-12" style="width: 100px; font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);">
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+        <input type="checkbox" name="passed" id="cert_passed" style="width: 14px; height: 14px;">
+        <label for="cert_passed" style="font-size: 12px; color: var(--text-primary);">Passed</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Add Cert</button>
+    </form>
+  </div>
+
+  <div class="card-body" style="padding: 16px 20px;">
+    {% if certs %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+      {% for cert in certs %}
+      {% set cmeta = cefr_meta[cert.level] %}
+      <div style="border: 1px solid {{ cmeta.color }}40; border-left: 4px solid {{ cmeta.color }}; border-radius: 10px; padding: 14px 16px; background: var(--surface-alt);">
+        <div class="flex items-center justify-between">
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-primary);">{{ cert.cert_name }}</div>
+          <form method="POST" action="/dutch-language/cert/delete/{{ cert.id }}" style="display: inline;">
+            <button type="submit" style="background: none; border: none; cursor: pointer; color: var(--text-muted);" title="Delete"><i data-lucide="x" class="icon-xs"></i></button>
+          </form>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+          <span style="font-size: 12px; font-weight: 900; color: {{ cmeta.color }};">{{ cert.level }}</span>
+          {% if cert.passed %}
+          <span style="font-size: 10px; font-weight: 700; background: rgba(16,185,129,0.15); color: #10B981; padding: 2px 7px; border-radius: 4px;">✓ Passed</span>
+          {% else %}
+          <span style="font-size: 10px; font-weight: 700; background: rgba(245,158,11,0.12); color: #F59E0B; padding: 2px 7px; border-radius: 4px;">Planned</span>
+          {% endif %}
+          {% if cert.score %}
+          <span style="font-size: 10px; color: var(--text-muted);">Score: {{ cert.score }}</span>
+          {% endif %}
+          {% if cert.exam_date %}
+          <span style="font-size: 10px; color: var(--text-muted);">{{ cert.exam_date }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">
+      No certifications yet. Click "Add Certificate" to track your Staatsexamen NT2 or Inburgering plans.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ══ Resources Section ══ -->
+<div class="card">
+  <div class="card-header"><span class="card-title">📚 Recommended Dutch Learning Resources</span></div>
+  <div class="card-body" style="padding: 16px 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+      {% set resources = [
+        {"name": "NOS Nieuws in Makkelijk Nederlands", "level": "A2-B2", "url": "https://nos.nl/makkelijk", "type": "Daily News", "icon": "tv"},
+        {"name": "Bart de Pau (Learn Dutch / Grammar)", "level": "A1-B2", "url": "https://www.learndutch.org", "type": "Structured Course", "icon": "award"},
+        {"name": "Duolingo Dutch", "level": "A1-B1", "url": "https://www.duolingo.com/course/dn/en/Learn-Dutch", "type": "App", "icon": "zap"},
+        {"name": "Oefenen.nl / NedBox", "level": "A1-B1", "url": "https://www.oefenen.nl", "type": "Practice Portal", "icon": "layers"},
+        {"name": "Easy Dutch YouTube", "level": "A2-B2", "url": "https://www.youtube.com/@EasyDutch", "type": "Listening", "icon": "video"},
+        {"name": "Staatsexamen NT2 Practice Exams", "level": "B1-B2", "url": "https://www.duo.nl", "type": "Official DUO Exams", "icon": "file-check"},
+      ] %}
+      {% for r in resources %}
+      <a href="{{ r.url }}" target="_blank" rel="noopener" style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; text-decoration: none; transition: border-color 0.15s;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(249,115,22,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="{{ r.icon }}" class="icon-sm" style="color: #F97316;"></i>
+        </div>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">{{ r.name }}</div>
+          <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">{{ r.type }} · {{ r.level }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
