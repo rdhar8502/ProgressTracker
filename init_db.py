@@ -195,6 +195,10 @@ def init():
                 ("peaceful_scenic_motivation", "TEXT DEFAULT ''"),
                 ("best_cities_states", "TEXT DEFAULT ''"),
                 ("keep_in_mind_notes", "TEXT DEFAULT ''"),
+                ("interview_style_summary", "TEXT DEFAULT ''"),
+                ("interview_process_stages", "TEXT DEFAULT ''"),
+                ("employer_behavior_culture", "TEXT DEFAULT ''"),
+                ("senior_8yoe_focus", "TEXT DEFAULT ''"),
             ]
             for col_name, col_type in dest_cols:
                 res_col = conn.execute(text(

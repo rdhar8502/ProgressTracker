@@ -510,6 +510,94 @@ SYSTEM_DESIGN_TOPICS = [
             "Entity-Relationship (ER) Modeling & Table Schemas for LLD",
         ],
     ),
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # 🤖 AI SYSTEM DESIGN (AI SD) — Modern AI/LLM Architectures & Production
+    # ══════════════════════════════════════════════════════════════════════════
+    (
+        "AI",
+        "RAG & Vector Architecture",
+        "Enterprise RAG & Hybrid Retrieval Pipelines",
+        [
+            "Chunking Strategies (Fixed-size, Recursive Character, Semantic Chunking, Sliding Window)",
+            "Dense vs. Sparse Embeddings & Hybrid Search (BM25 + Vector via Reciprocal Rank Fusion / RRF)",
+            "Vector Database Internals & Indexing (HNSW, IVFFlat, Product Quantization, pgvector vs Milvus)",
+            "Two-Stage Retrieval & Cross-Encoder Reranking (Cohere Rerank, BGE-Reranker, ColBERT)",
+            "Metadata Filtering & Multi-Tenant Role-Based Access Control (RBAC) in Vector Search",
+            "Context Window Compression, Lost-in-the-Middle Mitigation & Dynamic Context Pruning",
+            "Corrective RAG (CRAG) & Self-RAG (Retrieval Quality Gating, Active Retrieval Verification)",
+            "Document Ingestion Pipelines: Asynchronous Parsing, OCR (Docling / Unstructured) & Deduplication",
+        ],
+    ),
+    (
+        "AI",
+        "Agentic Systems & Orchestration",
+        "Autonomous Agent Workflows & State Machines",
+        [
+            "Agent Frameworks & Topologies (ReAct Loop, Plan-and-Solve, Supervisor-Worker, Multi-Agent Swarms)",
+            "State Machines & Cyclic Workflows (LangGraph StateGraph vs Temporal vs LlamaIndex Workflows)",
+            "Function Calling & Tool Orchestration (Dynamic Schema Injection, JSON Mode, Tool Error Recovery)",
+            "Model Context Protocol (MCP) Architecture (Client-Host-Server Topology, Tool & Resource Discovery)",
+            "Agent Memory Architectures (Short-Term Buffer, Summary Memory, Episodic & Long-Term Vector Memory)",
+            "State Persistence, Checkpointing & Time-Travel Debugging (SQLite / PostgreSQL Checkpointers)",
+            "Human-in-the-Loop (HITL) Approval Gateways for Critical, Financial or Destructive Tool Execution",
+            "Multi-Agent Coordination: Message Bus, Distributed Consensus & Hand-off Protocols",
+        ],
+    ),
+    (
+        "AI",
+        "AI Model Serving & Inference",
+        "LLM Inference Optimization, Streaming & Gateway Routing",
+        [
+            "Streaming Response Architecture (Server-Sent Events / SSE vs WebSockets for Token Streaming)",
+            "Time to First Token (TTFT) vs Inter-Token Latency (ITL) Optimization & Profiling",
+            "Prompt Caching Architectures (KV-Cache Reuse, Semantic Prompt Caching via Redis / GPTCache)",
+            "Model Routing & Cascade Architecture (Fast SLMs for Triage -> Heavy Frontier LLMs for Complex Reasoning)",
+            "Batching Strategies (Continuous / Dynamic Batching, vLLM / TGI Engines, PagedAttention)",
+            "Asynchronous Background Job Queues & Rate Limiting for High-Volume LLM Pipelines",
+            "Structured Output Enforcement (Outlines, Jsonformer, Instructor, Regex & Pydantic Constrained Decoding)",
+            "Speculative Decoding & Model Quantization (AWQ, GPTQ, INT8/INT4 Serving Trade-offs)",
+        ],
+    ),
+    (
+        "AI",
+        "AI Observability & Evaluation",
+        "Continuous Evaluation, LLM-as-Judge & Tracing",
+        [
+            "The RAG Triad Evaluation (Faithfulness, Answer Relevance, Context Precision using Ragas / TruLens)",
+            "LLM-as-a-Judge Design Patterns (G-Eval, Reference-Free vs Reference-Based Scoring, Position Bias Mitigation)",
+            "Distributed Tracing for LLM Calls (OpenTelemetry Spans, Phoenix, LangSmith, Arize)",
+            "Telemetry & Cost Tracking (Token Usage per Tenant / Model, Prompt vs Completion Cost Dashboards)",
+            "Continuous CI/CD Evaluation Gating & Regression Detection for AI Pipelines",
+            "Deterministic Fallback Cascades & Circuit Breakers on LLM Outages or Provider Rate Limits",
+            "Synthetic Dataset Generation for Domain-Specific Evaluation Suites",
+        ],
+    ),
+    (
+        "AI",
+        "AI Security, Safety & Guardrails",
+        "Jailbreak Defense, PII Masking & Sandboxed Tool Execution",
+        [
+            "Prompt Injection & Jailbreak Defenses (Direct vs Indirect Injection, Canary Tokens, Input Sanitizers)",
+            "Guardrail Architectures (NeMo Guardrails, Llama Guard, Content Safety Classifiers)",
+            "Data Leakage & PII Masking / Anonymization before LLM Transmission (Presidio, Tokenization)",
+            "Insecure Tool Calling & Sandboxed Execution (Docker, gVisor, WebAssembly, Ephemeral Python Containers)",
+            "Hallucination Detection, Fact-Checking Pipelines & Grounding Verifiers",
+            "EU AI Act & Compliance Constraints (Risk-Based Classification, Model Transparency, Audit Logs)",
+        ],
+    ),
+    (
+        "AI",
+        "Multimodal & Real-Time AI",
+        "Live Audio/Video Streaming Pipelines & Latency Budgets",
+        [
+            "Real-Time Multimodal Architecture (WebSockets / WebRTC Audio Streaming with Silence Detection)",
+            "Voice Activity Detection (VAD) & Low-Latency Streaming Speech-to-Text (Whisper Live)",
+            "Streaming Text-to-Speech (TTS) Chunking & Audio Buffer Management",
+            "End-to-End Voice Roundtrip Latency Budget Breakdown (<500ms Human Conversation Target)",
+            "Visual Document Processing & Visual Question Answering (VQA) Ingestion Pipelines",
+        ],
+    ),
 ]
 
 SYSTEM_DESIGN_CASES = [
@@ -779,6 +867,68 @@ SYSTEM_DESIGN_CASES = [
         "category": "Machine Coding & Object Design",
         "system_name": "Design Ride Booking Application (Uber LLD)",
         "key_components": "Driver Matching Strategy, Fare Estimation Strategy, Trip State Machine, Rating System, Payment Adapter",
+    },
+
+    # ── AI System Design (AI SD) Case Studies & Real-World Questions ──
+    {
+        "track": "AI",
+        "category": "Enterprise AI & RAG",
+        "system_name": "Design Enterprise Multi-Tenant RAG Platform with RBAC",
+        "key_components": "Document Ingestion Pipeline, Chunking Engine, pgvector / Milvus, Hybrid Search (BM25 + Dense Vectors via RRF), Cohere Reranker, Tenant-Isolated RBAC Filtering, Verifiable Citations",
+    },
+    {
+        "track": "AI",
+        "category": "Agentic Systems",
+        "system_name": "Design Autonomous Customer Support & Remediation Agent",
+        "key_components": "LangGraph Cyclic State Machine, MCP Tool Integrations, PostgreSQL Checkpointer, Sentiment Analyzer, Human-in-the-Loop Escalation Gateway, Distributed Rate Limiter",
+    },
+    {
+        "track": "AI",
+        "category": "Real-Time AI Streaming",
+        "system_name": "Design Real-Time Multimodal Voice & Audio Assistant",
+        "key_components": "WebSocket / WebRTC Audio Streaming, Silero VAD, Streaming STT (Whisper), Fast LLM Inference (vLLM / Groq), Streaming TTS, Latency Budget (<500ms End-to-End)",
+    },
+    {
+        "track": "AI",
+        "category": "AI Code & Developer Tools",
+        "system_name": "Design Code Generation & Sandboxed Autonomous Execution Engine",
+        "key_components": "AST Parser, Repository Graph Indexer, Pydantic Structured Output, Docker / gVisor Isolated Container Sandbox, Self-Correction Execution Loop, AST Lint Validator",
+    },
+    {
+        "track": "AI",
+        "category": "Enterprise AI & Data",
+        "system_name": "Design Text-to-SQL Enterprise Clarification & Execution Pipeline",
+        "key_components": "DB Schema Graph Extractor, Few-Shot RAG Selector, Ambiguity Detector & User Clarification Prompter, Read-Only SQL Sandbox, Self-Healing Query Corrector",
+    },
+    {
+        "track": "AI",
+        "category": "Search & AI Retrieval",
+        "system_name": "Design AI-Powered Semantic Search & Recommendation Engine",
+        "key_components": "HNSW Indexing, Approximate Nearest Neighbor (ANN), Reciprocal Rank Fusion (RRF), ColBERT Token-Level Reranking, Dynamic Redis Prompt Cache, Personalization Embeddings",
+    },
+    {
+        "track": "AI",
+        "category": "AI Infrastructure & Serving",
+        "system_name": "Design High-Throughput Distributed LLM Gateway & Smart Router",
+        "key_components": "Semantic Cache (Redis / GPTCache), Model Router (Fast SLM Triage -> Frontier LLM), Token Bucket Rate Limiting per Tenant, Fallback Circuit Breaker, Prometheus Metrics Exporter",
+    },
+    {
+        "track": "AI",
+        "category": "AI Safety & Observability",
+        "system_name": "Design Continuous AI Evaluation & Guardrail Safety Gateway",
+        "key_components": "Llama Guard Classifier, PII Anonymizer (Presidio), OpenTelemetry LLM Tracing, Ragas Faithfulness Evaluator, Automated Rollback Trigger, Canary Testing Pipeline",
+    },
+    {
+        "track": "AI",
+        "category": "Agentic Systems",
+        "system_name": "Design AI Agent Swarm for Automated Root Cause Analysis (SRE / Incident Remediation)",
+        "key_components": "Multi-Agent Supervisor-Worker Topology, Prometheus / OpenSearch Tool Ingestor, Runbook Execution Sandbox, Human Approval Step for Prod Actions, Incident Post-Mortem Generator",
+    },
+    {
+        "track": "AI",
+        "category": "Document & Visual AI",
+        "system_name": "Design High-Volume Document Processing & Visual Question Answering (VQA) Pipeline",
+        "key_components": "Docling / Unstructured OCR Parser, Table Structure Extractor, Multimodal Embedding Model (CLIP / ColPali), Vector Search Index, S3 Storage, Celery Async Worker Fleet",
     },
 ]
 

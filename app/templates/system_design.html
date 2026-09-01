@@ -13,30 +13,33 @@
 <div class="sd-hero-card">
   <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
     <div>
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-        <span class="badge" style="background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 11px; font-weight: 700;">
-          <i data-lucide="sparkles" class="icon-xs"></i> Dual-Track Architecture
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+        <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #C084FC; border: 1px solid rgba(192, 132, 252, 0.35); font-size: 11px; font-weight: 700;">
+          <i data-lucide="sparkles" class="icon-xs"></i> Tri-Track Architecture (HLD + LLD + AI SD)
         </span>
         <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.3); font-size: 11px; font-weight: 700;">
-          Senior & Lead Engineer Level
+          Senior & Lead Level
+        </span>
+        <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.35); font-size: 11px; font-weight: 700;">
+          <i data-lucide="trending-up" class="icon-xs"></i> Modern Shift: DSA Is Not Enough
         </span>
         <span class="badge" style="background: rgba(37, 99, 235, 0.25); color: #93C5FD; border: 1px solid rgba(147,197,253,0.35); font-size: 11px; font-weight: 700;">
-          🇪🇺 #1 EU Interview Signal
+          🇪🇺 #1 EU & Global Hiring Signal
         </span>
       </div>
       <h2 style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 6px;">
-        System Design: High Level (HLD) & Low Level (LLD)
+        System Design: High Level (HLD), Low Level (LLD) & AI System Design
       </h2>
-      <p style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 680px; line-height: 1.5;">
-        Master large-scale distributed architectures, scalability, and storage engines for <strong>HLD</strong> alongside object-oriented design, SOLID principles, design patterns, and machine coding for <strong>LLD</strong>. EU Must-Know: <strong style="color:#FCD34D;">Kafka, Kubernetes, GDPR-aware Design, PostgreSQL internals, Microservices</strong> &mdash; critical for Zalando, Booking.com, SAP & ASML.
+      <p style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 760px; line-height: 1.5;">
+        Modern senior & lead interviews are evolving beyond traditional LeetCode DSA grinding. Master <strong>HLD</strong> (distributed scaling, storage engines, Kafka), <strong>LLD</strong> (practical OOD, SOLID, concurrency & state ownership), and <strong style="color: #C084FC;">AI System Design</strong> (enterprise RAG, hybrid search, agentic LangGraph/MCP workflows, vLLM serving, guardrails, & evaluation).
       </p>
     </div>
 
     <!-- Quick Action Buttons -->
     <div class="flex gap-2" style="align-items: center; flex-wrap: wrap;">
       <button class="btn btn-secondary btn-sm" onclick="openFrameworksModal()" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #FFFFFF;">
-        <i data-lucide="book-marked" class="icon-xs"></i>
-        <span>Interview Frameworks</span>
+        <i data-lucide="compass" class="icon-xs"></i>
+        <span>Frameworks & Modern Priorities</span>
       </button>
       <button class="btn btn-secondary btn-sm" onclick="openAddCaseModal()" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #FFFFFF;">
         <i data-lucide="plus" class="icon-xs"></i>
@@ -69,6 +72,12 @@
       <span class="badge badge-lld" style="font-size: 10px; padding: 1px 6px;">{{ lld_subs_done + lld_cases_done }}/{{ lld_subs_total + lld_cases_total }}</span>
     </a>
 
+    <a href="/system-design?track=ai" class="sd-track-tab tab-ai {% if selected_track == 'ai' or selected_track == 'ai_sd' or selected_track == 'ai-sd' %}active{% endif %}">
+      <i data-lucide="cpu" class="icon-sm"></i>
+      <span>AI System Design (AI SD)</span>
+      <span class="badge badge-ai" style="font-size: 10px; padding: 1px 6px;">{{ ai_subs_done + ai_cases_done }}/{{ ai_subs_total + ai_cases_total }}</span>
+    </a>
+
     <a href="/system-design?track=cases" class="sd-track-tab {% if selected_track == 'cases' %}active{% endif %}">
       <i data-lucide="layers" class="icon-sm"></i>
       <span>Case Studies & Machine Coding</span>
@@ -82,7 +91,7 @@
   </div>
 </div>
 
-<!-- ══ Dual-Track Progress KPI Grid ══ -->
+<!-- ══ Tri-Track Progress KPI Grid ══ -->
 <div class="sd-stats-grid">
   <!-- HLD Stat Card -->
   <div class="sd-stat-card hld-card">
@@ -113,7 +122,7 @@
     <div class="flex justify-between items-start mb-2">
       <div>
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #D97706; display: flex; align-items: center; gap: 4px;">
-          <i data-lucide="binary" class="icon-xs"></i> Low Level Design (LLD / OOD)
+          <i data-lucide="binary" class="icon-xs"></i> Low Level Design (LLD)
         </div>
         <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
           {{ lld_pct }}%
@@ -132,34 +141,27 @@
     </div>
   </div>
 
-  <!-- Study Vectors (Read vs Practical) -->
-  <div class="sd-stat-card">
+  <!-- AI System Design Stat Card -->
+  <div class="sd-stat-card ai-card">
     <div class="flex justify-between items-start mb-2">
       <div>
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
-          <i data-lucide="check-check" class="icon-xs"></i> Study Vectors Completed
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #7C3AED; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="cpu" class="icon-xs"></i> AI System Design (AI SD)
         </div>
         <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
-          {{ reading_done_count + practical_done_count }}
+          {{ ai_pct }}%
         </div>
       </div>
-      <div class="badge badge-purple" style="padding: 3px 8px;">
-        Actions Completed
+      <div class="badge badge-ai" style="padding: 3px 8px;">
+        {{ ai_subs_done + ai_cases_done }} / {{ ai_subs_total + ai_cases_total }} Done
       </div>
     </div>
-    <div style="display: flex; gap: 8px; margin-top: 6px;">
-      <div style="flex: 1; background: var(--surface-alt); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-        <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
-          <i data-lucide="book-open" class="icon-xs" style="color: #10B981;"></i> Reading Done
-        </div>
-        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">{{ reading_done_count }}/{{ topics_total }}</div>
-      </div>
-      <div style="flex: 1; background: var(--surface-alt); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-        <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
-          <i data-lucide="code" class="icon-xs" style="color: #2563EB;"></i> Practical Code
-        </div>
-        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">{{ practical_done_count }}/{{ topics_total }}</div>
-      </div>
+    <div class="progress-bar" style="height: 6px; margin-bottom: 8px;">
+      <div class="progress-fill" style="width: {{ ai_pct }}%; background: linear-gradient(90deg, #7C3AED, #A855F7);"></div>
+    </div>
+    <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>{{ ai_subs_done }}/{{ ai_subs_total }} RAG & Agents</span>
+      <span>{{ ai_cases_done }}/{{ ai_cases_total }} AI Case Studies</span>
     </div>
   </div>
 
@@ -182,8 +184,8 @@
       <div class="progress-fill" style="width: {{ overall_pct }}%; background: linear-gradient(90deg, #059669, #10B981);"></div>
     </div>
     <div class="flex justify-between text-muted" style="font-size: 11px;">
+      <span>{{ reading_done_count }} read &middot; {{ practical_done_count }} code</span>
       <span>{{ topics_in_progress + cases_in_progress }} in progress</span>
-      <span>Target: 100% Prepared</span>
     </div>
   </div>
 </div>
@@ -242,6 +244,69 @@
   <!-- VIEW: Case Studies Dedicated Full Grid                               -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
 
+  <!-- AI System Design Case Studies Section -->
+  <div class="card mb-5">
+    <div class="card-header" style="background: linear-gradient(135deg, #F3E8FF, #EDE9FE); border-bottom: 1px solid #DDD6FE;">
+      <div class="flex items-center gap-2">
+        <span class="badge badge-ai">AI SD</span>
+        <span class="card-title" style="color: #6D28D9;">AI System Design — Real-World Enterprise & Agentic Case Studies</span>
+      </div>
+      <span class="badge badge-purple">{{ ai_cases_done }}/{{ ai_cases_total }} completed</span>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;">
+        {% for case in cases_ai %}
+          <div class="sd-case-card sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}">
+            <div>
+              <div class="sd-case-header">
+                <div class="flex items-center gap-2" style="min-width: 0; flex: 1;">
+                  <span class="badge badge-ai" style="font-size: 10px; padding: 2px 6px; flex-shrink: 0;">AI SD</span>
+                  <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                    {{ case.system_name }}
+                  </span>
+                </div>
+                <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status (Click to change)">
+                  {% if case.status == 'Done' %}<i data-lucide="check" style="stroke-width: 2.5px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus"></i>{% endif %}
+                </button>
+              </div>
+              {% if case.key_components %}
+                <div class="sd-comp-chips">
+                  {% for comp in case.key_components.split(',')[:4] %}
+                    <span class="sd-comp-chip" style="background: rgba(139, 92, 246, 0.08); border-color: rgba(139, 92, 246, 0.2); color: #7C3AED;">{{ comp.strip() }}</span>
+                  {% endfor %}
+                  {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip" style="font-weight: 600; color: var(--accent);">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 11px; padding: 2px 8px;">{{ case.status }}</span>
+              <div class="sd-case-actions">
+                {% if case.notes %}
+                  <button type="button" class="sd-case-action-btn btn-notes view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Blueprint & Notes">
+                    <i data-lucide="eye"></i>
+                  </button>
+                {% endif %}
+                {% if case.diagram_url %}
+                  <a href="{{ case.diagram_url }}" target="_blank" rel="noopener noreferrer" class="sd-case-action-btn btn-link" title="Open Diagram / Reference URL">
+                    <i data-lucide="external-link"></i>
+                  </a>
+                {% endif %}
+                <button type="button" class="sd-case-action-btn btn-edit edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}" title="Edit Case Study">
+                  <i data-lucide="pencil"></i>
+                </button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete this case study?')">
+                  <button type="submit" class="sd-case-action-btn btn-delete" title="Delete Case Study">
+                    <i data-lucide="trash-2"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
   <!-- HLD Distributed Systems Section -->
   <div class="card mb-5">
     <div class="card-header" style="background: linear-gradient(135deg, #F0F9FF, #E0F2FE); border-bottom: 1px solid #BAE6FD;">
@@ -252,32 +317,51 @@
       <span class="badge badge-blue">{{ hld_cases_done }}/{{ hld_cases_total }} completed</span>
     </div>
     <div class="card-body">
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;">
         {% for case in cases_hld %}
           <div class="sd-case-card sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}">
-            <div class="sd-case-header">
-              <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
-                {{ case.system_name }}
-              </span>
-              <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status">
-                {% if case.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
-              </button>
-            </div>
-            {% if case.key_components %}
-              <div class="sd-comp-chips" style="margin-top: 6px;">
-                {% for comp in case.key_components.split(',')[:4] %}
-                  <span class="sd-comp-chip">{{ comp.strip() }}</span>
-                {% endfor %}
-                {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+            <div>
+              <div class="sd-case-header">
+                <div class="flex items-center gap-2" style="min-width: 0; flex: 1;">
+                  <span class="badge badge-hld" style="font-size: 10px; padding: 2px 6px; flex-shrink: 0;">HLD</span>
+                  <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                    {{ case.system_name }}
+                  </span>
+                </div>
+                <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status (Click to change)">
+                  {% if case.status == 'Done' %}<i data-lucide="check" style="stroke-width: 2.5px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus"></i>{% endif %}
+                </button>
               </div>
-            {% endif %}
+              {% if case.key_components %}
+                <div class="sd-comp-chips">
+                  {% for comp in case.key_components.split(',')[:4] %}
+                    <span class="sd-comp-chip">{{ comp.strip() }}</span>
+                  {% endfor %}
+                  {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip" style="font-weight: 600; color: var(--accent);">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+                </div>
+              {% endif %}
+            </div>
             <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
-              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px;">{{ case.status }}</span>
-              <div class="flex items-center gap-1">
-                {% if case.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
-                {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="badge badge-purple" style="text-decoration: none; font-size: 10px;"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
-                <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
-                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 11px; padding: 2px 8px;">{{ case.status }}</span>
+              <div class="sd-case-actions">
+                {% if case.notes %}
+                  <button type="button" class="sd-case-action-btn btn-notes view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Blueprint & Notes">
+                    <i data-lucide="eye"></i>
+                  </button>
+                {% endif %}
+                {% if case.diagram_url %}
+                  <a href="{{ case.diagram_url }}" target="_blank" rel="noopener noreferrer" class="sd-case-action-btn btn-link" title="Open Diagram / Reference URL">
+                    <i data-lucide="external-link"></i>
+                  </a>
+                {% endif %}
+                <button type="button" class="sd-case-action-btn btn-edit edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}" title="Edit Case Study">
+                  <i data-lucide="pencil"></i>
+                </button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete this case study?')">
+                  <button type="submit" class="sd-case-action-btn btn-delete" title="Delete Case Study">
+                    <i data-lucide="trash-2"></i>
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -296,32 +380,51 @@
       <span class="badge badge-amber">{{ lld_cases_done }}/{{ lld_cases_total }} completed</span>
     </div>
     <div class="card-body">
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;">
         {% for case in cases_lld %}
           <div class="sd-case-card sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}">
-            <div class="sd-case-header">
-              <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
-                {{ case.system_name }}
-              </span>
-              <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status">
-                {% if case.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
-              </button>
-            </div>
-            {% if case.key_components %}
-              <div class="sd-comp-chips" style="margin-top: 6px;">
-                {% for comp in case.key_components.split(',')[:4] %}
-                  <span class="sd-comp-chip">{{ comp.strip() }}</span>
-                {% endfor %}
-                {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+            <div>
+              <div class="sd-case-header">
+                <div class="flex items-center gap-2" style="min-width: 0; flex: 1;">
+                  <span class="badge badge-lld" style="font-size: 10px; padding: 2px 6px; flex-shrink: 0;">LLD</span>
+                  <span class="sd-case-title" style="{% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                    {{ case.system_name }}
+                  </span>
+                </div>
+                <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status (Click to change)">
+                  {% if case.status == 'Done' %}<i data-lucide="check" style="stroke-width: 2.5px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus"></i>{% endif %}
+                </button>
               </div>
-            {% endif %}
+              {% if case.key_components %}
+                <div class="sd-comp-chips">
+                  {% for comp in case.key_components.split(',')[:4] %}
+                    <span class="sd-comp-chip">{{ comp.strip() }}</span>
+                  {% endfor %}
+                  {% if case.key_components.split(',') | length > 4 %}<span class="sd-comp-chip" style="font-weight: 600; color: var(--accent);">+{{ case.key_components.split(',') | length - 4 }}</span>{% endif %}
+                </div>
+              {% endif %}
+            </div>
             <div class="flex justify-between items-center mt-auto pt-2" style="border-top: 1px solid var(--border-light); margin-top: 10px;">
-              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px;">{{ case.status }}</span>
-              <div class="flex items-center gap-1">
-                {% if case.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
-                {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="badge badge-purple" style="text-decoration: none; font-size: 10px;"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
-                <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" class="icon-xs"></i></button>
-                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 11px; padding: 2px 8px;">{{ case.status }}</span>
+              <div class="sd-case-actions">
+                {% if case.notes %}
+                  <button type="button" class="sd-case-action-btn btn-notes view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Blueprint & Notes">
+                    <i data-lucide="eye"></i>
+                  </button>
+                {% endif %}
+                {% if case.diagram_url %}
+                  <a href="{{ case.diagram_url }}" target="_blank" rel="noopener noreferrer" class="sd-case-action-btn btn-link" title="Open Diagram / Reference URL">
+                    <i data-lucide="external-link"></i>
+                  </a>
+                {% endif %}
+                <button type="button" class="sd-case-action-btn btn-edit edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}" title="Edit Case Study">
+                  <i data-lucide="pencil"></i>
+                </button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete this case study?')">
+                  <button type="submit" class="sd-case-action-btn btn-delete" title="Delete Case Study">
+                    <i data-lucide="trash-2"></i>
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -334,6 +437,88 @@
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   <!-- VIEW: Full-width Concept Cards Grid + Inline Case Studies            -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  {% if selected_track == 'all' or selected_track == 'ai' or selected_track == 'ai_sd' or selected_track == 'ai-sd' %}
+    <!-- AI System Design Track Section Header -->
+    <div class="flex justify-between items-center mb-4" style="border-bottom: 2px solid #8B5CF6; padding-bottom: 10px;">
+      <div class="flex items-center gap-3">
+        <span class="badge badge-ai" style="font-size: 12px; padding: 4px 10px;">AI SD Track</span>
+        <h3 style="font-size: 17px; font-weight: 800; color: var(--text-primary); margin: 0;">AI System Design & LLM Architectures</h3>
+      </div>
+      <span class="badge badge-purple" style="font-size: 12px;">{{ ai_subs_done }}/{{ ai_subs_total }} done</span>
+    </div>
+
+    <!-- AI Concept Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      {% for cat, cat_concepts in by_category_ai.items() %}
+        {% set total_subs = namespace(value=0) %}
+        {% set done_subs = namespace(value=0) %}
+        {% for concept in cat_concepts %}
+          {% set total_subs.value = total_subs.value + concept.sub_concepts | length %}
+          {% set done_subs.value = done_subs.value + concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
+        {% endfor %}
+
+        <div class="card sd-category-card" style="overflow: hidden;">
+          <div class="card-header flex justify-between items-center" style="background: linear-gradient(135deg, rgba(139,92,246,0.08), var(--surface-alt)); cursor: pointer; border-left: 3px solid #8B5CF6;" onclick="toggleCategoryAccordion(this)">
+            <div class="flex items-center gap-2">
+              <i data-lucide="chevron-down" class="icon-sm category-accordion-icon" style="transition: transform 0.2s; color: #7C3AED;"></i>
+              <span class="card-title" style="font-size: 13px; font-weight: 700;">{{ cat }}</span>
+            </div>
+            <span class="badge {% if done_subs.value == total_subs.value and total_subs.value > 0 %}badge-green{% else %}badge-purple{% endif %}">{{ done_subs.value }}/{{ total_subs.value }}</span>
+          </div>
+
+          <div class="category-accordion-content">
+            {% for concept in cat_concepts %}
+              <div class="sd-concept-inner" data-name="{{ concept.concept_name | lower }}" style="{% if not loop.last %}border-bottom: 1px solid var(--border-light);{% endif %}">
+                <!-- Concept Header -->
+                <div class="sd-concept-header" style="padding: 10px 14px; background: rgba(139,92,246,0.03);">
+                  <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                    <span class="badge badge-ai" style="font-size: 9px; padding: 1px 5px; flex-shrink: 0;">AI SD</span>
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">{{ concept.concept_name }}</span>
+                    {% set concept_total = concept.sub_concepts | length %}
+                    {% set concept_done = concept.sub_concepts | selectattr('status', 'eq', 'Done') | list | length %}
+                    <span class="badge {% if concept_done == concept_total and concept_total > 0 %}badge-green{% else %}badge-purple{% endif %}" style="font-size: 9px; flex-shrink: 0;">{{ concept_done }}/{{ concept_total }}</span>
+                  </div>
+                  <div class="flex items-center gap-1" style="flex-shrink: 0;">
+                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddSubModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\'") }}')" title="Add"><i data-lucide="plus" class="icon-xs"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditConceptModal({{ concept.id }}, '{{ concept.concept_name | replace("'", "\'") }}', '{{ concept.track }}', '{{ concept.category | replace("'", "\'") }}', `{{ concept.sources | replace('\`','') }}`)" title="Edit"><i data-lucide="pencil" class="icon-xs"></i></button>
+                    <form method="post" action="/system-design/concept/delete/{{ concept.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                  </div>
+                </div>
+
+                {% if concept.sources %}
+                  <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 14px; background: rgba(0,0,0,0.015); border-bottom: 1px solid var(--border-light);">
+                    <span style="font-size: 10px; color: var(--text-muted);">Sources:</span>
+                    {% for src in concept.sources.split('\n') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-purple" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
+                  </div>
+                {% endif %}
+
+                <!-- Subconcepts -->
+                {% for sub in concept.sub_concepts %}
+                  <div class="sd-subconcept-row {% if sub.status == 'Done' %}done-row{% endif %}" data-status="{{ sub.status | lower | replace(' ', '-') }}">
+                    <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                      <button type="button" class="sd-status-cycle-btn {% if sub.status == 'Done' %}done{% elif sub.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateSub({{ sub.id }}, '{{ sub.status }}')" style="flex-shrink: 0;">
+                        {% if sub.status == 'Done' %}<i data-lucide="check" class="icon-xs" style="stroke-width: 3px;"></i>{% elif sub.status == 'In Progress' %}<i data-lucide="minus" class="icon-xs"></i>{% endif %}
+                      </button>
+                      <span style="font-size: 12px; color: var(--text-primary); {% if sub.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ sub.subconcept_name }}</span>
+                    </div>
+                    <div class="flex items-center gap-1" style="flex-shrink: 0;">
+                      {% if sub.reading_done %}<span class="badge badge-green" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="book-open" class="icon-xs"></i></span>{% endif %}
+                      {% if sub.practical_done %}<span class="badge badge-blue" style="font-size: 9px; padding: 1px 4px;"><i data-lucide="code" class="icon-xs"></i></span>{% endif %}
+                      {% if sub.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-sub-notes-btn" data-name="{{ sub.subconcept_name | escape }}" data-notes="{{ sub.notes | escape }}" data-resource="{{ sub.resources | escape }}" title="View Notes" style="color: var(--accent);"><i data-lucide="eye" class="icon-xs"></i></button>{% endif %}
+                      {% if sub.resources %}<a href="{{ sub.resources }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" title="Resource"><i data-lucide="external-link" class="icon-xs"></i></a>{% endif %}
+                      <button class="btn btn-ghost btn-sm btn-icon edit-sub-btn" data-id="{{ sub.id }}" data-name="{{ sub.subconcept_name | escape }}" data-status="{{ sub.status }}" data-reading="{{ sub.reading_done | lower }}" data-practical="{{ sub.practical_done | lower }}" data-notes="{{ sub.notes | escape }}" data-resources="{{ sub.resources | escape }}" data-sources="{{ sub.sources | escape }}" title="Edit"><i data-lucide="pencil" class="icon-xs"></i></button>
+                      <form method="post" action="/system-design/subconcept/delete/{{ sub.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" title="Delete"><i data-lucide="trash-2" class="icon-xs"></i></button></form>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   {% if selected_track == 'all' or selected_track == 'hld' %}
     <!-- HLD Track Section Header -->
@@ -386,8 +571,7 @@
                 {% if concept.sources %}
                   <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 14px; background: rgba(0,0,0,0.015); border-bottom: 1px solid var(--border-light);">
                     <span style="font-size: 10px; color: var(--text-muted);">Sources:</span>
-                    {% for src in concept.sources.split('
-') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-blue" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
+                    {% for src in concept.sources.split('\n') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-blue" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
                   </div>
                 {% endif %}
 
@@ -469,8 +653,7 @@
                 {% if concept.sources %}
                   <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 14px; background: rgba(0,0,0,0.015); border-bottom: 1px solid var(--border-light);">
                     <span style="font-size: 10px; color: var(--text-muted);">Sources:</span>
-                    {% for src in concept.sources.split('
-') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-purple" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
+                    {% for src in concept.sources.split('\n') %}{% set src = src.strip() %}{% if src %}{% if src.startswith('http') %}<a href="{{ src }}" target="_blank" class="badge badge-purple" style="font-size: 9px; text-decoration: none;"><i data-lucide="link" class="icon-xs"></i> {{ src[:22] }}…</a>{% else %}<span class="badge badge-gray" style="font-size: 9px;">{{ src }}</span>{% endif %}{% endif %}{% endfor %}
                   </div>
                 {% endif %}
 
@@ -513,6 +696,7 @@
       <div class="flex items-center gap-2" onclick="event.stopPropagation()">
         <div class="flex gap-1" style="background: var(--surface-alt); padding: 3px; border-radius: var(--radius-sm);">
           <button type="button" class="btn btn-sm case-filter-btn active" onclick="filterCasesByTrack('all', this)" style="font-size: 11px; padding: 2px 8px;">All ({{ cases | length }})</button>
+          <button type="button" class="btn btn-sm case-filter-btn" onclick="filterCasesByTrack('AI', this)" style="font-size: 11px; padding: 2px 8px;">AI SD ({{ cases_ai | length }})</button>
           <button type="button" class="btn btn-sm case-filter-btn" onclick="filterCasesByTrack('HLD', this)" style="font-size: 11px; padding: 2px 8px;">HLD ({{ cases_hld | length }})</button>
           <button type="button" class="btn btn-sm case-filter-btn" onclick="filterCasesByTrack('LLD', this)" style="font-size: 11px; padding: 2px 8px;">LLD ({{ cases_lld | length }})</button>
         </div>
@@ -523,34 +707,50 @@
     </div>
 
     <div id="inlineCasesContent" class="card-body" style="padding: 16px;">
-      <div class="cases-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
+      <div class="cases-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
         {% for case in cases %}
-          <div class="sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}"
-               style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; transition: all 0.15s;">
-            <div class="flex justify-between items-start gap-2 mb-1">
-              <div class="flex items-center gap-1" style="min-width: 0; flex: 1;">
-                <span class="badge {% if case.track == 'LLD' %}badge-lld{% else %}badge-hld{% endif %}" style="font-size: 9px; padding: 1px 4px; flex-shrink: 0;">{{ case.track }}</span>
-                <span style="font-size: 12px; font-weight: 700; color: var(--text-primary); {% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ case.system_name }}</span>
+          <div class="sd-case-card sd-case-list-item" data-track="{{ case.track }}" data-status="{{ case.status | lower | replace(' ', '-') }}"
+               style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; transition: all 0.2s ease; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="flex justify-between items-start gap-2 mb-2">
+                <div class="flex items-center gap-1.5" style="min-width: 0; flex: 1;">
+                  <span class="badge {% if case.track == 'AI' %}badge-ai{% elif case.track == 'LLD' %}badge-lld{% else %}badge-hld{% endif %}" style="font-size: 10px; padding: 2px 6px; flex-shrink: 0;">{{ case.track }}</span>
+                  <span style="font-size: 13px; font-weight: 700; color: var(--text-primary); {% if case.status == 'Done' %}text-decoration: line-through; color: var(--text-muted);{% endif %}; line-height: 1.35;">{{ case.system_name }}</span>
+                </div>
+                <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status (Click to change)">
+                  {% if case.status == 'Done' %}<i data-lucide="check" style="stroke-width: 2.5px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus"></i>{% endif %}
+                </button>
               </div>
-              <button type="button" class="sd-status-cycle-btn {% if case.status == 'Done' %}done{% elif case.status == 'In Progress' %}in-progress{% endif %}" onclick="quickUpdateCase({{ case.id }}, '{{ case.status }}')" title="Cycle status" style="flex-shrink: 0; width: 20px; height: 20px;">
-                {% if case.status == 'Done' %}<i data-lucide="check" style="width: 10px; height: 10px; stroke-width: 3px;"></i>{% elif case.status == 'In Progress' %}<i data-lucide="minus" style="width: 10px; height: 10px;"></i>{% endif %}
-              </button>
+              {% if case.key_components %}
+                <div class="sd-comp-chips" style="margin: 4px 0 8px 0;">
+                  {% for comp in case.key_components.split(',')[:3] %}
+                    <span class="sd-comp-chip">{{ comp.strip() }}</span>
+                  {% endfor %}
+                  {% if case.key_components.split(',') | length > 3 %}<span class="sd-comp-chip" style="font-weight: 600; color: var(--accent);">+{{ case.key_components.split(',') | length - 3 }}</span>{% endif %}
+                </div>
+              {% endif %}
             </div>
-            {% if case.key_components %}
-              <div style="display: flex; flex-wrap: wrap; gap: 3px; margin: 4px 0;">
-                {% for comp in case.key_components.split(',')[:2] %}
-                  <span style="font-size: 10px; background: var(--surface-alt); color: var(--text-secondary); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border-light);">{{ comp.strip() }}</span>
-                {% endfor %}
-                {% if case.key_components.split(',') | length > 2 %}<span style="font-size: 10px; color: var(--text-muted);">+{{ case.key_components.split(',') | length - 2 }}</span>{% endif %}
-              </div>
-            {% endif %}
-            <div class="flex justify-between items-center" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-light);">
-              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 9px;">{{ case.status }}</span>
-              <div class="flex items-center gap-1">
-                {% if case.notes %}<button type="button" class="btn btn-ghost btn-sm btn-icon view-case-notes-btn" style="width: 18px; height: 18px; color: var(--accent);" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Notes"><i data-lucide="eye" style="width: 10px; height: 10px;"></i></button>{% endif %}
-                {% if case.diagram_url %}<a href="{{ case.diagram_url }}" target="_blank" class="btn btn-ghost btn-sm btn-icon" style="width: 18px; height: 18px;"><i data-lucide="external-link" style="width: 10px; height: 10px;"></i></a>{% endif %}
-                <button class="btn btn-ghost btn-sm btn-icon edit-case-btn" style="width: 18px; height: 18px;" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}"><i data-lucide="pencil" style="width: 10px; height: 10px;"></i></button>
-                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete?')"><button type="submit" class="btn btn-ghost btn-sm btn-icon text-danger" style="width: 18px; height: 18px;"><i data-lucide="trash-2" style="width: 10px; height: 10px;"></i></button></form>
+            <div class="flex justify-between items-center mt-2 pt-2" style="border-top: 1px solid var(--border-light);">
+              <span class="badge {% if case.status == 'Done' %}badge-green{% elif case.status == 'In Progress' %}badge-blue{% else %}badge-gray{% endif %}" style="font-size: 10px; padding: 2px 7px;">{{ case.status }}</span>
+              <div class="sd-case-actions">
+                {% if case.notes %}
+                  <button type="button" class="sd-case-action-btn btn-notes view-case-notes-btn" data-name="{{ case.system_name | escape }}" data-notes="{{ case.notes | escape }}" data-resource="{{ case.diagram_url | escape }}" title="View Blueprint & Notes">
+                    <i data-lucide="eye"></i>
+                  </button>
+                {% endif %}
+                {% if case.diagram_url %}
+                  <a href="{{ case.diagram_url }}" target="_blank" rel="noopener noreferrer" class="sd-case-action-btn btn-link" title="Open Diagram / Reference URL">
+                    <i data-lucide="external-link"></i>
+                  </a>
+                {% endif %}
+                <button type="button" class="sd-case-action-btn btn-edit edit-case-btn" data-id="{{ case.id }}" data-name="{{ case.system_name | escape }}" data-track="{{ case.track }}" data-category="{{ case.category | escape }}" data-status="{{ case.status }}" data-components="{{ case.key_components | escape }}" data-diagram="{{ case.diagram_url | escape }}" data-notes="{{ case.notes | escape }}" title="Edit Case Study">
+                  <i data-lucide="pencil"></i>
+                </button>
+                <form method="post" action="/system-design/case/delete/{{ case.id }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete this case study?')">
+                  <button type="submit" class="sd-case-action-btn btn-delete" title="Delete Case Study">
+                    <i data-lucide="trash-2"></i>
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -566,16 +766,18 @@
         <div class="flex items-center gap-3">
           <i data-lucide="compass" class="icon-md" style="color: #A855F7; flex-shrink: 0;"></i>
           <div>
-            <div style="font-size: 12px; font-weight: 700; color: #FFFFFF; margin-bottom: 3px;">45-Min Interview Cheat Sheet</div>
+            <div style="font-size: 12px; font-weight: 700; color: #FFFFFF; margin-bottom: 3px;">Modern 45-Min Interview Cheat Sheet (DSA Is Not Enough)</div>
             <div style="font-size: 11px; color: #94A3B8; line-height: 1.5;">
-              <span style="color: #38BDF8; font-weight: 600;">HLD:</span> Requirements &rarr; Sizing &rarr; API/Schema &rarr; Architecture &rarr; Deep Dives
+              <span style="color: #38BDF8; font-weight: 600;">HLD:</span> Reqs &rarr; Sizing &rarr; API & Schema &rarr; Architecture &rarr; Deep Dives
               &nbsp; | &nbsp;
-              <span style="color: #FBBF24; font-weight: 600;">LLD:</span> Use Cases &rarr; Entities &rarr; Patterns &rarr; Concurrency &rarr; Clean Code
+              <span style="color: #FBBF24; font-weight: 600;">LLD:</span> Entities &rarr; Patterns &rarr; Concurrency &rarr; Clean Code
+              &nbsp; | &nbsp;
+              <span style="color: #C084FC; font-weight: 600;">AI SD:</span> SLAs & Latency &rarr; Chunking & Vectors &rarr; Agent & Routing &rarr; Serving & Caching &rarr; Guardrails & Eval
             </div>
           </div>
         </div>
         <button onclick="openFrameworksModal()" class="btn btn-sm" style="background: #7C3AED; color: #FFFFFF; border: none; white-space: nowrap; flex-shrink: 0;">
-          <i data-lucide="book-open" class="icon-xs"></i> Open Full Guide
+          <i data-lucide="book-open" class="icon-xs"></i> Open Frameworks & Modern Priorities
         </button>
       </div>
     </div>
@@ -601,17 +803,18 @@
         <div class="form-group">
           <label class="form-label">Track</label>
           <select name="track" id="cTrackSelect" class="form-select">
+            <option value="AI">🤖 AI System Design (AI SD)</option>
             <option value="HLD">🏛️ High Level Design (HLD)</option>
             <option value="LLD">⚙️ Low Level Design (LLD / OOD)</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Concept Name</label>
-          <input type="text" name="concept_name" id="cNameInput" class="form-input" required placeholder="e.g. Caching Strategies & CDNs or Behavioral Design Patterns">
+          <input type="text" name="concept_name" id="cNameInput" class="form-input" required placeholder="e.g. Caching Strategies & CDNs or Enterprise RAG Pipelines">
         </div>
         <div class="form-group">
           <label class="form-label">Category</label>
-          <input type="text" name="category" id="cCategoryInput" class="form-input" required placeholder="e.g. Traffic Management & Caching or Design Patterns (GoF)">
+          <input type="text" name="category" id="cCategoryInput" class="form-input" required placeholder="e.g. RAG & Vector Architecture or Traffic Management & Caching">
         </div>
         <div class="form-group">
           <label class="form-label">Learning Sources (one URL/text per line)</label>
@@ -640,7 +843,7 @@
         <input type="hidden" name="concept_id" id="addSubConceptId">
         <div class="form-group">
           <label class="form-label">Sub-concept Name</label>
-          <input type="text" name="subconcept_name" id="subNameInput" class="form-input" required placeholder="e.g. Strategy Pattern or Consistent Hashing">
+          <input type="text" name="subconcept_name" id="subNameInput" class="form-input" required placeholder="e.g. Strategy Pattern, Hybrid Search, or Consistent Hashing">
         </div>
         <div class="flex gap-3 justify-between" style="margin-top: 20px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('addSubModal')">Cancel</button>
@@ -721,6 +924,7 @@
           <div class="form-group">
             <label class="form-label">Track</label>
             <select name="track" id="caseTrackInput" class="form-select">
+              <option value="AI">🤖 AI System Design (AI SD)</option>
               <option value="HLD">🏛️ High Level Design (HLD)</option>
               <option value="LLD">⚙️ Low Level Design (LLD / Machine Coding)</option>
             </select>
@@ -734,15 +938,15 @@
         </div>
         <div class="form-group">
           <label class="form-label">System / Problem Name</label>
-          <input type="text" name="system_name" id="caseNameInput" class="form-input" required placeholder="e.g. Design Parking Lot System or Design TinyURL">
+          <input type="text" name="system_name" id="caseNameInput" class="form-input" required placeholder="e.g. Design Enterprise Multi-Tenant RAG Platform or Design Parking Lot System">
         </div>
         <div class="form-group">
           <label class="form-label">Category</label>
-          <input type="text" name="category" id="caseCatInput" class="form-input" placeholder="e.g. Distributed Systems or Machine Coding">
+          <input type="text" name="category" id="caseCatInput" class="form-input" placeholder="e.g. Enterprise AI & RAG or Distributed Systems">
         </div>
         <div class="form-group">
           <label class="form-label">Key Architectural Components / Design Patterns</label>
-          <textarea name="key_components" class="form-textarea auto-resize-code" id="cKeyComponents" placeholder="e.g. Strategy Pattern, Vehicle Factory, Multi-level Spot Allocation, Redis Cache, Kafka Queue..."></textarea>
+          <textarea name="key_components" class="form-textarea auto-resize-code" id="cKeyComponents" placeholder="e.g. pgvector, Hybrid Search (BM25+Dense), Cohere Rerank, RBAC, Redis Cache, Kafka Queue..."></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">Architecture / Class Diagram URL</label>
@@ -766,11 +970,11 @@
 
 <!-- 5. Interview Frameworks & Cheat Sheets Modal Drawer -->
 <div class="modal-overlay" id="frameworksModal">
-  <div class="modal" style="max-width: 960px; width: 95%; max-height: 90vh; overflow-y: auto;">
-    <div class="modal-header" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFFFFF; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+  <div class="modal" style="max-width: 980px; width: 95%; max-height: 90vh; overflow-y: auto;">
+    <div class="modal-header" style="background: linear-gradient(135deg, #0F172A, #1E1B4B); color: #FFFFFF; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
       <div class="flex items-center gap-2">
-        <i data-lucide="compass" class="icon-md" style="color: #38BDF8;"></i>
-        <span class="modal-title" style="color: #FFFFFF;">System Design Interview Frameworks & Cheat Sheets</span>
+        <i data-lucide="compass" class="icon-md" style="color: #C084FC;"></i>
+        <span class="modal-title" style="color: #FFFFFF;">System Design & Modern Interview Frameworks</span>
       </div>
       <button class="modal-close" onclick="closeModal('frameworksModal')" style="color: #94A3B8;">
         <i data-lucide="x" class="icon-sm"></i>
@@ -779,15 +983,159 @@
     <div class="modal-body" style="padding: 24px;">
       
       <!-- Tabs for Frameworks -->
-      <div class="flex gap-2 mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-        <button class="btn btn-sm btn-primary fw-tab-btn" onclick="showFrameworkTab('hld-fw', this)">🏛️ 45-Min HLD Framework</button>
+      <div class="flex gap-2 mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 10px; overflow-x: auto; flex-wrap: wrap;">
+        <button class="btn btn-sm btn-primary fw-tab-btn" onclick="showFrameworkTab('modern-shift-fw', this)">🎯 Modern Shift (DSA Is Not Enough)</button>
+        <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('ai-fw', this)">🤖 45-Min AI System Design</button>
+        <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('hld-fw', this)">🏛️ 45-Min HLD Framework</button>
         <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('lld-fw', this)">⚙️ 45-Min LLD / Machine Coding</button>
         <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('patterns-fw', this)">🧩 GoF Patterns Matrix</button>
         <button class="btn btn-sm btn-secondary fw-tab-btn" onclick="showFrameworkTab('latency-fw', this)">⚡ Latency & Math Numbers</button>
       </div>
 
-      <!-- Tab 1: HLD Framework -->
-      <div id="hld-fw" class="fw-tab-content">
+      <!-- Tab 0: Modern Shift (DSA Is Not Enough - Tab 47 Insights) -->
+      <div id="modern-shift-fw" class="fw-tab-content">
+        <div class="framework-card" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(15, 23, 42, 0.03)); border: 1px solid rgba(124, 58, 237, 0.25);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <h4 style="font-size: 16px; font-weight: 800; color: #7C3AED; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="sparkles" class="icon-sm"></i> Modern Interview Evolution: Why DSA Is No Longer Enough
+            </h4>
+            <span class="badge" style="background: #7C3AED; color: #FFFFFF; font-size: 11px;">2026/2027 Paradigm Shift</span>
+          </div>
+
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Engineering interviews have fundamentally transformed. While traditional interviews over-indexed on solving obscure LeetCode algorithm puzzles under time pressure, modern companies now test a candidate's ability to <strong>architect, ship, debug, deploy, and secure production-grade systems in the AI era</strong>.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="font-size: 13px; font-weight: 700; color: #7C3AED; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="cpu" class="icon-xs"></i> 1. AI System Design as a Core Round
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Companies now expect you to design <strong>RAG architectures, agent orchestration loops (LangGraph/MCP), hybrid search, vector indexing (HNSW), prompt caching, and cost/latency budgets</strong>. AI is no longer a gimmick—it is foundational infrastructure.
+              </p>
+            </div>
+
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="font-size: 13px; font-weight: 700; color: #D97706; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="binary" class="icon-xs"></i> 2. Practical Low Level Design (LLD / OOD)
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Moving away from academic trivia ("what is encapsulation?") to <strong>real machine coding</strong>: modeling state machines, thread synchronization (locks/atomics), Strategy/Observer patterns, and clean code principles.
+              </p>
+            </div>
+
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="font-size: 13px; font-weight: 700; color: #0284C7; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="shield-check" class="icon-xs"></i> 3. AI Security & Guardrails
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Interviewers want to see how you defend AI systems against <strong>prompt injection, PII data leakage, hallucination risks, unconstrained tool execution</strong>, and ensure regulatory compliance (EU AI Act, GDPR).
+              </p>
+            </div>
+
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="font-size: 13px; font-weight: 700; color: #059669; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="file-code-2" class="icon-xs"></i> 4. Coding Without IDE / Copilot Crutches
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                To test fundamental mastery, live rounds increasingly use plain text/monaco editors without AI autocomplete. Fluency with core data structures, language idioms, and standard library methods is a top differentiator.
+              </p>
+            </div>
+
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="font-size: 13px; font-weight: 700; color: #DC2626; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="folder-git-2" class="icon-xs"></i> 5. Engineering Depth in Portfolio Projects
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Generic "To-Do" or toy wrapper apps get instantly screened out. Senior candidates must show deep end-to-end craft: <strong>Dockerization, schema migrations, telemetry (p95 latency), continuous evaluation, and error handling</strong>.
+              </p>
+            </div>
+
+            <div style="background: var(--surface-alt); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="font-size: 13px; font-weight: 700; color: #4F46E5; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="check-circle" class="icon-xs"></i> 6. Take-Home & Real-World Assignments
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Companies evaluate how you structure real repositories over multiple hours: clean commit history, defensive typing, unit/integration test coverage, and trade-off documentation in the README.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 1: AI System Design Framework -->
+      <div id="ai-fw" class="fw-tab-content" style="display: none;">
+        <div class="framework-card" style="border: 1px solid rgba(139, 92, 246, 0.3);">
+          <h4 style="font-size: 15px; font-weight: 800; color: #7C3AED; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="cpu" class="icon-sm"></i> 45-Minute AI System Design Interview Blueprint
+          </h4>
+          
+          <div class="flex flex-col gap-3">
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #7C3AED;">1</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">AI Problem Framing, SLAs & Latency Budgets (05 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • Clarify functional use case: Conversational Q&A, Agentic Tool Calling, Code Synthesis, or Multimodal?<br>
+                  • Define Non-Functional Requirements: TTFT (Time to First Token &lt; 400ms), E2E latency (&lt;2s), Token cost budget ($/1M queries), and Accuracy/Faithfulness threshold (>95%).
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #7C3AED;">2</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Data Ingestion, Chunking & Hybrid Retrieval (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • <strong>Chunking:</strong> Semantic / Recursive chunking with 15% sliding overlap & metadata enrichment.<br>
+                  • <strong>Vector & Hybrid Search:</strong> Combine Dense Vector (HNSW / pgvector / Milvus) + Sparse BM25 via Reciprocal Rank Fusion (RRF).<br>
+                  • <strong>Reranking & RBAC:</strong> Cross-Encoder / Cohere Rerank for Top-K precision + multi-tenant metadata filtering.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #7C3AED;">3</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Agent Orchestration, Routing & Tool Integration (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • <strong>State Machine:</strong> LangGraph Cyclic StateGraph with short/long-term memory & SQLite/Postgres checkpointer.<br>
+                  • <strong>Tool Execution:</strong> Model Context Protocol (MCP) tool discovery + sandboxed ephemeral execution container.<br>
+                  • <strong>Model Routing:</strong> Small fast SLM (Llama 3 8B) for classification & triage &rarr; Frontier model (Claude 3.5 Sonnet / GPT-4o) for complex reasoning.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #7C3AED;">4</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Production Serving, Prompt Caching & Streaming (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • <strong>Inference Engine:</strong> vLLM with PagedAttention and continuous dynamic batching.<br>
+                  • <strong>Prompt Caching:</strong> Exact KV-cache reuse + Redis semantic prompt caching for recurring identical queries.<br>
+                  • <strong>Streaming:</strong> Server-Sent Events (SSE) for incremental token streaming to frontend clients.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="framework-step-badge" style="background: #7C3AED;">5</div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">Evaluation, Guardrails, Security & Observability (10 Mins)</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                  • <strong>Guardrails:</strong> Input/Output safety classifiers (Llama Guard), PII redaction (Presidio), Canary token injection traps.<br>
+                  • <strong>Continuous Evaluation:</strong> RAG Triad (Faithfulness, Relevance, Precision via Ragas) + CI/CD regression gating.<br>
+                  • <strong>Observability:</strong> OpenTelemetry distributed spans tracing prompt/completion tokens, latency percentiles, and cost per tenant.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: HLD Framework -->
+      <div id="hld-fw" class="fw-tab-content" style="display: none;">
         <div class="framework-card">
           <h4 style="font-size: 15px; font-weight: 800; color: #0284C7; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
             <i data-lucide="network" class="icon-sm"></i> 45-Minute High Level Design (HLD) Interview Strategy
@@ -1237,13 +1585,13 @@ function filterItemsByStatus(status) {
   document.querySelectorAll('.sd-case-list-item').forEach(item => {
     const itemStatus = item.getAttribute('data-status');
     if (status === 'all') {
-      item.style.display = 'block';
+      item.style.display = '';
     } else if (status === 'done' && itemStatus === 'done') {
-      item.style.display = 'block';
+      item.style.display = '';
     } else if (status === 'in-progress' && itemStatus === 'in-progress') {
-      item.style.display = 'block';
+      item.style.display = '';
     } else if (status === 'not-started' && itemStatus === 'not-started') {
-      item.style.display = 'block';
+      item.style.display = '';
     } else {
       item.style.display = 'none';
     }
@@ -1257,7 +1605,7 @@ function filterCasesByTrack(track, btnEl) {
   document.querySelectorAll('.sd-case-list-item').forEach(item => {
     const itemTrack = item.getAttribute('data-track');
     if (track === 'all' || itemTrack === track) {
-      item.style.display = 'block';
+      item.style.display = '';
     } else {
       item.style.display = 'none';
     }

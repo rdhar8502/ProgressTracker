@@ -60,6 +60,20 @@ def sd_page(
     lld_done_items = lld_subs_done + lld_cases_done
     lld_pct = round((lld_done_items / lld_total_items * 100) if lld_total_items > 0 else 0)
 
+    # --- Compute AI System Design Metrics ---
+    ai_concept_ids = [c.id for c in all_concepts if (c.track or "").upper() in ["AI", "AI SD", "AI_SD"]]
+    ai_subs = [sc for sc in all_sub_concepts if sc.concept_id in ai_concept_ids]
+    ai_cases = [c for c in all_cases if (c.track or "").upper() in ["AI", "AI SD", "AI_SD"]]
+
+    ai_subs_done = sum(1 for sc in ai_subs if sc.status == "Done")
+    ai_subs_in_progress = sum(1 for sc in ai_subs if sc.status == "In Progress")
+    ai_cases_done = sum(1 for c in ai_cases if c.status == "Done")
+    ai_cases_in_progress = sum(1 for c in ai_cases if c.status == "In Progress")
+
+    ai_total_items = len(ai_subs) + len(ai_cases)
+    ai_done_items = ai_subs_done + ai_cases_done
+    ai_pct = round((ai_done_items / ai_total_items * 100) if ai_total_items > 0 else 0)
+
     # --- Overall Combined Metrics ---
     total_subs = len(all_sub_concepts)
     total_subs_done = sum(1 for sc in all_sub_concepts if sc.status == "Done")
@@ -81,10 +95,14 @@ def sd_page(
     cases_query = db.query(SystemDesignCase)
 
     # Apply Track Filter
-    selected_track = (track or "all").strip()
-    if selected_track.upper() in ["HLD", "LLD"]:
-        concepts_query = concepts_query.filter(func.upper(SystemDesignConcept.track) == selected_track.upper())
-        cases_query = cases_query.filter(func.upper(SystemDesignCase.track) == selected_track.upper())
+    selected_track = (track or "all").strip().lower()
+    if selected_track in ["hld", "lld", "ai", "ai_sd", "ai-sd"]:
+        if selected_track in ["ai", "ai_sd", "ai-sd"]:
+            concepts_query = concepts_query.filter(func.upper(SystemDesignConcept.track).in_(["AI", "AI SD", "AI_SD"]))
+            cases_query = cases_query.filter(func.upper(SystemDesignCase.track).in_(["AI", "AI SD", "AI_SD"]))
+        else:
+            concepts_query = concepts_query.filter(func.upper(SystemDesignConcept.track) == selected_track.upper())
+            cases_query = cases_query.filter(func.upper(SystemDesignCase.track) == selected_track.upper())
 
     # Apply Category Filter
     if category and category.strip() and category.strip() != "all":
@@ -125,9 +143,12 @@ def sd_page(
     # Group concepts by category, preserving track separation
     by_category_hld = {}
     by_category_lld = {}
+    by_category_ai = {}
     for c in filtered_concepts:
         c_track = (c.track or "HLD").upper()
-        if c_track == "LLD":
+        if c_track in ["AI", "AI SD", "AI_SD"]:
+            by_category_ai.setdefault(c.category, []).append(c)
+        elif c_track == "LLD":
             by_category_lld.setdefault(c.category, []).append(c)
         else:
             by_category_hld.setdefault(c.category, []).append(c)
@@ -135,6 +156,7 @@ def sd_page(
     # Group cases by track
     cases_hld = [c for c in filtered_cases if (c.track or "HLD").upper() == "HLD"]
     cases_lld = [c for c in filtered_cases if (c.track or "").upper() == "LLD"]
+    cases_ai = [c for c in filtered_cases if (c.track or "").upper() in ["AI", "AI SD", "AI_SD"]]
 
     return templates.TemplateResponse("system_design.html", {
         "request": request,
@@ -149,11 +171,13 @@ def sd_page(
         "concepts": filtered_concepts,
         "by_category_hld": by_category_hld,
         "by_category_lld": by_category_lld,
+        "by_category_ai": by_category_ai,
         
         # Cases & Groupings
         "cases": filtered_cases,
         "cases_hld": cases_hld,
         "cases_lld": cases_lld,
+        "cases_ai": cases_ai,
         
         # HLD Stats
         "hld_subs_total": len(hld_subs),
@@ -172,6 +196,15 @@ def sd_page(
         "lld_cases_done": lld_cases_done,
         "lld_cases_in_progress": lld_cases_in_progress,
         "lld_pct": lld_pct,
+
+        # AI Stats
+        "ai_subs_total": len(ai_subs),
+        "ai_subs_done": ai_subs_done,
+        "ai_subs_in_progress": ai_subs_in_progress,
+        "ai_cases_total": len(ai_cases),
+        "ai_cases_done": ai_cases_done,
+        "ai_cases_in_progress": ai_cases_in_progress,
+        "ai_pct": ai_pct,
         
         # Overall Stats
         "topics_total": total_subs,

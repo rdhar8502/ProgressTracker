@@ -61,85 +61,285 @@
   </div>
 </div>
 
-<!-- ══ EU Interview Readiness Score Banner ══ -->
+<!-- ══ Global Tier-1 Interview & Target Readiness Score Banner ══ -->
 {% set eu = gamification.eu_readiness %}
-<div class="card mb-6" style="background: linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(16,185,129,0.04) 50%, rgba(245,158,11,0.04) 100%); border: 1px solid rgba(37,99,235,0.20); overflow: hidden; position: relative;">
-  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #000 33%, #D00 33%, #D00 66%, #FFD700 66%); opacity: 0.18;"></div>
-  <div class="card-body" style="padding: 20px 24px;">
-    <!-- Header -->
-    <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #1D4ED8, #0EA5E9); display: flex; align-items: center; justify-content: center; font-size: 18px;">🇪🇺</div>
+<div class="card mb-6" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.03) 0%, rgba(37, 99, 235, 0.05) 50%, rgba(16, 185, 129, 0.04) 100%); border: 1px solid rgba(37, 99, 235, 0.22); overflow: hidden; position: relative; border-radius: 14px; box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);">
+  <!-- Sleek Top Multi-Country Gradient Bar -->
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3.5px; background: linear-gradient(90deg, #2563eb 0%, #3b82f6 25%, #dc2626 25%, #ef4444 50%, #059669 50%, #10b981 75%, #f59e0b 75%, #d97706 100%);"></div>
+  
+  <div class="card-body" style="padding: 22px 24px;">
+    
+    <!-- Top Row: Banner Title & Combined Global Readiness Gauge -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 16px;">
+      
+      <!-- Left: Header Details -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #1D4ED8, #059669); display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); flex-shrink: 0;">
+          🌐
+        </div>
         <div>
-          <div style="font-size: 13px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.01em;">EU Interview Readiness Score</div>
-          <div style="font-size: 11px; color: var(--text-muted);">🇩🇪 Germany &nbsp;·&nbsp; 🇳🇱 Netherlands &nbsp;·&nbsp; Weighted by EU hiring standards</div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <h3 style="font-size: 16px; font-weight: 900; color: var(--text-primary); letter-spacing: -0.02em; margin: 0;">Global Tier-1 Target Readiness &amp; Calibration</h3>
+            <span class="badge" style="background: linear-gradient(90deg, #2563eb, #059669); color: white; font-weight: 800; font-size: 10px; padding: 2px 8px; border-radius: 6px;">
+              ⭐ US · CA · DE · NL
+            </span>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-secondary); margin: 3px 0 0 0;">
+            Hiring bar calibrated for <strong>US Big Tech</strong>, <strong>Canada Scale-ups</strong>, <strong>Germany Architecture</strong> &amp; <strong>Netherlands Hubs</strong>.
+          </p>
         </div>
       </div>
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <a href="/eu-readiness" style="font-size: 11px; font-weight: 700; color: #2563EB; text-decoration: none; display: flex; align-items: center; gap: 4px; background: rgba(37,99,235,0.1); padding: 4px 10px; border-radius: 6px;">
-          <i data-lucide="compass" class="icon-xs"></i> Full EU Radar →
-        </a>
-      </div>
-    </div>
 
-    <!-- Score Cards -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 14px; margin-bottom: 20px;">
-      <!-- Germany -->
-      <div style="background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 16px; text-align: center; position: relative; overflow: hidden;">
-        <div style="font-size: 26px; margin-bottom: 4px;">🇩🇪</div>
-        <div style="font-size: 28px; font-weight: 900; color: {{ eu.de_status.color }}; letter-spacing: -1px; line-height: 1;">{{ eu.de_score }}<span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">/100</span></div>
-        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: {{ eu.de_status.color }}; letter-spacing: 0.05em; margin: 4px 0 2px;">{{ eu.de_status.label }}</div>
-        <div style="font-size: 10px; color: var(--text-muted);">Germany</div>
-        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,0,0.07);"></div>
-        <div style="position: absolute; bottom: 0; left: 0; height: 3px; background: {{ eu.de_status.color }}; width: {{ eu.de_score }}%;"></div>
-      </div>
-      <!-- Netherlands -->
-      <div style="background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 16px; text-align: center; position: relative; overflow: hidden;">
-        <div style="font-size: 26px; margin-bottom: 4px;">🇳🇱</div>
-        <div style="font-size: 28px; font-weight: 900; color: {{ eu.nl_status.color }}; letter-spacing: -1px; line-height: 1;">{{ eu.nl_score }}<span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">/100</span></div>
-        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: {{ eu.nl_status.color }}; letter-spacing: 0.05em; margin: 4px 0 2px;">{{ eu.nl_status.label }}</div>
-        <div style="font-size: 10px; color: var(--text-muted);">Netherlands</div>
-        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,0,0.07);"></div>
-        <div style="position: absolute; bottom: 0; left: 0; height: 3px; background: {{ eu.nl_status.color }}; width: {{ eu.nl_score }}%;"></div>
-      </div>
-      <!-- Priority Focus -->
-      <div style="background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(99,102,241,0.06)); border: 1px solid rgba(37,99,235,0.2); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #2563EB; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
-          <i data-lucide="target" class="icon-xs"></i> #1 Priority This Week
-        </div>
-        <div>
-          <div style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">{{ eu.top_priority.name }}</div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">{{ eu.top_priority.gap_pct | round | int }}% gap &mdash; highest EU impact area</div>
-          <div style="background: rgba(0,0,0,0.06); border-radius: 99px; height: 6px; margin-bottom: 8px; overflow: hidden;">
-            <div style="height: 100%; background: linear-gradient(90deg, #2563EB, #7C3AED); width: {{ (100 - eu.top_priority.gap_pct) | round | int }}%; border-radius: 99px;"></div>
+      <!-- Right: Global Combined Score & Actions -->
+      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px 14px; box-shadow: var(--shadow-xs);">
+          <div style="text-align: right;">
+            <div style="font-size: 9.5px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); letter-spacing: 0.05em;">Combined Target Score</div>
+            <div style="font-size: 11px; font-weight: 800; color: {{ eu.combined_status.color }};">{{ eu.combined_status.emoji }} {{ eu.combined_status.label }}</div>
+          </div>
+          <div style="font-size: 24px; font-weight: 900; color: {{ eu.combined_status.color }}; line-height: 1; letter-spacing: -1px;">
+            {{ eu.combined_score }}<span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">/100</span>
           </div>
         </div>
-        <a href="{{ eu.top_priority.link }}" style="display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: white; background: linear-gradient(135deg, #2563EB, #7C3AED); padding: 6px 12px; border-radius: 8px; text-decoration: none; width: fit-content;">
-          <i data-lucide="arrow-right" class="icon-xs"></i> Focus Now
-        </a>
+
+        <div style="display: flex; gap: 8px;">
+          <a href="/destinations" class="btn btn-xs btn-outline" style="border-color: #059669; color: #059669; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+            🚗 Purchasing Power
+          </a>
+          <a href="/eu-readiness" class="btn btn-xs btn-primary" style="font-weight: 700; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="compass" class="icon-xs"></i> Full Radar
+          </a>
+        </div>
       </div>
+
     </div>
 
-    <!-- Dimension Bars -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-      {% for dim in eu.dimensions %}
-      <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 10px 12px;">
-        <div class="flex items-center justify-between" style="margin-bottom: 6px;">
-          <span style="font-size: 11px; font-weight: 600; color: var(--text-primary);">{{ dim.name }}</span>
-          <span style="font-size: 11px; font-weight: 800; color: {% if dim.pct >= 70 %}#10B981{% elif dim.pct >= 40 %}#F59E0B{% else %}#EF4444{% endif %};">{{ dim.pct | round | int }}%</span>
+    <!-- ══ 4 Core Priority Countries Cards (Side-by-Side Responsive Grid) ══ -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+      
+      <!-- 1. USA 🇺🇸 Card -->
+      <div style="background: var(--surface); border: 1px solid rgba(37, 99, 235, 0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #2563eb;"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 20px;">🇺🇸</span>
+              <span style="font-weight: 800; font-size: 13px; color: var(--text-primary);">USA Target</span>
+            </div>
+            <span class="badge" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; font-size: 9px; font-weight: 800; padding: 2px 6px;">Highest Comp</span>
+          </div>
+
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-size: 24px; font-weight: 900; color: {{ eu.us_status.color }}; line-height: 1;">
+              {{ eu.us_score }}<span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">/100</span>
+            </div>
+            <span class="badge" style="background: rgba(0,0,0,0.05); color: {{ eu.us_status.color }}; font-weight: 800; font-size: 9px;">{{ eu.us_status.label }}</span>
+          </div>
+
+          <div style="background: var(--surface-alt); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 10px;">
+            <div style="height: 100%; background: {{ eu.us_status.color }}; width: {{ eu.us_score }}%; border-radius: 99px;"></div>
+          </div>
+
+          <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+            • <strong>DSA (Med/Hard):</strong> 38% wt<br>
+            • <strong>Scale SysDesign:</strong> 32% wt<br>
+            • <strong>AI / LLM Wave:</strong> 14% wt
+          </div>
         </div>
-        <div style="background: rgba(0,0,0,0.07); border-radius: 99px; height: 5px; overflow: hidden;">
-          <div style="height: 100%; width: {{ dim.pct | round | int }}%; background: {% if dim.pct >= 70 %}linear-gradient(90deg,#059669,#10B981){% elif dim.pct >= 40 %}linear-gradient(90deg,#D97706,#F59E0B){% else %}linear-gradient(90deg,#DC2626,#EF4444){% endif %}; border-radius: 99px;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
-          <span style="font-size: 9px; color: var(--text-muted);">🇩🇪 {{ (dim.de_weight * 100) | round | int }}% wt</span>
-          <span style="font-size: 9px; color: var(--text-muted);">🇳🇱 {{ (dim.nl_weight * 100) | round | int }}% wt</span>
+
+        <div style="border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 6px; font-size: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--text-muted);">$180k TC Median</span>
+          <span style="color: #2563eb; font-weight: 800;">🚗 Car: 2.5 mo</span>
         </div>
       </div>
-      {% endfor %}
+
+      <!-- 2. Canada 🇨🇦 Card -->
+      <div style="background: var(--surface); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #dc2626;"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 20px;">🇨🇦</span>
+              <span style="font-weight: 800; font-size: 13px; color: var(--text-primary);">Canada Target</span>
+            </div>
+            <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; font-size: 9px; font-weight: 800; padding: 2px 6px;">Super Visa 5-Yr</span>
+          </div>
+
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-size: 24px; font-weight: 900; color: {{ eu.ca_status.color }}; line-height: 1;">
+              {{ eu.ca_score }}<span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">/100</span>
+            </div>
+            <span class="badge" style="background: rgba(0,0,0,0.05); color: {{ eu.ca_status.color }}; font-weight: 800; font-size: 9px;">{{ eu.ca_status.label }}</span>
+          </div>
+
+          <div style="background: var(--surface-alt); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 10px;">
+            <div style="height: 100%; background: {{ eu.ca_status.color }}; width: {{ eu.ca_score }}%; border-radius: 99px;"></div>
+          </div>
+
+          <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+            • <strong>SysDesign &amp; Cloud:</strong> 28% wt<br>
+            • <strong>DSA Medium:</strong> 26% wt<br>
+            • <strong>AI Integration:</strong> 16% wt
+          </div>
+        </div>
+
+        <div style="border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 6px; font-size: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--text-muted);">CAD$ 150k Median</span>
+          <span style="color: #dc2626; font-weight: 800;">🚗 Car: 3.8 mo</span>
+        </div>
+      </div>
+
+      <!-- 3. Germany 🇩🇪 Card -->
+      <div style="background: var(--surface); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #b45309;"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 20px;">🇩🇪</span>
+              <span style="font-weight: 800; font-size: 13px; color: var(--text-primary);">Germany Target</span>
+            </div>
+            <span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #b45309; font-size: 9px; font-weight: 800; padding: 2px 6px;">21-Mo Fast PR</span>
+          </div>
+
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-size: 24px; font-weight: 900; color: {{ eu.de_status.color }}; line-height: 1;">
+              {{ eu.de_score }}<span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">/100</span>
+            </div>
+            <span class="badge" style="background: rgba(0,0,0,0.05); color: {{ eu.de_status.color }}; font-weight: 800; font-size: 9px;">{{ eu.de_status.label }}</span>
+          </div>
+
+          <div style="background: var(--surface-alt); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 10px;">
+            <div style="height: 100%; background: {{ eu.de_status.color }}; width: {{ eu.de_score }}%; border-radius: 99px;"></div>
+          </div>
+
+          <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+            • <strong>DDD Architecture:</strong> 28% wt<br>
+            • <strong>DB Mastery:</strong> 18% wt<br>
+            • <strong>DSA Medium:</strong> 20% wt
+          </div>
+        </div>
+
+        <div style="border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 6px; font-size: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--text-muted);">€95k Median</span>
+          <span style="color: #b45309; font-weight: 800;">🚗 Car: 5.5 mo</span>
+        </div>
+      </div>
+
+      <!-- 4. Netherlands 🇳🇱 Card -->
+      <div style="background: var(--surface); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #059669;"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 20px;">🇳🇱</span>
+              <span style="font-weight: 800; font-size: 13px; color: var(--text-primary);">Netherlands Target</span>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #059669; font-size: 9px; font-weight: 800; padding: 2px 6px;">#1 Living Quality</span>
+          </div>
+
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-size: 24px; font-weight: 900; color: {{ eu.nl_status.color }}; line-height: 1;">
+              {{ eu.nl_score }}<span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">/100</span>
+            </div>
+            <span class="badge" style="background: rgba(0,0,0,0.05); color: {{ eu.nl_status.color }}; font-weight: 800; font-size: 9px;">{{ eu.nl_status.label }}</span>
+          </div>
+
+          <div style="background: var(--surface-alt); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 10px;">
+            <div style="height: 100%; background: {{ eu.nl_status.color }}; width: {{ eu.nl_score }}%; border-radius: 99px;"></div>
+          </div>
+
+          <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+            • <strong>DSA Medium:</strong> 25% wt<br>
+            • <strong>Pragmatic Design:</strong> 22% wt<br>
+            • <strong>AI / Startups:</strong> 18% wt
+          </div>
+        </div>
+
+        <div style="border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 6px; font-size: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--text-muted);">€100k Median (30%)</span>
+          <span style="color: #059669; font-weight: 800;">🚗 Car: 4.6 mo</span>
+        </div>
+      </div>
+
     </div>
+
+    <!-- ══ Bottom Row: #1 Priority Focus Gap (Left) + 5 Dimension Progress Matrix (Right) ══ -->
+    <div style="display: grid; grid-template-columns: 1fr 1.8fr; gap: 14px; align-items: stretch;">
+      
+      <!-- Left: #1 Priority Focus Gap Card -->
+      <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%); border: 1px solid rgba(37, 99, 235, 0.25); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #2563EB; text-transform: uppercase; letter-spacing: 0.05em;">
+              <i data-lucide="target" class="icon-xs"></i> #1 Priority Gap Accelerator
+            </div>
+            <span class="badge" style="background: rgba(37, 99, 235, 0.15); color: #1d4ed8; font-weight: 800; font-size: 9.5px;">
+              Highest ROI
+            </span>
+          </div>
+
+          <div style="font-size: 16px; font-weight: 900; color: var(--text-primary); margin-bottom: 3px;">
+            {{ eu.top_priority.name }}
+          </div>
+          
+          <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+            <strong>{{ eu.top_priority.gap_pct | round | int }}% remaining gap</strong> &mdash; largest scoring leverage across US, Canada, Germany &amp; Netherlands interview loops.
+          </div>
+
+          <div style="background: rgba(0,0,0,0.06); border-radius: 99px; height: 8px; margin-bottom: 6px; overflow: hidden;">
+            <div style="height: 100%; background: linear-gradient(90deg, #2563EB, #7C3AED); width: {{ (100 - eu.top_priority.gap_pct) | round | int }}%; border-radius: 99px;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 9.5px; color: var(--text-muted); margin-bottom: 14px;">
+            <span>Current: {{ (100 - eu.top_priority.gap_pct) | round | int }}%</span>
+            <span>Target: 100%</span>
+          </div>
+        </div>
+
+        <a href="{{ eu.top_priority.link }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: white; background: linear-gradient(135deg, #2563EB, #7C3AED); padding: 8px 14px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);">
+          <span>Accelerate {{ eu.top_priority.name }}</span>
+          <i data-lucide="arrow-right" class="icon-xs"></i>
+        </a>
+      </div>
+
+      <!-- Right: 5 Core Dimension Progress Matrix (US, CA, DE, NL Weights) -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+          <div style="font-size: 11.5px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="layers" class="icon-xs" style="color: var(--accent);"></i>
+            <span>5 Core Preparation Pillars &amp; Multi-Country Weights</span>
+          </div>
+          <span style="font-size: 10px; color: var(--text-muted);">Calibrated Interview Weights</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px;">
+          {% for dim in eu.dimensions %}
+          <div style="background: var(--surface-alt); border: 1px solid var(--border-light); border-radius: 8px; padding: 8px 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10.5px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dim.name }}</span>
+              <span style="font-size: 11px; font-weight: 900; color: {% if dim.pct >= 70 %}#10B981{% elif dim.pct >= 40 %}#F59E0B{% else %}#EF4444{% endif %};">{{ dim.pct | round | int }}%</span>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.06); border-radius: 99px; height: 5px; overflow: hidden; margin-bottom: 6px;">
+              <div style="height: 100%; width: {{ dim.pct | round | int }}%; background: {% if dim.pct >= 70 %}linear-gradient(90deg,#059669,#10B981){% elif dim.pct >= 40 %}linear-gradient(90deg,#D97706,#F59E0B){% else %}linear-gradient(90deg,#DC2626,#EF4444){% endif %}; border-radius: 99px;"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 8.5px; color: var(--text-muted);">
+              <span>🇺🇸 {{ (dim.us_weight * 100) | round | int }}%</span>
+              <span>🇨🇦 {{ (dim.ca_weight * 100) | round | int }}%</span>
+              <span>🇩🇪 {{ (dim.de_weight * 100) | round | int }}%</span>
+              <span>🇳🇱 {{ (dim.nl_weight * 100) | round | int }}%</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
+
+
 
 <!-- ── Week Banner ── -->
 <div class="card mb-6" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-xs);">
@@ -239,8 +439,8 @@
   </div>
 </div>
 
-<!-- ── Weekly Trend + DSA (EU-Standard Targets) ── -->
-<div class="grid-2">
+<!-- ══ Weekly Trend + DSA (US/CA/EU Global Targets) ══ -->
+<div class="grid-2 mb-6">
   <div class="card">
     <div class="card-header">
       <span class="card-title">Weekly Hours Trend</span>
@@ -254,13 +454,13 @@
     <div class="card-header">
       <span class="card-title">DSA Target Progress</span>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span class="badge" style="background: rgba(37,99,235,0.1); color: #2563EB; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">🇪🇺 EU Standard</span>
+        <span class="badge" style="background: rgba(37,99,235,0.1); color: #2563EB; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">🇺🇸 🇨🇦 🇩🇪 🇳🇱 Global Bar</span>
         <a href="/dsa" class="btn btn-ghost btn-sm">View All →</a>
       </div>
     </div>
     <div class="card-body no-top">
       <div style="font-size: 10px; color: var(--text-muted); background: rgba(37,99,235,0.05); border-radius: 6px; padding: 6px 10px; margin-bottom: 12px; border-left: 3px solid #2563EB; line-height: 1.5;">
-        🇩🇪 🇳🇱 EU targets: <strong>Easy 40</strong> (de-prioritized) · <strong>Medium 120 ⭐</strong> (EU sweet spot) · <strong>Hard 40</strong> (FAANG-EU)
+        🇺🇸 🇨🇦 🇩🇪 🇳🇱 Targets: <strong>Easy 40</strong> · <strong>Medium 120 ⭐</strong> (Core Big Tech Bar) · <strong>Hard 40 ⭐</strong> (US FAANG / Senior Bar)
       </div>
       <div class="flex justify-between" style="margin-bottom: 14px;">
         <div style="text-align: center; flex: 1;">
@@ -286,8 +486,79 @@
       </div>
       <div class="flex justify-between mt-1">
         <span class="text-sm text-muted">{{ dsa_stats.solved }} solved</span>
-        <span class="text-sm text-muted">200 EU target</span>
+        <span class="text-sm text-muted">200 Global target</span>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Core Priority Relocation & Asset Speed Quick Matrix ══ -->
+<div class="card mb-6" style="border: 1px solid rgba(37,99,235,0.25); background: linear-gradient(135deg, rgba(37,99,235,0.03) 0%, rgba(16,185,129,0.02) 100%);">
+  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 18px;">🚗</span>
+      <div>
+        <div style="font-size: 13px; font-weight: 800; color: var(--text-primary);">Core Priority Hubs & Real-World Asset Affordability</div>
+        <div style="font-size: 11px; color: var(--text-muted);">How fast you purchase assets abroad vs India baseline (₹90k take-home)</div>
+      </div>
+    </div>
+    <a href="/destinations" style="font-size: 11px; font-weight: 700; color: #2563EB; text-decoration: none; display: flex; align-items: center; gap: 4px; background: rgba(37,99,235,0.1); padding: 4px 10px; border-radius: 6px;">
+      Full 12-Country Comparison &rarr;
+    </a>
+  </div>
+  <div class="card-body no-top" style="padding-top: 8px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+      
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-weight: 800; font-size: 12px; color: var(--text-primary);">🇺🇸 USA</span>
+          <span class="badge" style="background: rgba(37,99,235,0.12); color: #2563eb; font-size: 9px; font-weight: 800;">Priority #1</span>
+        </div>
+        <div style="font-size: 16px; font-weight: 900; color: #2563eb;">2.5 mo salary</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Standard Car · iPhone: 2.5 days</div>
+        <div style="font-size: 11px; font-weight: 700; color: #059669; margin-top: 4px;">₹9.86 L/mo Take-Home</div>
+      </div>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-weight: 800; font-size: 12px; color: var(--text-primary);">🇨🇦 Canada</span>
+          <span class="badge" style="background: rgba(239,68,68,0.12); color: #dc2626; font-size: 9px; font-weight: 800;">Priority #1</span>
+        </div>
+        <div style="font-size: 16px; font-weight: 900; color: #dc2626;">3.8 mo salary</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Super Visa: 5-Yr parent stay</div>
+        <div style="font-size: 11px; font-weight: 700; color: #059669; margin-top: 4px;">₹5.71 L/mo Take-Home</div>
+      </div>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-weight: 800; font-size: 12px; color: var(--text-primary);">🇳🇱 Netherlands</span>
+          <span class="badge" style="background: rgba(37,99,235,0.12); color: #2563eb; font-size: 9px; font-weight: 800;">Priority #1</span>
+        </div>
+        <div style="font-size: 16px; font-weight: 900; color: #2563eb;">4.6 mo salary</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">#1 Worldwide Living (198.4)</div>
+        <div style="font-size: 11px; font-weight: 700; color: #059669; margin-top: 4px;">₹6.49 L/mo Take-Home (30%)</div>
+      </div>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-weight: 800; font-size: 12px; color: var(--text-primary);">🇩🇪 Germany</span>
+          <span class="badge" style="background: rgba(234,179,8,0.15); color: #b45309; font-size: 9px; font-weight: 800;">Priority #1</span>
+        </div>
+        <div style="font-size: 16px; font-weight: 900; color: #b45309;">5.5 mo salary</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">21-mo Fast PR · Alpine Nature</div>
+        <div style="font-size: 11px; font-weight: 700; color: #059669; margin-top: 4px;">₹5.19 L/mo Take-Home</div>
+      </div>
+
+      <div style="background: rgba(249,115,22,0.06); border: 1px dashed rgba(249,115,22,0.4); border-radius: 8px; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-weight: 800; font-size: 12px; color: #c2410c;">🇮🇳 India (Baseline)</span>
+          <span class="badge" style="background: rgba(249,115,22,0.15); color: #c2410c; font-size: 9px; font-weight: 800;">Current</span>
+        </div>
+        <div style="font-size: 16px; font-weight: 900; color: #ea580c;">24.4 mo salary</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Over 2 full years for same car</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-top: 4px;">₹90k/mo In-Hand</div>
+      </div>
+
     </div>
   </div>
 </div>

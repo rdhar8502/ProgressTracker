@@ -13,6 +13,9 @@ from app.services.destination_seed_data import (
     TOP_10_HAPPINESS_COUNTRIES,
     TOP_10_LIVING_QUALITY_COUNTRIES,
     TOP_10_POLLUTION_FREE_SCENIC_COUNTRIES,
+    PURCHASING_POWER_INDEX_DATA,
+    COMPANY_ARCHETYPES,
+    SENIOR_8YOE_PLAYBOOK,
 )
 
 router = APIRouter(prefix="/destinations", tags=["destinations"])
@@ -30,11 +33,13 @@ def destinations_page(request: Request, db: Session = Depends(get_db)):
         best_mother_fit = next((d for d in destinations if "LTVP" in d.family_mother_badge or "Outstanding" in d.family_mother_badge), destinations[1] if len(destinations) > 1 else destinations[0])
         max_savings_dest = max(destinations, key=lambda d: d.monthly_savings_inr)
         avg_gross_inr = sum(d.annual_gross_inr for d in destinations) / len(destinations)
+        priority_hubs = [d for d in destinations if d.is_tier1_priority]
     else:
         top_pick = None
         best_mother_fit = None
         max_savings_dest = None
         avg_gross_inr = 0.0
+        priority_hubs = []
 
     return templates.TemplateResponse("destinations.html", {
         "request": request,
@@ -45,12 +50,17 @@ def destinations_page(request: Request, db: Session = Depends(get_db)):
         "best_mother_fit": best_mother_fit,
         "max_savings_dest": max_savings_dest,
         "avg_gross_inr": avg_gross_inr,
+        "priority_hubs": priority_hubs,
         "india_baseline": INDIA_BASELINE,
         "top_10_happiness": TOP_10_HAPPINESS_COUNTRIES,
         "top_10_living": TOP_10_LIVING_QUALITY_COUNTRIES,
         "top_10_pollution_free": TOP_10_POLLUTION_FREE_SCENIC_COUNTRIES,
+        "purchasing_power_data": PURCHASING_POWER_INDEX_DATA,
+        "company_archetypes": COMPANY_ARCHETYPES,
+        "senior_playbook": SENIOR_8YOE_PLAYBOOK,
         "active_page": "destinations",
     })
+
 
 
 @router.post("/{dest_id}/edit")

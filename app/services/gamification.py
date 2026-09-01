@@ -565,7 +565,7 @@ def compute_daily_quests(db: Session, streak: int) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. EU READINESS SCORE COMPUTATION (Germany 🇩🇪 + Netherlands 🇳🇱)
+# 4. PRIORITY TARGET READINESS SCORE (Germany 🇩🇪, Netherlands 🇳🇱, USA 🇺🇸, Canada 🇨🇦)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def compute_eu_readiness_score(
@@ -579,10 +579,11 @@ def compute_eu_readiness_score(
     apps_pct: float,
 ) -> dict:
     """
-    Computes Germany 🇩🇪 and Netherlands 🇳🇱 interview readiness scores (0-100).
-
-    Germany weights:    System Design > DB > DSA Medium > AI > GitHub > Hours > Apps
-    Netherlands weights: DSA Medium > System Design > AI > GitHub > DB > Behavioral(apps) > Hours
+    Computes interview readiness scores for the Core Tier-1 Priority Countries:
+    - Germany 🇩🇪
+    - Netherlands 🇳🇱
+    - USA 🇺🇸
+    - Canada 🇨🇦
     """
     # Germany 🇩🇪 – HLD/architecture-first, DB-heavy, code portfolio matters
     de_score = round(
@@ -608,7 +609,30 @@ def compute_eu_readiness_score(
         1,
     )
 
-    combined_score = round((de_score * 0.55 + nl_score * 0.45), 1)
+    # USA 🇺🇸 – FAANG & Big Tech / High Scale (DSA Hard+Med & Distributed System Design)
+    us_score = round(
+        dsa_pct       * 0.38 +   # DSA (Med + Hard): LeetCode screening is mandatory
+        sd_pct        * 0.32 +   # System Design: High-scale QPS/sharding/concurrency
+        ai_pct        * 0.14 +   # AI / LLMs: Huge hiring wave in US Big Tech
+        gh_pct        * 0.08 +   # GitHub / Open source
+        db_pct        * 0.05 +   # DB internals
+        apps_pct      * 0.03,    # Applications
+        1,
+    )
+
+    # Canada 🇨🇦 – Hybrid US Big Tech & Collaborative Scale-ups (Shopify, Amazon, 1Password)
+    ca_score = round(
+        sd_pct        * 0.28 +   # System Design & Microservice architecture
+        dsa_medium_pct* 0.26 +   # DSA Medium+Hard
+        ai_pct        * 0.16 +   # AI/LLM Integration
+        db_pct        * 0.12 +   # DB & cloud storage
+        gh_pct        * 0.10 +   # GitHub Portfolio
+        hours_pct     * 0.05 +   # Study consistency
+        apps_pct      * 0.03,    # Job applications
+        1,
+    )
+
+    combined_score = round((de_score * 0.30 + nl_score * 0.25 + us_score * 0.25 + ca_score * 0.20), 1)
 
     # Determine status label
     def _status(score):
@@ -623,15 +647,15 @@ def compute_eu_readiness_score(
 
     # Priority recommendation: find the lowest-weighted-contribution gap
     dimensions = [
-        {"name": "System Design",    "de_weight": 0.28, "nl_weight": 0.22, "pct": sd_pct,         "link": "/system-design"},
-        {"name": "DSA Medium+Hard",  "de_weight": 0.20, "nl_weight": 0.25, "pct": dsa_medium_pct, "link": "/dsa"},
-        {"name": "Database Mastery", "de_weight": 0.18, "nl_weight": 0.10, "pct": db_pct,         "link": "/database"},
-        {"name": "AI / LLM Topics",  "de_weight": 0.14, "nl_weight": 0.18, "pct": ai_pct,         "link": "/ai-llm"},
-        {"name": "GitHub Portfolio", "de_weight": 0.10, "nl_weight": 0.14, "pct": gh_pct,         "link": "/github"},
+        {"name": "System Design",    "de_weight": 0.28, "nl_weight": 0.22, "us_weight": 0.32, "ca_weight": 0.28, "pct": sd_pct,         "link": "/system-design"},
+        {"name": "DSA Medium+Hard",  "de_weight": 0.20, "nl_weight": 0.25, "us_weight": 0.38, "ca_weight": 0.26, "pct": dsa_medium_pct, "link": "/dsa"},
+        {"name": "Database Mastery", "de_weight": 0.18, "nl_weight": 0.10, "us_weight": 0.05, "ca_weight": 0.12, "pct": db_pct,         "link": "/database"},
+        {"name": "AI / LLM Topics",  "de_weight": 0.14, "nl_weight": 0.18, "us_weight": 0.14, "ca_weight": 0.16, "pct": ai_pct,         "link": "/ai-llm"},
+        {"name": "GitHub Portfolio", "de_weight": 0.10, "nl_weight": 0.14, "us_weight": 0.08, "ca_weight": 0.10, "pct": gh_pct,         "link": "/github"},
     ]
-    # Combined gap = weight × (100 - pct) — highest gap = biggest priority
+    # Combined gap = average weight × (100 - pct)
     for d in dimensions:
-        avg_weight = (d["de_weight"] + d["nl_weight"]) / 2
+        avg_weight = (d["de_weight"] + d["nl_weight"] + d["us_weight"] + d["ca_weight"]) / 4
         d["gap_score"] = round(avg_weight * (100 - d["pct"]), 1)
         d["gap_pct"] = round(100 - d["pct"], 1)
 
@@ -640,13 +664,18 @@ def compute_eu_readiness_score(
     return {
         "de_score": min(100, de_score),
         "nl_score": min(100, nl_score),
+        "us_score": min(100, us_score),
+        "ca_score": min(100, ca_score),
         "combined_score": min(100, combined_score),
         "de_status": _status(de_score),
         "nl_status": _status(nl_score),
+        "us_status": _status(us_score),
+        "ca_status": _status(ca_score),
         "combined_status": _status(combined_score),
         "dimensions": dimensions,
         "top_priority": top_priority,
     }
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
