@@ -14,31 +14,50 @@
 {% endblock %}
 
 {% block content %}
-<!-- ══ DSA Hero Card ══ -->
+<!-- ══ DSA Hero Card with Market Selection Switcher ══ -->
 <div class="dsa-hero-card">
-  <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
-    <div>
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC; border: 1px solid rgba(165, 180, 252, 0.3); font-size: 11px; font-weight: 700;">
-          <i data-lucide="code-2" class="icon-xs"></i> Coding Interview Mastery
-        </span>
-        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(110, 231, 183, 0.3); font-size: 11px; font-weight: 700;">
-          Easy &bull; Medium &bull; Hard
-        </span>
-        <span class="badge" style="background: rgba(37, 99, 235, 0.25); color: #93C5FD; border: 1px solid rgba(147,197,253,0.35); font-size: 11px; font-weight: 700;">
-          🇪🇺 EU Standard · 🇩🇪 🇳🇱 Priority
-        </span>
+  <!-- Top Bar: Segmented Market Switcher & Live Readiness Radar Link -->
+  <div class="dsa-market-switcher-wrapper">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8; display: flex; align-items: center; gap: 4px;">
+        <i data-lucide="globe" class="icon-xs"></i> Market Benchmark:
+      </span>
+      <div class="dsa-market-switcher" id="dsaMarketSwitcher" role="tablist">
+        <button type="button" class="dsa-market-tab {% if selected_region == 'eu' %}active market-eu{% endif %}" id="tab-region-eu" data-region="eu" onclick="switchMarketRegion('eu')">
+          <span>🇪🇺 EU Standard</span>
+          <span style="font-size: 10px; opacity: 0.8; font-weight: 500;">(DE 🇩🇪 &amp; NL 🇳🇱)</span>
+        </button>
+        <button type="button" class="dsa-market-tab {% if selected_region == 'us' %}active market-us{% endif %}" id="tab-region-us" data-region="us" onclick="switchMarketRegion('us')">
+          <span>🇺🇸 🇨🇦 US / Canada</span>
+          <span style="font-size: 10px; opacity: 0.8; font-weight: 500;">(FAANG &amp; Tier-1)</span>
+        </button>
+        <button type="button" class="dsa-market-tab {% if selected_region == 'non_faang' %}active market-non_faang{% endif %}" id="tab-region-non_faang" data-region="non_faang" onclick="switchMarketRegion('non_faang')">
+          <span>🏢 Non-FAANG</span>
+          <span style="font-size: 10px; opacity: 0.8; font-weight: 500;">(Enterprise &amp; Atek)</span>
+        </button>
+        <button type="button" class="dsa-market-tab {% if selected_region == 'global' %}active market-global{% endif %}" id="tab-region-global" data-region="global" onclick="switchMarketRegion('global')">
+          <span>🌐 Global / All</span>
+        </button>
       </div>
-      <h2 style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 6px;">
-        Data Structures &amp; Algorithms Tracker
-      </h2>
-      <p style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 680px; line-height: 1.5;">
-        Track your progress through <strong>Arrays, Linked Lists, Trees, Graphs, Dynamic Programming</strong> and more. EU targets: <strong style="color:#FCD34D;">Easy 40 · Medium 120 ⭐ · Hard 40</strong> — calibrated for Booking.com, Zalando, Adyen, SAP &amp; FAANG-EU.
-      </p>
     </div>
 
-    <!-- Quick Action Buttons -->
-    <div class="flex gap-2" style="align-items: center; flex-wrap: wrap;">
+    <!-- Live Readiness Radar Quick Link & Actions -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <a href="{{ active_region_config.readiness_route }}" id="dsaRadarLink" class="dsa-radar-link-btn" title="View calibrated readiness radar">
+        <i data-lucide="radar" class="icon-xs"></i>
+        <span id="dsaRadarText">{{ active_region_config.readiness_label }}</span>
+        <span id="dsaRadarScoreBadge" class="badge" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border: 1px solid rgba(110,231,183,0.3); font-size: 10.5px; padding: 1px 6px;">
+          {% if selected_region == 'us' and na_readiness %}
+          US {{ na_readiness.us_score }}% · CA {{ na_readiness.ca_score }}%
+          {% elif selected_region == 'eu' and eu_readiness %}
+          DE {{ eu_readiness.de_score }}% · NL {{ eu_readiness.nl_score }}%
+          {% elif selected_region == 'non_faang' and gamification %}
+          Score {{ gamification.overall_readiness_score }}%
+          {% else %}
+          Overall {{ gamification.overall_readiness_score if gamification else 'Ready' }}%
+          {% endif %}
+        </span>
+      </a>
       <button class="btn btn-primary btn-sm" onclick="openAddProblemModal()" style="display: inline-flex; align-items: center; gap: 6px;">
         <i data-lucide="plus" class="icon-xs"></i>
         <span>Add Problem</span>
@@ -46,47 +65,128 @@
     </div>
   </div>
 
-  <!-- KPI Stats Row inside hero -->
+  <!-- Hero Header Details -->
+  <div class="flex justify-between items-start" style="flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC; border: 1px solid rgba(165, 180, 252, 0.3); font-size: 11px; font-weight: 700;">
+          <i data-lucide="code-2" class="icon-xs"></i> Coding Interview Mastery
+        </span>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(110, 231, 183, 0.3); font-size: 11px; font-weight: 700;">
+          Easy &bull; Medium &bull; Hard
+        </span>
+        <span class="badge" id="dsaRegionBadge" style="background: rgba(37, 99, 235, 0.25); color: #93C5FD; border: 1px solid rgba(147,197,253,0.35); font-size: 11px; font-weight: 700;">
+          {{ active_region_config.badge_text }}
+        </span>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 6px;">
+        Data Structures &amp; Algorithms Tracker
+      </h2>
+      <p id="dsaHeroDesc" style="margin: 0; color: #94A3B8; font-size: 13px; max-width: 780px; line-height: 1.5;">
+        {% if selected_region == 'us' %}
+        Track your progress through <strong>Arrays, Trees, Graphs, Monotonic Stacks, Advanced DP</strong> and Concurrency. US/Canada targets: <strong style="color:#60A5FA;">Easy {{ active_region_config.target_easy }} · Medium {{ active_region_config.target_medium }} ⭐ · Hard {{ active_region_config.target_hard }} 🔥</strong> — calibrated for Google, Meta, Amazon, Apple, Netflix &amp; Shopify.
+        {% elif selected_region == 'non_faang' %}
+        Track your progress through <strong>Arrays, HashMaps, Two Pointers, Strings, Linked Lists &amp; Practical Trees</strong>. Non-FAANG targets: <strong style="color:#34D399;">Easy {{ active_region_config.target_easy }} · Medium {{ active_region_config.target_medium }} ⭐ · Hard {{ active_region_config.target_hard }}</strong> — calibrated for Fortune 500, Healthcare, FinTech &amp; AllianceTek Clients (Capital One, Walmart, JPMorgan, Optum).
+        {% elif selected_region == 'global' %}
+        Track your progress through all <strong>18 Core Algorithmic Paradigms</strong>. Global targets: <strong style="color:#C084FC;">Easy {{ active_region_config.target_easy }} · Medium {{ active_region_config.target_medium }} · Hard {{ active_region_config.target_hard }}</strong> — comprehensive Big Tech mastery.
+        {% else %}
+        Track your progress through <strong>Arrays, Linked Lists, Trees, Graphs, Dynamic Programming</strong> and more. EU targets: <strong style="color:#FCD34D;">Easy {{ active_region_config.target_easy }} · Medium {{ active_region_config.target_medium }} ⭐ · Hard {{ active_region_config.target_hard }}</strong> — calibrated for Booking.com, Zalando, Adyen, SAP &amp; FAANG-EU.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <!-- Dynamic KPI Stats Row inside hero -->
   <div class="dsa-hero-stats" style="position: relative; z-index: 2;">
+    <!-- Total Solved Pill -->
     <div class="dsa-hero-stat-pill">
       <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #A5B4FC; display: flex; align-items: center; gap: 4px;">
         <i data-lucide="code-2" class="icon-xs"></i> Total Solved
       </div>
       <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin: 4px 0 2px 0; letter-spacing: -0.02em;">{{ solved }}</div>
-      <div style="font-size: 11.5px; color: #94A3B8;">{{ solved }} / 200 EU target ({{ ((solved / 200 * 100) if 200 > 0 else 0) | round | int }}%)</div>
+      <div id="dsaTotalStatSub" style="font-size: 11.5px; color: #94A3B8;">
+        {{ solved }} / <span id="dsaTotalTargetNum">{{ active_region_config.target_total }}</span> <span id="dsaTargetLabel">{{ active_region_config.name }}</span> target (<span id="dsaTotalPctNum">{{ ((solved / active_region_config.target_total * 100) if active_region_config.target_total > 0 else 0) | round | int }}%</span>)
+      </div>
       <div class="progress-bar" style="height: 5px; margin-top: 8px; background: rgba(255, 255, 255, 0.12);">
-        <div class="progress-fill" style="width: {{ ((solved / 200 * 100) if 200 > 0 else 0) | round | int }}%; background: linear-gradient(90deg, #6366F1, #A5B4FC);"></div>
+        <div class="progress-fill" id="dsaTotalProgressFill" style="width: {{ [((solved / active_region_config.target_total * 100) if active_region_config.target_total > 0 else 0) | round | int, 100] | min }}%; background: linear-gradient(90deg, #6366F1, #A5B4FC);"></div>
       </div>
     </div>
+
+    <!-- Easy Pill -->
     <div class="dsa-hero-stat-pill">
       <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #6EE7B7; display: flex; align-items: center; gap: 4px;">
         <i data-lucide="check-circle" class="icon-xs"></i> Easy
       </div>
       <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin: 4px 0 2px 0; letter-spacing: -0.02em;">{{ easy_solved }}</div>
-      <div style="font-size: 11.5px; color: #94A3B8;">{{ easy_solved }} / 40 EU target</div>
+      <div id="dsaEasyStatSub" style="font-size: 11.5px; color: #94A3B8;">
+        {{ easy_solved }} / <span id="dsaEasyTargetNum">{{ active_region_config.target_easy }}</span> target
+      </div>
       <div class="progress-bar" style="height: 5px; margin-top: 8px; background: rgba(255, 255, 255, 0.12);">
-        <div class="progress-fill" style="width: {{ ((easy_solved / 40 * 100) if easy_total > 0 else 0) | round | int }}%; background: linear-gradient(90deg, #059669, #6EE7B7);"></div>
+        <div class="progress-fill" id="dsaEasyProgressFill" style="width: {{ [((easy_solved / active_region_config.target_easy * 100) if active_region_config.target_easy > 0 else 0) | round | int, 100] | min }}%; background: linear-gradient(90deg, #059669, #6EE7B7);"></div>
       </div>
     </div>
-    <div class="dsa-hero-stat-pill" style="border: 1px solid rgba(252,211,77,0.25); box-shadow: 0 0 12px rgba(252,211,77,0.08);">
+
+    <!-- Medium Pill (Market Focus) -->
+    <div class="dsa-hero-stat-pill" id="dsaMediumPill" style="border: 1px solid rgba(252,211,77,0.25); box-shadow: 0 0 12px rgba(252,211,77,0.08);">
       <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #FCD34D; display: flex; align-items: center; gap: 4px;">
-        <i data-lucide="zap" class="icon-xs"></i> Medium &#11088; EU Priority
+        <i data-lucide="zap" class="icon-xs"></i> <span id="dsaMediumPillTitle">Medium &#11088; {{ 'EU Priority' if selected_region == 'eu' else ('FAANG Core' if selected_region == 'us' else 'Core Focus') }}</span>
       </div>
       <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin: 4px 0 2px 0; letter-spacing: -0.02em;">{{ medium_solved }}</div>
-      <div style="font-size: 11.5px; color: #94A3B8;">{{ medium_solved }} / 120 EU target</div>
+      <div id="dsaMediumStatSub" style="font-size: 11.5px; color: #94A3B8;">
+        {{ medium_solved }} / <span id="dsaMediumTargetNum">{{ active_region_config.target_medium }}</span> target
+      </div>
       <div class="progress-bar" style="height: 5px; margin-top: 8px; background: rgba(255, 255, 255, 0.12);">
-        <div class="progress-fill" style="width: {{ ((medium_solved / 120 * 100) if medium_total > 0 else 0) | round | int }}%; background: linear-gradient(90deg, #D97706, #FCD34D);"></div>
+        <div class="progress-fill" id="dsaMediumProgressFill" style="width: {{ [((medium_solved / active_region_config.target_medium * 100) if active_region_config.target_medium > 0 else 0) | round | int, 100] | min }}%; background: linear-gradient(90deg, #D97706, #FCD34D);"></div>
       </div>
     </div>
-    <div class="dsa-hero-stat-pill">
+
+    <!-- Hard Pill (FAANG / EU Bar) -->
+    <div class="dsa-hero-stat-pill" id="dsaHardPill">
       <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #FCA5A5; display: flex; align-items: center; gap: 4px;">
-        <i data-lucide="flame" class="icon-xs"></i> Hard
+        <i data-lucide="flame" class="icon-xs"></i> <span id="dsaHardPillTitle">Hard {{ '🔥 FAANG Bar' if selected_region == 'us' else '' }}</span>
       </div>
       <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin: 4px 0 2px 0; letter-spacing: -0.02em;">{{ hard_solved }}</div>
-      <div style="font-size: 11.5px; color: #94A3B8;">{{ hard_solved }} / 40 EU target</div>
-      <div class="progress-bar" style="height: 5px; margin-top: 8px; background: rgba(255, 255, 255, 0.12);">
-        <div class="progress-fill" style="width: {{ ((hard_solved / 40 * 100) if hard_total > 0 else 0) | round | int }}%; background: linear-gradient(90deg, #DC2626, #FCA5A5);"></div>
+      <div id="dsaHardStatSub" style="font-size: 11.5px; color: #94A3B8;">
+        {{ hard_solved }} / <span id="dsaHardTargetNum">{{ active_region_config.target_hard }}</span> target
       </div>
+      <div class="progress-bar" style="height: 5px; margin-top: 8px; background: rgba(255, 255, 255, 0.12);">
+        <div class="progress-fill" id="dsaHardProgressFill" style="width: {{ [((hard_solved / active_region_config.target_hard * 100) if active_region_config.target_hard > 0 else 0) | round | int, 100] | min }}%; background: linear-gradient(90deg, #DC2626, #FCA5A5);"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Regional Market Strategy & Quick Company Filter Bar ══ -->
+<div class="dsa-strategy-card" id="dsaStrategyCard">
+  <div class="dsa-strategy-header">
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <span class="badge" id="dsaStrategyFlagBadge" style="background: rgba(99,102,241,0.12); color: var(--accent); border: 1px solid rgba(99,102,241,0.25); font-size: 11px; font-weight: 700;">
+        <i data-lucide="compass" class="icon-xs"></i> <span id="dsaStrategyTitle">{{ active_region_config.name }} Interview Strategy</span>
+      </span>
+      <span style="font-size: 12px; color: var(--text-secondary);" id="dsaStrategyNote">
+        {{ active_region_config.strategy_notes }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Regional 1-Click Company Quick Filters -->
+  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 4px; border-top: 1px dashed var(--border);">
+    <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+      <i data-lucide="building-2" class="icon-xs"></i> <span id="dsaCompanyFilterLabel">Target Companies:</span>
+    </span>
+    <div class="dsa-company-chips-row" id="dsaCompanyChipsRow">
+      {% for comp_name in active_region_config.companies %}
+      <a href="/dsa?region={{ selected_region }}&company={{ comp_name | urlencode }}"
+         class="dsa-company-chip {% if selected_company == comp_name %}active{% endif %}"
+         onclick="applyCompanyQuickFilter(event, '{{ comp_name | replace('\'', '\\\'') }}')">
+        {{ comp_name }}
+      </a>
+      {% endfor %}
+      {% if selected_company %}
+      <a href="/dsa?region={{ selected_region }}" class="btn btn-ghost btn-sm" style="font-size: 10.5px; padding: 2px 7px; height: 22px; color: var(--text-muted);">
+        Clear ({{ selected_company }})
+      </a>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -95,6 +195,9 @@
 <div class="dsa-toolbar-card">
   <!-- Left: Search & Filters in 1 Line -->
   <form method="get" action="/dsa" class="dsa-toolbar-form" id="dsaFilterForm">
+    <!-- Active Region State -->
+    <input type="hidden" name="region" id="dsaFormRegionInput" value="{{ selected_region }}">
+
     <!-- Search Input with Instant Clear -->
     <div class="dsa-search-wrap">
       <span class="dsa-search-icon">
@@ -148,7 +251,7 @@
     </select>
 
     {% if selected_category or selected_topic or selected_difficulty or selected_company or selected_status or selected_search %}
-    <a href="/dsa" class="btn btn-ghost btn-sm dsa-clear-filters-btn" title="Clear all filters">Clear</a>
+    <a href="/dsa?region={{ selected_region }}" class="btn btn-ghost btn-sm dsa-clear-filters-btn" title="Clear all filters">Clear</a>
     {% endif %}
   </form>
 
@@ -1049,7 +1152,188 @@
 
     // Instant Live Search Handler
     setupInstantSearch();
+
+    // Initialize Market Switcher from localStorage if URL has no region param
+    initMarketRegion();
   });
+
+  // Regional market configurations and solved statistics payload
+  const REGION_CONFIGS = {{ region_configs | tojson }};
+  let CURRENT_REGION = "{{ selected_region }}";
+  const SOLVED_STATS = {
+    total: {{ solved }},
+    easy: {{ easy_solved }},
+    medium: {{ medium_solved }},
+    hard: {{ hard_solved }}
+  };
+  const EU_READINESS = {{ eu_readiness | tojson }};
+  const NA_READINESS = {{ na_readiness | tojson }};
+  const SELECTED_COMPANY = "{{ selected_company or '' }}";
+
+  function initMarketRegion() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has('region')) {
+      try {
+        const saved = localStorage.getItem('dsa_target_region');
+        if (saved && REGION_CONFIGS[saved] && saved !== CURRENT_REGION) {
+          switchMarketRegion(saved, true);
+        }
+      } catch (e) {}
+    }
+  }
+
+  function switchMarketRegion(regionKey, updateHistory = true) {
+    if (!REGION_CONFIGS[regionKey]) return;
+    CURRENT_REGION = regionKey;
+    const cfg = REGION_CONFIGS[regionKey];
+
+    // 1. Update Tabs
+    document.querySelectorAll('.dsa-market-tab').forEach(tab => {
+      tab.classList.remove('active', 'market-eu', 'market-us', 'market-non_faang', 'market-global');
+    });
+    const activeTab = document.getElementById('tab-region-' + regionKey);
+    if (activeTab) {
+      activeTab.classList.add('active', 'market-' + regionKey);
+    }
+
+    // 2. Update Hidden Form Input
+    const formRegionInput = document.getElementById('dsaFormRegionInput');
+    if (formRegionInput) formRegionInput.value = regionKey;
+
+    // 3. Update Hero Badge & Subtitle / Description
+    const regionBadge = document.getElementById('dsaRegionBadge');
+    if (regionBadge) regionBadge.textContent = cfg.badge_text;
+
+    const heroDesc = document.getElementById('dsaHeroDesc');
+    if (heroDesc) {
+      if (regionKey === 'us') {
+        heroDesc.innerHTML = `Track your progress through <strong>Arrays, Trees, Graphs, Monotonic Stacks, Advanced DP</strong> and Concurrency. US/Canada targets: <strong style="color:#60A5FA;">Easy ${cfg.target_easy} · Medium ${cfg.target_medium} ⭐ · Hard ${cfg.target_hard} 🔥</strong> — calibrated for Google, Meta, Amazon, Apple, Netflix &amp; Shopify.`;
+      } else if (regionKey === 'non_faang') {
+        heroDesc.innerHTML = `Track your progress through <strong>Arrays, HashMaps, Two Pointers, Strings, Linked Lists &amp; Practical Trees</strong>. Non-FAANG targets: <strong style="color:#34D399;">Easy ${cfg.target_easy} · Medium ${cfg.target_medium} ⭐ · Hard ${cfg.target_hard}</strong> — calibrated for Fortune 500, Healthcare, FinTech &amp; AllianceTek Clients (Capital One, Walmart, JPMorgan, Optum).`;
+      } else if (regionKey === 'global') {
+        heroDesc.innerHTML = `Track your progress through all <strong>18 Core Algorithmic Paradigms</strong>. Global targets: <strong style="color:#C084FC;">Easy ${cfg.target_easy} · Medium ${cfg.target_medium} · Hard ${cfg.target_hard}</strong> — comprehensive Big Tech mastery.`;
+      } else {
+        heroDesc.innerHTML = `Track your progress through <strong>Arrays, Linked Lists, Trees, Graphs, Dynamic Programming</strong> and more. EU targets: <strong style="color:#FCD34D;">Easy ${cfg.target_easy} · Medium ${cfg.target_medium} ⭐ · Hard ${cfg.target_hard}</strong> — calibrated for Booking.com, Zalando, Adyen, SAP &amp; FAANG-EU.`;
+      }
+    }
+
+    // 4. Update Hero KPI Stat Cards
+    // Total
+    const totalTargetEl = document.getElementById('dsaTotalTargetNum');
+    if (totalTargetEl) totalTargetEl.textContent = cfg.target_total;
+    const targetLabelEl = document.getElementById('dsaTargetLabel');
+    if (targetLabelEl) targetLabelEl.textContent = cfg.name;
+    const totalPct = Math.round((SOLVED_STATS.total / cfg.target_total) * 100);
+    const totalPctEl = document.getElementById('dsaTotalPctNum');
+    if (totalPctEl) totalPctEl.textContent = totalPct + '%';
+    const totalFillEl = document.getElementById('dsaTotalProgressFill');
+    if (totalFillEl) totalFillEl.style.width = Math.min(totalPct, 100) + '%';
+
+    // Easy
+    const easyTargetEl = document.getElementById('dsaEasyTargetNum');
+    if (easyTargetEl) easyTargetEl.textContent = cfg.target_easy;
+    const easyPct = Math.round((SOLVED_STATS.easy / cfg.target_easy) * 100);
+    const easyFillEl = document.getElementById('dsaEasyProgressFill');
+    if (easyFillEl) easyFillEl.style.width = Math.min(easyPct, 100) + '%';
+
+    // Medium
+    const medTargetEl = document.getElementById('dsaMediumTargetNum');
+    if (medTargetEl) medTargetEl.textContent = cfg.target_medium;
+    const medPct = Math.round((SOLVED_STATS.medium / cfg.target_medium) * 100);
+    const medFillEl = document.getElementById('dsaMediumProgressFill');
+    if (medFillEl) medFillEl.style.width = Math.min(medPct, 100) + '%';
+    const medTitleEl = document.getElementById('dsaMediumPillTitle');
+    if (medTitleEl) {
+      medTitleEl.innerHTML = regionKey === 'eu' ? 'Medium &#11088; EU Priority' : (regionKey === 'us' ? 'Medium &#11088; FAANG Core' : (regionKey === 'non_faang' ? 'Medium &#11088; Enterprise Bar' : 'Medium &#11088; Core Focus'));
+    }
+
+    // Hard
+    const hardTargetEl = document.getElementById('dsaHardTargetNum');
+    if (hardTargetEl) hardTargetEl.textContent = cfg.target_hard;
+    const hardPct = Math.round((SOLVED_STATS.hard / cfg.target_hard) * 100);
+    const hardFillEl = document.getElementById('dsaHardProgressFill');
+    if (hardFillEl) hardFillEl.style.width = Math.min(hardPct, 100) + '%';
+    const hardTitleEl = document.getElementById('dsaHardPillTitle');
+    if (hardTitleEl) {
+      hardTitleEl.innerHTML = regionKey === 'us' ? 'Hard 🔥 FAANG Bar' : 'Hard';
+    }
+
+    // 5. Update Readiness Radar Link & Badge
+    const radarLink = document.getElementById('dsaRadarLink');
+    if (radarLink) radarLink.href = cfg.readiness_route;
+    const radarText = document.getElementById('dsaRadarText');
+    if (radarText) radarText.textContent = cfg.readiness_label;
+    const scoreBadge = document.getElementById('dsaRadarScoreBadge');
+    if (scoreBadge) {
+      if (regionKey === 'us' && NA_READINESS && NA_READINESS.us_score !== undefined) {
+        scoreBadge.textContent = `US ${NA_READINESS.us_score}% · CA ${NA_READINESS.ca_score}%`;
+      } else if (regionKey === 'eu' && EU_READINESS && EU_READINESS.de_score !== undefined) {
+        scoreBadge.textContent = `DE ${EU_READINESS.de_score}% · NL ${EU_READINESS.nl_score}%`;
+      } else {
+        scoreBadge.textContent = `Overall Ready`;
+      }
+    }
+
+    // 6. Update Strategy Card
+    const strategyTitle = document.getElementById('dsaStrategyTitle');
+    if (strategyTitle) strategyTitle.textContent = `${cfg.name} Interview Strategy`;
+    const strategyNote = document.getElementById('dsaStrategyNote');
+    if (strategyNote) strategyNote.textContent = cfg.strategy_notes;
+
+    // 7. Update Company Quick Filter Chips
+    const chipsRow = document.getElementById('dsaCompanyChipsRow');
+    if (chipsRow && cfg.companies) {
+      let chipsHtml = '';
+      cfg.companies.forEach(c => {
+        const isActive = SELECTED_COMPANY === c;
+        chipsHtml += `<a href="/dsa?region=${encodeURIComponent(regionKey)}&company=${encodeURIComponent(c)}" class="dsa-company-chip ${isActive ? 'active' : ''}" onclick="applyCompanyQuickFilter(event, '${c.replace(/'/g, "\\'")}')">${c}</a> `;
+      });
+      if (SELECTED_COMPANY) {
+        chipsHtml += `<a href="/dsa?region=${encodeURIComponent(regionKey)}" class="btn btn-ghost btn-sm" style="font-size: 10.5px; padding: 2px 7px; height: 22px; color: var(--text-muted);">Clear (${SELECTED_COMPANY})</a>`;
+      }
+      chipsRow.innerHTML = chipsHtml;
+    }
+
+    // 8. Persist Choice
+    try {
+      localStorage.setItem('dsa_target_region', regionKey);
+    } catch(e) {}
+
+    // 9. Update Browser URL cleanly if requested
+    if (updateHistory && window.history && window.history.replaceState) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('region', regionKey);
+      window.history.replaceState({}, '', url.toString());
+    }
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+
+  function applyCompanyQuickFilter(event, companyName) {
+    const select = document.querySelector('.dsa-select-company');
+    const form = document.getElementById('dsaFilterForm');
+    if (select && form) {
+      event.preventDefault();
+      let found = false;
+      for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value.toLowerCase() === companyName.toLowerCase()) {
+          select.selectedIndex = i;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        const opt = document.createElement('option');
+        opt.value = companyName;
+        opt.text = companyName;
+        opt.selected = true;
+        select.appendChild(opt);
+      }
+      form.submit();
+    }
+  }
 
   function setupInstantSearch() {
     const searchInput = document.querySelector('.dsa-search-input');

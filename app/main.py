@@ -29,7 +29,7 @@ def _patched_init(self, *args, **kwargs):
 fastapi.templating.Jinja2Templates.__init__ = _patched_init
 
 
-from app.routers import dashboard, daily, weekly, dsa, system_design, database_track, ai_llm, github, applications, settings, personal_hub, search, achievements, destinations, eu_readiness, german_language, dutch_language
+from app.routers import dashboard, daily, weekly, dsa, system_design, database_track, ai_llm, github, applications, settings, personal_hub, search, achievements, destinations, eu_readiness, german_language, dutch_language, na_readiness
 
 app = FastAPI(
     title="Progress Tracker",
@@ -67,7 +67,10 @@ app.include_router(personal_hub.router)
 app.include_router(search.router)
 app.include_router(achievements.router)
 app.include_router(eu_readiness.router)
+app.include_router(na_readiness.router)
+app.include_router(na_readiness.alias_router)
 app.include_router(german_language.router)
 app.include_router(dutch_language.router)
+
 
 

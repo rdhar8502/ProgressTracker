@@ -135,6 +135,15 @@
         <span>🇳🇱 Dutch Language</span>
       </a>
 
+      <div class="nav-section-label" style="display: flex; align-items: center; gap: 4px;">
+        <span>🇺🇸 🇨🇦 North America</span>
+      </div>
+
+      <a href="/na-readiness" class="nav-item {% if active_page == 'na_readiness' %}active{% endif %}" style="{% if active_page == 'na_readiness' %}background: linear-gradient(90deg, rgba(220,38,38,0.15), transparent);{% endif %}">
+        <i data-lucide="crosshair" class="sidebar-nav-icon" style="{% if active_page == 'na_readiness' %}color: #DC2626;{% endif %}"></i>
+        <span>NA Readiness</span>
+      </a>
+
       <div class="nav-section-label">Personal</div>
 
       <a href="/personal-hub" class="nav-item {% if active_page == 'personal_hub' %}active{% endif %}">

@@ -677,6 +677,84 @@ def compute_eu_readiness_score(
     }
 
 
+def compute_na_readiness_score(
+    dsa_pct: float,
+    dsa_medium_pct: float,
+    sd_pct: float,
+    db_pct: float,
+    ai_pct: float,
+    gh_pct: float,
+    hours_pct: float,
+    apps_pct: float,
+) -> dict:
+    """
+    Computes interview readiness scores specifically for North America:
+    - USA 🇺🇸 (FAANG & High-Scale Big Tech)
+    - Canada 🇨🇦 (Top Scale-ups & Global US Tech Hubs)
+    """
+    # USA 🇺🇸 – FAANG & Big Tech / High Scale (DSA Hard+Med & Distributed System Design)
+    us_score = round(
+        dsa_pct       * 0.38 +   # DSA (Med + Hard): LeetCode screening is mandatory
+        sd_pct        * 0.32 +   # System Design: High-scale QPS/sharding/concurrency
+        ai_pct        * 0.14 +   # AI / LLMs: Huge hiring wave in US Big Tech
+        gh_pct        * 0.08 +   # GitHub / Open source
+        db_pct        * 0.05 +   # DB internals
+        apps_pct      * 0.03,    # Applications
+        1,
+    )
+
+    # Canada 🇨🇦 – Hybrid US Big Tech & Collaborative Scale-ups (Shopify, Amazon, 1Password)
+    ca_score = round(
+        sd_pct        * 0.28 +   # System Design & Microservice architecture
+        dsa_medium_pct* 0.26 +   # DSA Medium+Hard
+        ai_pct        * 0.16 +   # AI/LLM Integration
+        db_pct        * 0.12 +   # DB & cloud storage
+        gh_pct        * 0.10 +   # GitHub Portfolio
+        hours_pct     * 0.05 +   # Study consistency
+        apps_pct      * 0.03,    # Job applications
+        1,
+    )
+
+    # North America Combined: 55% USA + 45% Canada
+    combined_score = round((us_score * 0.55 + ca_score * 0.45), 1)
+
+    def _status(score):
+        if score >= 80:
+            return {"label": "Interview Ready", "color": "#10B981", "emoji": "🟢"}
+        elif score >= 60:
+            return {"label": "Getting There", "color": "#F59E0B", "emoji": "🟡"}
+        elif score >= 40:
+            return {"label": "Building Base", "color": "#F97316", "emoji": "🟠"}
+        else:
+            return {"label": "Early Stage", "color": "#EF4444", "emoji": "🔴"}
+
+    dimensions = [
+        {"name": "System Design (HLD)",       "us_weight": 0.32, "ca_weight": 0.28, "pct": sd_pct,         "link": "/system-design"},
+        {"name": "DSA (LeetCode Med+Hard)",   "us_weight": 0.38, "ca_weight": 0.26, "pct": dsa_pct,        "link": "/dsa"},
+        {"name": "AI / LLM Engineering",     "us_weight": 0.14, "ca_weight": 0.16, "pct": ai_pct,         "link": "/ai-llm"},
+        {"name": "Database & Storage",        "us_weight": 0.05, "ca_weight": 0.12, "pct": db_pct,         "link": "/database"},
+        {"name": "GitHub & OSS Portfolio",    "us_weight": 0.08, "ca_weight": 0.10, "pct": gh_pct,         "link": "/github"},
+    ]
+
+    for d in dimensions:
+        avg_weight = (d["us_weight"] + d["ca_weight"]) / 2
+        d["gap_score"] = round(avg_weight * (100 - d["pct"]), 1)
+        d["gap_pct"] = round(100 - d["pct"], 1)
+
+    top_priority = sorted(dimensions, key=lambda x: x["gap_score"], reverse=True)[0]
+
+    return {
+        "us_score": min(100, us_score),
+        "ca_score": min(100, ca_score),
+        "combined_score": min(100, combined_score),
+        "us_status": _status(us_score),
+        "ca_status": _status(ca_score),
+        "combined_status": _status(combined_score),
+        "dimensions": dimensions,
+        "top_priority": top_priority,
+    }
+
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 5. MAIN GAMIFICATION STATE COMPUTATION
@@ -892,6 +970,37 @@ def get_gamification_state(db: Session) -> dict:
             "criteria": f"Medium DSA {solved_medium}/100 · AI {total_ai_llm}/10 · GitHub {total_github}/10",
             "tag": "EU Elite",
         },
+        # ── North America Specific Legendary Badges ──
+        {
+            "id": "us_silicon_valley_bar",
+            "title": "🇺🇸 Silicon Valley Bar",
+            "description": "Hit the US Big Tech / FAANG hiring bar: 150+ DSA (Med+Hard) + 12+ System Design cases + 5+ Applications.",
+            "icon": "target",
+            "unlocked": ((solved_medium + solved_hard) >= 120 and sd_cases_done >= 12 and total_apps >= 5),
+            "bonus_xp": 2200,
+            "criteria": f"Med+Hard DSA {solved_medium + solved_hard}/120 · Cases {sd_cases_done}/12 · Apps {total_apps}/5",
+            "tag": "NA Elite",
+        },
+        {
+            "id": "canada_gts_ready",
+            "title": "🇨🇦 Canadian Tech Pioneer",
+            "description": "Qualify for Canadian Scale-ups (Shopify/Amazon): 100+ DSA + 8+ System Design cases + 10+ AI & GitHub topics.",
+            "icon": "flag",
+            "unlocked": (total_dsa >= 100 and sd_cases_done >= 8 and (total_ai_llm + total_github) >= 15),
+            "bonus_xp": 1800,
+            "criteria": f"DSA {total_dsa}/100 · Cases {sd_cases_done}/8 · AI+GH {total_ai_llm + total_github}/15",
+            "tag": "NA Elite",
+        },
+        {
+            "id": "high_scale_architect",
+            "title": "⚡ High-Scale Architect",
+            "description": "Master distributed scale & high QPS: 15+ System Design subconcepts & cases + 20+ DB items done.",
+            "icon": "cpu",
+            "unlocked": ((sd_concepts_done + sd_cases_done) >= 15 and (db_items_done + db_challenges_done) >= 20),
+            "bonus_xp": 2000,
+            "criteria": f"SysDesign {sd_concepts_done + sd_cases_done}/15 · DB {db_items_done + db_challenges_done}/20 done",
+            "tag": "NA Elite",
+        },
     ]
     
     legendary_bonus = sum(b["bonus_xp"] for b in legendary_badges if b["unlocked"])
@@ -910,26 +1019,39 @@ def get_gamification_state(db: Session) -> dict:
     # 7. Calculate Level details
     level_details = get_level_data(total_xp)
     
-    # 8. EU Readiness Score (Germany 🇩🇪 + Netherlands 🇳🇱)
+    # 8. Readiness Scores (EU & North America)
     from app.services import analytics as _analytics
     _sd_stats = _analytics.get_system_design_stats(db)
     _db_stats  = _analytics.get_database_stats(db)
     _ai_stats  = _analytics.get_ai_llm_stats(db)
     _gh_stats  = _analytics.get_github_stats(db)
     _apps_count = total_apps
-    # hours_pct: assume 400h target for a solid EU prep campaign
+    # hours_pct: assume 400h target for a solid prep campaign
     _hours_pct  = min(100, round(total_hours / 400 * 100, 1))
     _apps_pct   = min(100, round(_apps_count / 50 * 100, 1))
+    _dsa_pct    = min(100, round(metrics_map["dsa"] / 200 * 100, 1))
     _dsa_medium_pct = min(100, round(solved_medium / 120 * 100, 1))
+    
     eu_readiness = compute_eu_readiness_score(
-        dsa_pct      = metrics_map["dsa"] / 200 * 100 if metrics_map["dsa"] <= 200 else 100,
+        dsa_pct        = _dsa_pct,
         dsa_medium_pct = _dsa_medium_pct,
-        sd_pct       = _sd_stats["pct"],
-        db_pct       = _db_stats["pct"],
-        ai_pct       = _ai_stats["pct"],
-        gh_pct       = _gh_stats["pct"],
-        hours_pct    = _hours_pct,
-        apps_pct     = _apps_pct,
+        sd_pct         = _sd_stats["pct"],
+        db_pct         = _db_stats["pct"],
+        ai_pct         = _ai_stats["pct"],
+        gh_pct         = _gh_stats["pct"],
+        hours_pct      = _hours_pct,
+        apps_pct       = _apps_pct,
+    )
+
+    na_readiness = compute_na_readiness_score(
+        dsa_pct        = _dsa_pct,
+        dsa_medium_pct = _dsa_medium_pct,
+        sd_pct         = _sd_stats["pct"],
+        db_pct         = _db_stats["pct"],
+        ai_pct         = _ai_stats["pct"],
+        gh_pct         = _gh_stats["pct"],
+        hours_pct      = _hours_pct,
+        apps_pct       = _apps_pct,
     )
     
     # Detailed XP Breakdown dictionary for visual progress bars / charts
@@ -944,6 +1066,7 @@ def get_gamification_state(db: Session) -> dict:
         {"source": "Streak Bonuses",   "xp": int(xp_streak + streak_multiplier_bonus), "color": "#EF4444", "icon": "flame"},
         {"source": "Milestone Badges", "xp": int(bonus_xp + legendary_bonus), "color": "#EC4899", "icon": "award"},
         {"source": "EU Elite Badges",   "xp": sum(b["bonus_xp"] for b in legendary_badges if b["unlocked"] and b.get("tag") == "EU Elite"), "color": "#2563EB", "icon": "globe"},
+        {"source": "NA Elite Badges",   "xp": sum(b["bonus_xp"] for b in legendary_badges if b["unlocked"] and b.get("tag") == "NA Elite"), "color": "#DC2626", "icon": "target"},
     ]
     
     total_badges = sum(1 for a in achievements_list if a["is_unlocked"])
@@ -965,4 +1088,5 @@ def get_gamification_state(db: Session) -> dict:
         "total_tiers_unlocked": unlocked_tiers_count,
         "total_tiers_possible": total_tiers_count,
         "eu_readiness": eu_readiness,
+        "na_readiness": na_readiness,
     }

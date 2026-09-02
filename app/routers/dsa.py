@@ -9,6 +9,7 @@ from sqlalchemy import or_
 from app.database import get_db
 from app.models.dsa import DSATopic, DSAProblem, DSACompany
 from app.models.user import UserProfile
+from app.services.gamification import get_gamification_state
 
 router = APIRouter(prefix="/dsa", tags=["dsa"])
 templates = Jinja2Templates(directory="app/templates")
@@ -16,10 +17,91 @@ templates = Jinja2Templates(directory="app/templates")
 DIFFICULTIES = ["Easy", "Medium", "Hard"]
 STATUSES = ["Not Started", "In Progress", "Solved", "Needs Review"]
 
+# Regional Market Targets & Strategy Profiles
+REGION_CONFIGS = {
+    "eu": {
+        "id": "eu",
+        "name": "EU Standard",
+        "flag": "🇪🇺",
+        "subtitle": "Germany 🇩🇪 & Netherlands 🇳🇱 Tier-1 Tech Priority",
+        "badge_text": "🇪🇺 EU Standard · 🇩🇪 🇳🇱 Priority",
+        "target_total": 200,
+        "target_easy": 40,
+        "target_medium": 120,
+        "target_hard": 40,
+        "primary_focus": "Medium-Heavy Focus (60% weight on clean, modular LeetCode Mediums)",
+        "companies": [
+            "Booking.com", "Adyen", "Zalando", "SAP", "ASML",
+            "Delivery Hero", "Klarna", "Spotify", "Revolut", "Celonis", "Personio"
+        ],
+        "strategy_notes": "EU hiring bars (Booking.com, Zalando, Adyen, SAP) prioritize clean code architecture, maintainability, and thorough explanations over trick problems. Medium problems dominate rounds with emphasis on concurrency and database integration.",
+        "readiness_route": "/eu-readiness",
+        "readiness_label": "EU Readiness Radar",
+    },
+    "us": {
+        "id": "us",
+        "name": "US / Canada Standard",
+        "flag": "🇺🇸 🇨🇦",
+        "subtitle": "Silicon Valley FAANG & Canadian Tier-1 Tech Bar",
+        "badge_text": "🇺🇸 🇨🇦 US / Canada Standard · FAANG Focus",
+        "target_total": 300,
+        "target_easy": 50,
+        "target_medium": 175,
+        "target_hard": 75,
+        "primary_focus": "Medium + Hard High-Scale Bar (38% DSA weight in US hiring)",
+        "companies": [
+            "Google", "Meta", "Amazon", "Apple", "Microsoft",
+            "Netflix", "Uber", "Shopify", "Stripe", "Databricks", "Airbnb", "Bloomberg"
+        ],
+        "strategy_notes": "US Big Tech (Google, Meta, Amazon, Apple, Netflix) & Canadian Scale-ups (Shopify, 1Password) require rapid 35-min bug-free problem solving with rigorous edge-case analysis, Hard DP/Graph patterns, and optimal Big-O bounds.",
+        "readiness_route": "/na-readiness",
+        "readiness_label": "North America Readiness Radar",
+    },
+    "non_faang": {
+        "id": "non_faang",
+        "name": "Non-FAANG / Enterprise",
+        "flag": "🏢",
+        "subtitle": "Fortune 500, FinTech, Healthcare & AllianceTek Clients",
+        "badge_text": "🏢 Non-FAANG & Enterprise · Practical Applied Focus",
+        "target_total": 125,
+        "target_easy": 50,
+        "target_medium": 65,
+        "target_hard": 10,
+        "primary_focus": "Practical Problem Solving + OOP/SOLID & Clean APIs (Easy/Medium Focus)",
+        "companies": [
+            "Capital One", "Walmart", "JPMorgan", "Fidelity", "Optum",
+            "Salesforce", "ServiceNow", "Atlassian", "Cisco", "Dell", "Workday", "PayPal", "Adobe"
+        ],
+        "strategy_notes": "Non-FAANG enterprises (Fortune 500, Healthcare, FinTech, and consulting clients like AllianceTek) emphasize practical problem solving: Arrays, HashMaps, String parsing, and clean OOP/REST architecture over complex DP puzzles. Code maintainability, boundary checks, and SQL/database integration are key.",
+        "readiness_route": "/eu-readiness",
+        "readiness_label": "Enterprise Readiness Radar",
+    },
+    "global": {
+        "id": "global",
+        "name": "Global / Comprehensive",
+        "flag": "🌐",
+        "subtitle": "Universal 350+ LeetCode & Big Tech Benchmark",
+        "badge_text": "🌐 Global Standard · All Tech Hubs",
+        "target_total": 350,
+        "target_easy": 60,
+        "target_medium": 200,
+        "target_hard": 90,
+        "primary_focus": "Comprehensive Mastery across all Algorithm Paradigms",
+        "companies": [
+            "Google", "Meta", "Amazon", "Booking.com", "Adyen", "Zalando",
+            "Apple", "Microsoft", "Shopify", "Uber", "Stripe", "SAP"
+        ],
+        "strategy_notes": "Comprehensive coverage of all 18 algorithmic paradigms across worldwide tech hubs, ensuring fluency for both US FAANG speed rounds and EU architectural deep-dives.",
+        "readiness_route": "/eu-readiness",
+        "readiness_label": "Global Readiness Overview",
+    }
+}
+
 
 @router.get("", response_class=HTMLResponse)
 def dsa_page(
     request: Request,
+    region: Optional[str] = "eu",
     category: Optional[str] = None,
     topic: Optional[str] = None,
     difficulty: Optional[str] = None,
@@ -29,11 +111,17 @@ def dsa_page(
     db: Session = Depends(get_db),
 ):
     user = db.query(UserProfile).first()
+    gamification = get_gamification_state(db)
     topics = db.query(DSATopic).order_by(DSATopic.order_index).all()
     all_topics = db.query(DSATopic).order_by(DSATopic.name).all()
     all_companies = db.query(DSACompany).order_by(DSACompany.name).all()
 
-    # Normalize empty strings to None
+    # Normalize inputs
+    region_key = (region.strip().lower() if region else "eu")
+    if region_key not in REGION_CONFIGS:
+        region_key = "eu"
+    active_region_config = REGION_CONFIGS[region_key]
+
     category = category.strip() if (category and category.strip()) else None
     topic = topic.strip() if (topic and topic.strip()) else None
     difficulty = difficulty.strip() if (difficulty and difficulty.strip()) else None
@@ -174,9 +262,19 @@ def dsa_page(
             ]
         })
 
+    # EU and NA readiness summaries from gamification
+    eu_readiness = gamification.get("eu_readiness", {})
+    na_readiness = gamification.get("na_readiness", {})
+
     return templates.TemplateResponse("dsa.html", {
         "request": request,
         "user": user,
+        "gamification": gamification,
+        "eu_readiness": eu_readiness,
+        "na_readiness": na_readiness,
+        "region_configs": REGION_CONFIGS,
+        "selected_region": region_key,
+        "active_region_config": active_region_config,
         "today": date.today(),
         "topics": topics,
         "all_topics": all_topics,
